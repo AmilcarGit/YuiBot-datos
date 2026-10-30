@@ -200,3 +200,28 @@ test('las rutas de api/ cargan y exigen autenticación', async () => {
   assert.equal(res.cuerpo.top[0].valor, 10)
   delete process.env.DATOS_PEPPER
 })
+
+test('semilla: una instalación vieja aporta su saldo una sola vez; después rigen los topes', async () => {
+  const almacen = nuevoAlmacen(); const A = await instalacion(almacen)
+  const sync = (cuerpo, ahora = 1e12) => svc.sincronizar({ almacen, cfg, instalacionId: A.id, cuerpo, ahora })
+  let r = await sync(envio({ r: { actualizado: 1 }, d: { monedas: 800000, xp: 50000 }, semilla: true }))
+  assert.deepEqual([r.usuarios[NUM].u.monedas, r.usuarios[NUM].u.xp], [800000, 50000], 'la semilla pasa los topes normales')
+  r = await sync(envio({ r: { actualizado: 2 }, d: { monedas: 800000 }, semilla: true }), 1e12 + 5000)
+  assert.equal(r.usuarios[NUM].u.monedas, 800000 + 100000, 'una segunda "semilla" ya no cuenta como semilla')
+  const B = await instalacion(almacen)
+  r = await svc.sincronizar({ almacen, cfg, instalacionId: B.id, cuerpo: envio({ r: { actualizado: 3 }, d: { monedas: 2000000 }, semilla: true }), ahora: 1e12 + 9000 })
+  assert.equal(r.usuarios[NUM].u.monedas, 900000 + 1000000, 'otra instalación sí tiene su propia semilla, pero con tope')
+})
+
+test('petición repetida (misma rid): no suma dos veces', async () => {
+  const almacen = nuevoAlmacen(); const A = await instalacion(almacen)
+  const cuerpo = { rid: 'abc12345-uno', ...envio({ r: { actualizado: 1 }, d: { monedas: 70 } }) }
+  const r1 = await svc.sincronizar({ almacen, cfg, instalacionId: A.id, cuerpo, ahora: 1e12 })
+  const r2 = await svc.sincronizar({ almacen, cfg, instalacionId: A.id, cuerpo, ahora: 1e12 + 1000 })
+  assert.equal(r1.usuarios[NUM].u.monedas, 70); assert.equal(r2.usuarios[NUM].u.monedas, 70); assert.equal(r2.repetida, true)
+  const r3 = await svc.sincronizar({ almacen, cfg, instalacionId: A.id, cuerpo: { ...cuerpo, rid: 'abc12345-dos' }, ahora: 1e12 + 2000 })
+  assert.equal(r3.usuarios[NUM].u.monedas, 140, 'otra rid sí suma')
+  const otra = await instalacion(almacen)
+  const r4 = await svc.sincronizar({ almacen, cfg, instalacionId: otra.id, cuerpo, ahora: 1e12 + 3000 })
+  assert.ok(!r4.repetida, 'la rid vale solo para su instalación')
+})

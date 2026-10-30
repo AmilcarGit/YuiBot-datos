@@ -22,6 +22,8 @@ Bot (Termux) ──cada 2 min──▶  POST /api/sync  ──▶  Upstash Redis
 - Los números de teléfono **no se guardan**: se convierten en un código irreversible (HMAC con `DATOS_PEPPER`). El ranking muestra el número **enmascarado** (`519•••479`).
 - Cada instalación se registra sola y recibe una clave propia (se guarda como hash). Si alguien hace trampa, la bloqueas con `/api/admin`.
 - Topes del servidor (se cambian con variables de entorno): máx. 100 000 monedas por sincronización y 500 000 por hora por usuario, 2 000 XP por sincronización, 200 usuarios por petición y 30 peticiones por minuto por instalación.
+- **Reintentos seguros:** cada petición lleva un identificador (`rid`); si la respuesta se pierde y el bot repite la petición, el servidor devuelve lo ya calculado sin sumar otra vez.
+- **Semilla:** una instalación con datos anteriores aporta su saldo inicial una sola vez por persona (hasta 1 000 000 monedas y 200 000 XP).
 - **Límite honesto:** un bot modificado puede mentir dentro de esos topes. Los topes lo hacen aburrido, no imposible. Revisa el ranking de vez en cuando y bloquea instalaciones sospechosas.
 
 ## Despliegue (5 pasos, todo gratis)
