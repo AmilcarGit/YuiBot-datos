@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090b18">
+  <meta name="description" content="YuiBot-datos: API compartida para sincronizar monedas, experiencia, niveles y rankings de YuiBot-MD.">
+  <title>YuiBot-datos — Centro de datos</title>
+  <style>
+    :root{color-scheme:dark;--bg:#090b18;--panel:#11152a;--line:rgba(183,170,255,.16);--muted:#a8abc4;--text:#f6f3ff;--pink:#ff77c8;--violet:#9b8cff;--cyan:#76e5ed}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 15% 5%,rgba(126,93,255,.2),transparent 38%),radial-gradient(ellipse at 90% 28%,rgba(255,89,187,.12),transparent 32%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}
+    a{color:inherit;text-decoration:none}.wrap{width:min(1080px,calc(100% - 36px));margin:auto}.nav{height:76px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}.brand{display:flex;gap:12px;align-items:center;font-weight:800;letter-spacing:.2px}.logo{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--violet),var(--pink));color:#171024;font-size:21px;box-shadow:0 0 28px #a58bff55}.navlink{font-size:14px;color:var(--muted);padding:10px 14px;border:1px solid var(--line);border-radius:999px}
+    .hero{padding:82px 0 54px;display:grid;grid-template-columns:1.25fr .75fr;gap:44px;align-items:center}.eyebrow{display:inline-flex;align-items:center;gap:8px;color:#d7ceff;background:#a58bff16;border:1px solid #a58bff40;padding:8px 12px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}.dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan)}h1{font-size:clamp(42px,7vw,72px);line-height:1.02;letter-spacing:-.055em;margin:22px 0 18px}h1 span{background:linear-gradient(100deg,#c0b3ff,var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}.lead{font-size:17px;line-height:1.75;color:var(--muted);max-width:610px}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:13px 18px;border-radius:13px;font-weight:750;font-size:14px;border:1px solid var(--line);transition:.2s}.btn.primary{color:#171024;background:linear-gradient(100deg,#b5a6ff,#ff9bd7);border:0;box-shadow:0 10px 35px #b28dff30}.btn:hover{transform:translateY(-2px);filter:brightness(1.08)}
+    .orb-wrap{display:grid;place-items:center;min-height:290px}.orb{width:min(270px,70vw);aspect-ratio:1;border-radius:50%;position:relative;background:radial-gradient(circle at 35% 28%,#fff 0,#e6d9ff 2%,#a18bff 12%,#5d4bb1 37%,#211c50 68%,#0c1026 76%);box-shadow:inset -24px -22px 48px #050714,0 0 65px #a58bff55,0 0 130px #fa86d422}.orb:before,.orb:after{content:"";position:absolute;inset:15% -13%;border:1px solid #c7baff88;border-radius:50%;transform:rotate(-24deg)}.orb:after{inset:28% -18%;transform:rotate(28deg);border-color:#ff9bd766}.orb-core{position:absolute;inset:0;display:grid;place-items:center;font-size:66px;filter:drop-shadow(0 0 18px #fff8)}
+    .section-title{font-size:25px;letter-spacing:-.03em;margin:0 0 10px}.section-copy{color:var(--muted);margin:0 0 24px;line-height:1.6}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-bottom:62px}.card{background:linear-gradient(145deg,#171b35dd,#101326ee);border:1px solid var(--line);border-radius:18px;padding:22px;min-height:160px}.ico{font-size:24px;margin-bottom:14px}.card h3{font-size:16px;margin:0 0 8px}.card p{font-size:13px;line-height:1.65;color:var(--muted);margin:0}
+    .status{display:flex;align-items:center;justify-content:space-between;gap:16px;background:#11162b;border:1px solid var(--line);border-radius:18px;padding:20px 22px;margin:0 0 70px}.status-left{display:flex;align-items:center;gap:13px}.status-icon{width:42px;height:42px;border-radius:13px;background:#76e5ed16;display:grid;place-items:center;font-size:20px}.status small{display:block;color:var(--muted);margin-top:4px}.pill{font-size:12px;font-weight:750;padding:8px 11px;border-radius:999px;background:#77718a22;color:#d2cde1;white-space:nowrap}.pill.ok{background:#76e5ed18;color:var(--cyan)}.pill.bad{background:#ff77771a;color:#ff9b9b}
+    .routes{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:70px}.route{padding:15px 16px;border:1px solid var(--line);background:#11152a99;border-radius:13px;display:flex;justify-content:space-between;gap:12px;align-items:center}.route code{color:#d9d0ff;font-size:13px}.route span{color:var(--muted);font-size:12px;text-align:right}
+    footer{border-top:1px solid var(--line);padding:25px 0 35px;color:var(--muted);font-size:12px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    @media(max-width:760px){.hero{grid-template-columns:1fr;padding:58px 0 38px;gap:10px}.orb-wrap{min-height:230px}.orb{width:205px}.grid{grid-template-columns:1fr}.card{min-height:0}.routes{grid-template-columns:1fr}.status{align-items:flex-start}.nav{height:66px}.lead{font-size:15px}}
+    @media(prefers-reduced-motion:no-preference){.orb{animation:float 7s ease-in-out infinite}@keyframes float{50%{transform:translateY(-10px)}}}
+  </style>
+</head>
+<body>
+  <header class="wrap nav">
+    <a class="brand" href="/" aria-label="YuiBot-datos inicio"><span class="logo">Y</span><span>YuiBot-datos</span></a>
+    <a class="navlink" href="https://github.com/AmilcarGit/YuiBot-datos" target="_blank" rel="noreferrer">Ver repositorio ↗</a>
+  </header>
+  <main class="wrap">
+    <section class="hero">
+      <div>
+        <div class="eyebrow"><span class="dot"></span> Servicio de sincronización</div>
+        <h1>Los datos de tu bot,<br><span>siempre conectados.</span></h1>
+        <p class="lead">Una API compartida para YuiBot-MD. Sincroniza monedas, experiencia, niveles y rankings entre todas las instalaciones, con almacenamiento en la nube.</p>
+        <div class="actions">
+          <a class="btn primary" href="/api/salud">Comprobar API <span>↗</span></a>
+          <a class="btn" href="#rutas">Explorar endpoints <span>↓</span></a>
+        </div>
+      </div>
+      <div class="orb-wrap" aria-hidden="true"><div class="orb"><div class="orb-core">✦</div></div></div>
+    </section>
+    <section>
+      <h2 class="section-title">Un centro de datos para YuiBot-MD</h2>
+      <p class="section-copy">La sincronización ocurre en segundo plano. El bot conserva sus datos locales y puede volver a sincronizar cuando el servicio esté disponible.</p>
+      <div class="grid">
+        <article class="card"><div class="ico">🌐</div><h3>Datos compartidos</h3><p>Unifica el progreso de los usuarios entre distintas instalaciones del bot.</p></article>
+        <article class="card"><div class="ico">⚡</div><h3>Sincronización ligera</h3><p>Intercambia cambios y recibe el estado global sin bloquear el funcionamiento local.</p></article>
+        <article class="card"><div class="ico">🛡️</div><h3>Seguridad integrada</h3><p>Identificadores protegidos, claves por instalación y límites para reducir abusos.</p></article>
+      </div>
+    </section>
+    <section class="status" aria-live="polite">
+      <div class="status-left"><div class="status-icon">⌁</div><div><strong>Estado del servicio</strong><small id="status-detail">Consultando la API…</small></div></div>
+      <span id="status-pill" class="pill">Comprobando</span>
+    </section>
+    <section id="rutas">
+      <h2 class="section-title">Rutas de la API</h2>
+      <p class="section-copy">Endpoints disponibles para la integración de YuiBot-MD.</p>
+      <div class="routes">
+        <a class="route" href="/api/salud"><code>GET /api/salud</code><span>Estado del servicio ↗</span></a>
+        <div class="route"><code>POST /api/registrar</code><span>Registrar instalación</span></div>
+        <div class="route"><code>POST /api/sync</code><span>Sincronizar datos</span></div>
+        <a class="route" href="/api/top?campo=monedas&amp;limite=10"><code>GET /api/top</code><span>Ranking global ↗</span></a>
+        <div class="route"><code>POST /api/admin</code><span>Administración protegida</span></div>
+      </div>
+    </section>
+  </main>
+  <footer class="wrap"><span>© <span id="year"></span> YuiBot-datos · AmilcarGit</span><span>Construido para acompañar a YuiBot-MD ✦</span></footer>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    const pill = document.getElementById('status-pill');
+    const detail = document.getElementById('status-detail');
+    fetch('/api/salud', {headers:{accept:'application/json'}})
+      .then(async response => {
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        const data = await response.json();
+        if (!data || data.ok !== true) throw new Error('Respuesta inesperada');
+        pill.textContent = 'En línea'; pill.className = 'pill ok';
+        detail.textContent = 'API disponible · ' + (data.servicio || 'YuiBot-datos');
+      })
+      .catch(() => {
+        pill.textContent = 'No disponible'; pill.className = 'pill bad';
+        detail.textContent = 'No se pudo consultar la API en este momento.';
+      });
+  </script>
+</body>
+</html>
