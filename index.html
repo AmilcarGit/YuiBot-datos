@@ -4,104 +4,320 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#090b18">
-  <meta name="description" content="YuiBot-datos: API compartida para sincronizar monedas, experiencia, niveles y rankings de YuiBot-MD.">
+  <meta name="description" content="YuiBot-datos: base de datos compartida de YuiBot-MD. Ranking mundial en vivo, estado del servicio y consola de la API.">
   <title>YuiBot-datos — Centro de datos</title>
   <style>
-    :root{color-scheme:dark;--bg:#090b18;--panel:#11152a;--line:rgba(183,170,255,.16);--muted:#a8abc4;--text:#f6f3ff;--pink:#ff77c8;--violet:#9b8cff;--cyan:#76e5ed}
-    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 15% 5%,rgba(126,93,255,.2),transparent 38%),radial-gradient(ellipse at 90% 28%,rgba(255,89,187,.12),transparent 32%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}
-    a{color:inherit;text-decoration:none}.wrap{width:min(1080px,calc(100% - 36px));margin:auto}.nav{height:76px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}.brand{display:flex;gap:12px;align-items:center;font-weight:800;letter-spacing:.2px}.logo{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--violet),var(--pink));color:#171024;font-size:21px;box-shadow:0 0 28px #a58bff55}.navlink{font-size:14px;color:var(--muted);padding:10px 14px;border:1px solid var(--line);border-radius:999px}
-    .hero{padding:82px 0 54px;display:grid;grid-template-columns:1.25fr .75fr;gap:44px;align-items:center}.eyebrow{display:inline-flex;align-items:center;gap:8px;color:#d7ceff;background:#a58bff16;border:1px solid #a58bff40;padding:8px 12px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}.dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan)}h1{font-size:clamp(42px,7vw,72px);line-height:1.02;letter-spacing:-.055em;margin:22px 0 18px}h1 span{background:linear-gradient(100deg,#c0b3ff,var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}.lead{font-size:17px;line-height:1.75;color:var(--muted);max-width:610px}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:13px 18px;border-radius:13px;font-weight:750;font-size:14px;border:1px solid var(--line);transition:.2s}.btn.primary{color:#171024;background:linear-gradient(100deg,#b5a6ff,#ff9bd7);border:0;box-shadow:0 10px 35px #b28dff30}.btn:hover{transform:translateY(-2px);filter:brightness(1.08)}
-    .orb-wrap{display:grid;place-items:center;min-height:290px}.orb{width:min(270px,70vw);aspect-ratio:1;border-radius:50%;position:relative;background:radial-gradient(circle at 35% 28%,#fff 0,#e6d9ff 2%,#a18bff 12%,#5d4bb1 37%,#211c50 68%,#0c1026 76%);box-shadow:inset -24px -22px 48px #050714,0 0 65px #a58bff55,0 0 130px #fa86d422}.orb:before,.orb:after{content:"";position:absolute;inset:15% -13%;border:1px solid #c7baff88;border-radius:50%;transform:rotate(-24deg)}.orb:after{inset:28% -18%;transform:rotate(28deg);border-color:#ff9bd766}.orb-core{position:absolute;inset:0;display:grid;place-items:center;font-size:66px;filter:drop-shadow(0 0 18px #fff8)}
-    .section-title{font-size:25px;letter-spacing:-.03em;margin:0 0 10px}.section-copy{color:var(--muted);margin:0 0 24px;line-height:1.6}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-bottom:62px}.card{background:linear-gradient(145deg,#171b35dd,#101326ee);border:1px solid var(--line);border-radius:18px;padding:22px;min-height:160px}.ico{font-size:24px;margin-bottom:14px}.card h3{font-size:16px;margin:0 0 8px}.card p{font-size:13px;line-height:1.65;color:var(--muted);margin:0}
-    .status{display:flex;align-items:center;justify-content:space-between;gap:16px;background:#11162b;border:1px solid var(--line);border-radius:18px;padding:20px 22px;margin:0 0 70px}.status-left{display:flex;align-items:center;gap:13px}.status-icon{width:42px;height:42px;border-radius:13px;background:#76e5ed16;display:grid;place-items:center;font-size:20px}.status small{display:block;color:var(--muted);margin-top:4px}.pill{font-size:12px;font-weight:750;padding:8px 11px;border-radius:999px;background:#77718a22;color:#d2cde1;white-space:nowrap}.pill.ok{background:#76e5ed18;color:var(--cyan)}.pill.bad{background:#ff77771a;color:#ff9b9b}
-    .routes{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:70px}.route{padding:15px 16px;border:1px solid var(--line);background:#11152a99;border-radius:13px;display:flex;justify-content:space-between;gap:12px;align-items:center}.route code{color:#d9d0ff;font-size:13px}.route span{color:var(--muted);font-size:12px;text-align:right}
-    footer{border-top:1px solid var(--line);padding:25px 0 35px;color:var(--muted);font-size:12px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
-    @media(max-width:760px){.hero{grid-template-columns:1fr;padding:58px 0 38px;gap:10px}.orb-wrap{min-height:230px}.orb{width:205px}.grid{grid-template-columns:1fr}.card{min-height:0}.routes{grid-template-columns:1fr}.status{align-items:flex-start}.nav{height:66px}.lead{font-size:15px}}
-    @media(prefers-reduced-motion:no-preference){.orb{animation:float 7s ease-in-out infinite}@keyframes float{50%{transform:translateY(-10px)}}}
+    :root{color-scheme:dark;--bg:#090b18;--panel:#11152a;--panel2:#171b35;--line:rgba(183,170,255,.16);--muted:#a8abc4;--text:#f6f3ff;--pink:#ff77c8;--violet:#9b8cff;--cyan:#76e5ed;--gold:#ffd66b;--ok:#76e5ed;--bad:#ff9b9b}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}
+    body{margin:0;background:radial-gradient(ellipse at 15% 5%,rgba(126,93,255,.2),transparent 38%),radial-gradient(ellipse at 90% 28%,rgba(255,89,187,.12),transparent 32%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh;-webkit-text-size-adjust:100%}
+    a{color:inherit;text-decoration:none}button{font:inherit;color:inherit;cursor:pointer}
+    :focus-visible{outline:2px solid var(--cyan);outline-offset:3px;border-radius:8px}
+    .wrap{width:min(1080px,calc(100% - 32px));margin:auto}
+    .nav{height:72px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line)}
+    .brand{display:flex;gap:12px;align-items:center;font-weight:800;letter-spacing:.2px}
+    .logo{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,var(--violet),var(--pink));color:#171024;font-size:20px;box-shadow:0 0 28px #a58bff55}
+    .navlinks{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+    .navlink{font-size:13px;color:var(--muted);padding:9px 13px;border:1px solid var(--line);border-radius:999px;transition:.2s}.navlink:hover{color:var(--text);border-color:#a58bff66}
+
+    .hero{padding:64px 0 40px;display:grid;grid-template-columns:1.25fr .75fr;gap:40px;align-items:center}
+    .eyebrow{display:inline-flex;align-items:center;gap:8px;color:#d7ceff;background:#a58bff16;border:1px solid #a58bff40;padding:8px 12px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+    .dot{width:8px;height:8px;border-radius:50%;background:#77718a;flex:none}.dot.ok{background:var(--ok);box-shadow:0 0 12px var(--ok)}.dot.bad{background:var(--bad);box-shadow:0 0 12px var(--bad)}
+    h1{font-size:clamp(38px,7vw,68px);line-height:1.03;letter-spacing:-.055em;margin:20px 0 16px}
+    h1 span{background:linear-gradient(100deg,#c0b3ff,var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
+    .lead{font-size:17px;line-height:1.75;color:var(--muted);max-width:610px;margin:0}
+    .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:12px 17px;border-radius:13px;font-weight:750;font-size:14px;border:1px solid var(--line);background:transparent;transition:.2s}
+    .btn.primary{color:#171024;background:linear-gradient(100deg,#b5a6ff,#ff9bd7);border:0;box-shadow:0 10px 35px #b28dff30}
+    .btn:hover{transform:translateY(-2px);filter:brightness(1.08)}.btn:active{transform:none}
+    .orb-wrap{display:grid;place-items:center;min-height:270px}
+    .orb{width:min(250px,64vw);aspect-ratio:1;border-radius:50%;position:relative;background:radial-gradient(circle at 35% 28%,#fff 0,#e6d9ff 2%,#a18bff 12%,#5d4bb1 37%,#211c50 68%,#0c1026 76%);box-shadow:inset -24px -22px 48px #050714,0 0 65px #a58bff55,0 0 130px #fa86d422}
+    .orb:before,.orb:after{content:"";position:absolute;inset:15% -13%;border:1px solid #c7baff88;border-radius:50%;transform:rotate(-24deg)}.orb:after{inset:28% -18%;transform:rotate(28deg);border-color:#ff9bd766}
+    .orb-core{position:absolute;inset:0;display:grid;place-items:center;font-size:62px;filter:drop-shadow(0 0 18px #fff8)}
+
+    section{margin:0 0 64px}
+    .section-head{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:20px}
+    .section-title{font-size:25px;letter-spacing:-.03em;margin:0 0 8px}.section-copy{color:var(--muted);margin:0;line-height:1.6;max-width:640px;font-size:15px}
+    .card{background:linear-gradient(145deg,#171b35dd,#101326ee);border:1px solid var(--line);border-radius:18px;padding:22px}
+
+    /* Estado */
+    .status{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;background:#11162b;border:1px solid var(--line);border-radius:18px;padding:18px 22px}
+    .status-left{display:flex;align-items:center;gap:14px}.status strong{display:block}.status small{display:block;color:var(--muted);margin-top:4px}
+    .pill{font-size:12px;font-weight:750;padding:8px 12px;border-radius:999px;background:#77718a22;color:#d2cde1;white-space:nowrap}.pill.ok{background:#76e5ed18;color:var(--ok)}.pill.bad{background:#ff77771a;color:var(--bad)}
+
+    /* Estadísticas */
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    .stat .ico{font-size:22px;margin-bottom:12px}.stat h3{font-size:14px;margin:0;color:var(--muted);font-weight:650}
+    .stat .num{font-size:clamp(28px,5vw,38px);font-weight:850;letter-spacing:-.03em;margin-top:8px;font-variant-numeric:tabular-nums}
+    .note{color:var(--muted);font-size:12px;line-height:1.6;margin:12px 2px 0}
+
+    /* Ranking */
+    .tabs{display:flex;gap:8px;flex-wrap:wrap}
+    .tab{padding:9px 14px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--muted);font-size:13px;font-weight:700;transition:.2s}
+    .tab:hover{color:var(--text)}.tab[aria-selected="true"]{color:#171024;background:linear-gradient(100deg,#b5a6ff,#ff9bd7);border-color:transparent}
+    .rank{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:10px}
+    .row{position:relative;overflow:hidden;display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:12px;padding:14px 16px;border:1px solid var(--line);border-radius:14px;background:#11152a99}
+    .row .bar{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,#9b8cff2e,#ff77c812);width:var(--w,0%);transition:width .7s cubic-bezier(.2,.8,.2,1);pointer-events:none}
+    .row>*{position:relative}
+    .pos{font-weight:850;font-size:18px;text-align:center}.who{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px;letter-spacing:.04em}
+    .val{font-weight:800;font-variant-numeric:tabular-nums;text-align:right}.val small{display:block;color:var(--muted);font-weight:600;font-size:11px}
+    .row.top1{border-color:#ffd66b66;background:linear-gradient(100deg,#ffd66b14,#11152a99)}
+    .empty,.err{padding:26px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:14px;margin-top:16px;line-height:1.6}
+    .skel{height:50px;border-radius:14px;background:linear-gradient(100deg,#11152a 30%,#1b2040 50%,#11152a 70%);background-size:200% 100%}
+    .tools{display:flex;gap:10px;align-items:center;color:var(--muted);font-size:12px}
+    .icon-btn{width:36px;height:36px;border-radius:11px;border:1px solid var(--line);background:transparent;display:grid;place-items:center;transition:.2s}.icon-btn:hover{border-color:#a58bff66}
+    .spin{animation:spin .8s linear infinite}
+
+    /* Consola */
+    .console{display:grid;grid-template-columns:260px 1fr;gap:14px}
+    .endpoints{display:grid;gap:8px;align-content:start}
+    .ep{display:flex;justify-content:space-between;gap:10px;align-items:center;text-align:left;padding:13px 14px;border:1px solid var(--line);background:#11152a99;border-radius:13px;transition:.2s}
+    .ep:hover{border-color:#a58bff66}.ep[aria-pressed="true"]{border-color:var(--violet);background:#9b8cff1c}
+    .ep code{font-size:13px;color:#d9d0ff}.ep span{font-size:11px;color:var(--muted)}
+    .ep.lock{opacity:.7;cursor:not-allowed}
+    .out{background:#0a0d1f;border:1px solid var(--line);border-radius:14px;overflow:hidden;min-width:0}
+    .out-head{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:11px 14px;border-bottom:1px solid var(--line);font-size:12px;color:var(--muted);flex-wrap:wrap}
+    .out pre{margin:0;padding:16px;font-size:12.5px;line-height:1.6;max-height:340px;overflow:auto;color:#d9d0ff;white-space:pre-wrap;word-break:break-word}
+
+    /* Conectar */
+    .steps{display:grid;gap:12px;counter-reset:paso;padding:0;margin:0;list-style:none}
+    .steps li{counter-increment:paso;display:grid;grid-template-columns:36px 1fr;gap:14px;align-items:start;padding:16px;border:1px solid var(--line);border-radius:14px;background:#11152a99}
+    .steps li:before{content:counter(paso);width:36px;height:36px;border-radius:12px;display:grid;place-items:center;font-weight:850;color:#171024;background:linear-gradient(135deg,var(--violet),var(--pink))}
+    .steps p{margin:0;color:var(--muted);line-height:1.6;font-size:14px}.steps strong{color:var(--text)}.steps li>div{min-width:0}
+    .copy{display:flex;gap:8px;align-items:center;margin-top:10px;background:#0a0d1f;border:1px solid var(--line);border-radius:11px;padding:6px 6px 6px 12px}
+    .copy code{flex:1;min-width:0;font-size:12.5px;color:#d9d0ff;overflow-x:auto;white-space:nowrap}
+    .copy button{padding:7px 12px;border-radius:9px;border:1px solid var(--line);background:#171b35;font-size:12px;font-weight:700}.copy button:hover{border-color:#a58bff66}
+
+    /* FAQ */
+    details{border:1px solid var(--line);border-radius:14px;background:#11152a99;padding:0 18px;margin-bottom:10px}
+    summary{cursor:pointer;padding:16px 0;font-weight:700;list-style:none;display:flex;justify-content:space-between;gap:12px}
+    summary::-webkit-details-marker{display:none}summary:after{content:"+";color:var(--violet);font-size:20px;line-height:1}details[open] summary:after{content:"–"}
+    details p{margin:0 0 16px;color:var(--muted);line-height:1.7;font-size:14px}
+
+    footer{border-top:1px solid var(--line);padding:24px 0 34px;color:var(--muted);font-size:12px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+
+    @media(max-width:820px){.hero{grid-template-columns:1fr;padding:44px 0 28px;gap:6px}.orb-wrap{min-height:210px}.orb{width:190px}.stats{grid-template-columns:1fr}.console{grid-template-columns:1fr}.endpoints{grid-template-columns:1fr 1fr}.lead{font-size:15px}.nav{height:64px}}
+    @media(max-width:520px){.endpoints{grid-template-columns:1fr}.row{grid-template-columns:36px 1fr auto;padding:12px}.navlink.hide-s{display:none}}
+    @media(prefers-reduced-motion:no-preference){.orb{animation:float 7s ease-in-out infinite}.skel{animation:shimmer 1.3s linear infinite}@keyframes float{50%{transform:translateY(-10px)}}@keyframes shimmer{to{background-position:-200% 0}}@keyframes spin{to{transform:rotate(360deg)}}}
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
   </style>
 </head>
 <body>
   <header class="wrap nav">
     <a class="brand" href="/" aria-label="YuiBot-datos inicio"><span class="logo">Y</span><span>YuiBot-datos</span></a>
-    <a class="navlink" href="https://github.com/AmilcarGit/YuiBot-datos" target="_blank" rel="noreferrer">Ver repositorio ↗</a>
+    <nav class="navlinks" aria-label="Secciones">
+      <a class="navlink hide-s" href="#ranking">Ranking</a>
+      <a class="navlink hide-s" href="#consola">Consola</a>
+      <a class="navlink hide-s" href="#conectar">Conectar</a>
+      <a class="navlink" href="https://github.com/AmilcarGit/YuiBot-MD" target="_blank" rel="noreferrer">YuiBot-MD ↗</a>
+    </nav>
   </header>
+
   <main class="wrap">
     <section class="hero">
       <div>
-        <div class="eyebrow"><span class="dot"></span> Servicio de sincronización</div>
+        <div class="eyebrow"><span class="dot" id="hero-dot"></span><span id="hero-state">Comprobando servicio…</span></div>
         <h1>Los datos de tu bot,<br><span>siempre conectados.</span></h1>
-        <p class="lead">Una API compartida para YuiBot-MD. Sincroniza monedas, experiencia, niveles y rankings entre todas las instalaciones, con almacenamiento en la nube.</p>
+        <p class="lead">La base compartida de YuiBot-MD: monedas, experiencia, niveles, trabajos y rankings iguales en todas las instalaciones. El bot guarda todo en local y se sincroniza solo en segundo plano.</p>
         <div class="actions">
-          <a class="btn primary" href="/api/salud">Comprobar API <span>↗</span></a>
-          <a class="btn" href="#rutas">Explorar endpoints <span>↓</span></a>
+          <a class="btn primary" href="#ranking">Ver ranking mundial <span aria-hidden="true">↓</span></a>
+          <a class="btn" href="#consola">Probar la API <span aria-hidden="true">›_</span></a>
         </div>
       </div>
       <div class="orb-wrap" aria-hidden="true"><div class="orb"><div class="orb-core">✦</div></div></div>
     </section>
-    <section>
-      <h2 class="section-title">Un centro de datos para YuiBot-MD</h2>
-      <p class="section-copy">La sincronización ocurre en segundo plano. El bot conserva sus datos locales y puede volver a sincronizar cuando el servicio esté disponible.</p>
-      <div class="grid">
-        <article class="card"><div class="ico">🌐</div><h3>Datos compartidos</h3><p>Unifica el progreso de los usuarios entre distintas instalaciones del bot.</p></article>
-        <article class="card"><div class="ico">⚡</div><h3>Sincronización ligera</h3><p>Intercambia cambios y recibe el estado global sin bloquear el funcionamiento local.</p></article>
-        <article class="card"><div class="ico">🛡️</div><h3>Seguridad integrada</h3><p>Identificadores protegidos, claves por instalación y límites para reducir abusos.</p></article>
-      </div>
-    </section>
+
     <section class="status" aria-live="polite">
-      <div class="status-left"><div class="status-icon">⌁</div><div><strong>Estado del servicio</strong><small id="status-detail">Consultando la API…</small></div></div>
+      <div class="status-left"><span class="dot" id="status-dot"></span><div><strong>Estado del servicio</strong><small id="status-detail">Consultando la API…</small></div></div>
       <span id="status-pill" class="pill">Comprobando</span>
     </section>
-    <section id="estadisticas" style="margin:0 0 70px">
-      <h2 class="section-title">Estadísticas globales</h2>
-      <p class="section-copy">Actividad agregada del servicio. No mostramos teléfonos, identificadores ni datos privados.</p>
-      <div class="grid" style="margin-bottom:12px">
-        <article class="card"><div class="ico">🧩</div><h3>Instalaciones registradas</h3><p id="stat-installations" style="font-size:30px;font-weight:800;color:var(--text);margin-top:12px">—</p></article>
-        <article class="card"><div class="ico">👥</div><h3>Usuarios sincronizados</h3><p id="stat-users" style="font-size:30px;font-weight:800;color:var(--text);margin-top:12px">—</p></article>
-        <article class="card"><div class="ico">🔄</div><h3>Sincronizaciones</h3><p id="stat-syncs" style="font-size:30px;font-weight:800;color:var(--text);margin-top:12px">—</p></article>
+
+    <section id="estadisticas" style="margin-top:64px">
+      <div class="section-head"><div><h2 class="section-title">Estadísticas globales</h2><p class="section-copy">Actividad agregada de todas las instalaciones. Nunca mostramos teléfonos ni identificadores.</p></div></div>
+      <div class="stats">
+        <article class="card stat"><div class="ico" aria-hidden="true">🧩</div><h3>Instalaciones</h3><div class="num" id="stat-installations">—</div></article>
+        <article class="card stat"><div class="ico" aria-hidden="true">👥</div><h3>Usuarios sincronizados</h3><div class="num" id="stat-users">—</div></article>
+        <article class="card stat"><div class="ico" aria-hidden="true">🔄</div><h3>Sincronizaciones</h3><div class="num" id="stat-syncs">—</div></article>
       </div>
-      <p id="stats-note" style="color:var(--muted);font-size:12px;line-height:1.6">Cargando estadísticas…</p>
+      <p class="note" id="stats-note">Cargando estadísticas…</p>
     </section>
-    <section id="rutas">
-      <h2 class="section-title">Rutas de la API</h2>
-      <p class="section-copy">Endpoints disponibles para la integración de YuiBot-MD.</p>
-      <div class="routes">
-        <a class="route" href="/api/salud"><code>GET /api/salud</code><span>Estado del servicio ↗</span></a>
-        <div class="route"><code>POST /api/registrar</code><span>Registrar instalación</span></div>
-        <div class="route"><code>POST /api/sync</code><span>Sincronizar datos</span></div>
-        <a class="route" href="/api/top?campo=monedas&amp;limite=10"><code>GET /api/top</code><span>Ranking global ↗</span></a>
-        <div class="route"><code>POST /api/admin</code><span>Administración protegida</span></div>
+
+    <section id="ranking">
+      <div class="section-head">
+        <div><h2 class="section-title">Ranking mundial</h2><p class="section-copy">Los mejores de todas las instalaciones de YuiBot-MD. Los números se muestran enmascarados.</p></div>
+        <div class="tools"><span id="rank-updated">—</span><button class="icon-btn" id="rank-refresh" type="button" aria-label="Actualizar ranking" title="Actualizar"><span aria-hidden="true" id="rank-refresh-ico">↻</span></button></div>
       </div>
+      <div class="tabs" role="tablist" aria-label="Tipo de ranking" id="tabs">
+        <button class="tab" role="tab" data-campo="monedas" aria-selected="true">💰 Monedas</button>
+        <button class="tab" role="tab" data-campo="xp" aria-selected="false">⭐ XP</button>
+        <button class="tab" role="tab" data-campo="trabajos" aria-selected="false">⛏️ Trabajos</button>
+        <button class="tab" role="tab" data-campo="semana" aria-selected="false">📆 Semana</button>
+      </div>
+      <div id="rank-box" aria-live="polite"></div>
+    </section>
+
+    <section id="consola">
+      <div class="section-head"><div><h2 class="section-title">Consola de la API</h2><p class="section-copy">Prueba las rutas públicas desde aquí. Las rutas de sincronización y administración necesitan claves y solo las usa el bot.</p></div></div>
+      <div class="console">
+        <div class="endpoints" id="endpoints">
+          <button class="ep" type="button" data-url="/api/salud" aria-pressed="true"><code>GET /api/salud</code><span>Estado</span></button>
+          <button class="ep" type="button" data-url="/api/estadisticas" aria-pressed="false"><code>GET /api/estadisticas</code><span>Métricas</span></button>
+          <button class="ep" type="button" data-url="/api/top?campo=monedas&limite=5" aria-pressed="false"><code>GET /api/top</code><span>Ranking</span></button>
+          <div class="ep lock" aria-disabled="true"><code>POST /api/registrar</code><span>🔒 bot</span></div>
+          <div class="ep lock" aria-disabled="true"><code>POST /api/sync</code><span>🔒 bot</span></div>
+          <div class="ep lock" aria-disabled="true"><code>POST /api/admin</code><span>🔒 admin</span></div>
+        </div>
+        <div class="out">
+          <div class="out-head"><span id="out-title">GET /api/salud</span><span id="out-meta">Elige una ruta</span></div>
+          <pre id="out-body" tabindex="0">Pulsa una ruta para ver su respuesta.</pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="conectar">
+      <div class="section-head"><div><h2 class="section-title">Conecta tu bot</h2><p class="section-copy">Si instalas YuiBot-MD, ya viene apuntando a este servicio. Estos pasos son para usar tu propia copia del servidor.</p></div></div>
+      <ol class="steps">
+        <li><div><p><strong>Despliega este repositorio en Vercel</strong> y conecta una base <strong>Upstash Redis</strong> desde Storage.</p></div></li>
+        <li><div><p><strong>Agrega la variable <code>DATOS_PEPPER</code></strong> con un texto largo y aleatorio, y vuelve a desplegar. No la cambies después.</p></div></li>
+        <li><div><p><strong>En el <code>.env</code> de tu bot</strong> pon esta línea y reinícialo:</p><div class="copy"><code id="env-line">SYNC_URL=</code><button type="button" data-copy="env-line">Copiar</button></div></div></li>
+        <li><div><p><strong>Comprueba</strong> con <code>.sincronizar estado</code> y <code>.topglobal</code> en WhatsApp.</p></div></li>
+      </ol>
+    </section>
+
+    <section id="faq">
+      <div class="section-head"><div><h2 class="section-title">Preguntas frecuentes</h2></div></div>
+      <details><summary>¿Se guardan los números de teléfono?</summary><p>No. Cada número se convierte en un código irreversible antes de guardarse, y el ranking solo muestra el principio y el final (por ejemplo 519•••479).</p></details>
+      <details><summary>¿Qué pasa si este servicio se cae?</summary><p>Nada grave: el bot sigue funcionando con sus datos locales, espacia los reintentos y vuelve a sincronizar cuando el servicio responda. No se pierde lo que ganaron los usuarios mientras tanto.</p></details>
+      <details><summary>¿Qué datos se comparten?</summary><p>Monedas, XP, nivel, mensajes, reputación, logros, inventario, trabajos y mejoras. Las monedas, la XP y las ganancias se suman entre instalaciones; las mejoras y rachas conservan el mayor valor.</p></details>
+      <details><summary>¿Se puede hacer trampa?</summary><p>El servidor valida cada sincronización y pone topes por sincronización y por hora, y las instalaciones sospechosas se pueden bloquear. Un bot modificado puede intentar mentir dentro de esos topes, pero no fabricar millones.</p></details>
     </section>
   </main>
+
   <footer class="wrap"><span>© <span id="year"></span> YuiBot-datos · AmilcarGit</span><span>Construido para acompañar a YuiBot-MD ✦</span></footer>
+
   <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
-    const fmt = value => new Intl.NumberFormat('es-PE').format(value || 0);
-    fetch('/api/estadisticas', {headers:{accept:'application/json'}})
-      .then(async response => {
-        if (!response.ok) throw new Error('HTTP ' + response.status);
-        const data = await response.json();
-        if (!data || data.ok !== true || !data.metricas) throw new Error('Respuesta inesperada');
-        document.getElementById('stat-installations').textContent = fmt(data.metricas.instalaciones);
-        document.getElementById('stat-users').textContent = fmt(data.metricas.usuarios);
-        document.getElementById('stat-syncs').textContent = fmt(data.metricas.sincronizaciones);
-        document.getElementById('stats-note').textContent = (data.nota || 'Métricas agregadas.') + ' Inicio: ' + new Date(data.desde).toLocaleString('es-PE');
-      })
-      .catch(() => { document.getElementById('stats-note').textContent = 'Estadísticas temporalmente no disponibles.'; });
-    const pill = document.getElementById('status-pill');
-    const detail = document.getElementById('status-detail');
-    fetch('/api/salud', {headers:{accept:'application/json'}})
-      .then(async response => {
-        if (!response.ok) throw new Error('HTTP ' + response.status);
-        const data = await response.json();
-        if (!data || data.ok !== true) throw new Error('Respuesta inesperada');
-        pill.textContent = 'En línea'; pill.className = 'pill ok';
-        detail.textContent = 'API disponible · ' + (data.servicio || 'YuiBot-datos');
-      })
-      .catch(() => {
-        pill.textContent = 'No disponible'; pill.className = 'pill bad';
-        detail.textContent = 'No se pudo consultar la API en este momento.';
-      });
+    'use strict';
+    const $ = (id) => document.getElementById(id);
+    const fmt = (v) => new Intl.NumberFormat('es-PE').format(Math.round(Number(v) || 0));
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    $('year').textContent = new Date().getFullYear();
+    $('env-line').textContent = 'SYNC_URL=' + location.origin;
+
+    // Petición con tiempo máximo y medición de latencia.
+    async function pedir(url) {
+      const t0 = performance.now();
+      const ctl = new AbortController();
+      const timer = setTimeout(() => ctl.abort(), 12000);
+      try {
+        const res = await fetch(url, { headers: { accept: 'application/json' }, cache: 'no-store', signal: ctl.signal });
+        let datos = null; try { datos = await res.json(); } catch (e) { /* sin JSON */ }
+        return { ok: res.ok, status: res.status, datos, ms: Math.round(performance.now() - t0) };
+      } finally { clearTimeout(timer); }
+    }
+
+    // ── Estado ──
+    function ponerEstado(ok, texto, detalle) {
+      $('hero-dot').className = 'dot ' + (ok ? 'ok' : 'bad');
+      $('status-dot').className = 'dot ' + (ok ? 'ok' : 'bad');
+      $('hero-state').textContent = texto;
+      $('status-pill').textContent = ok ? 'En línea' : 'No disponible';
+      $('status-pill').className = 'pill ' + (ok ? 'ok' : 'bad');
+      $('status-detail').textContent = detalle;
+    }
+    async function revisarEstado() {
+      try {
+        const r = await pedir('/api/salud');
+        if (!r.ok || !r.datos || r.datos.ok !== true) throw new Error('HTTP ' + r.status);
+        ponerEstado(true, 'Servicio en línea', 'API disponible · respuesta en ' + r.ms + ' ms · ' + new Date().toLocaleTimeString('es-PE'));
+      } catch (e) { ponerEstado(false, 'Sin conexión con la API', 'No se pudo consultar la API en este momento.'); }
+    }
+
+    // ── Contadores con animación ──
+    const actuales = {};
+    function contar(id, destino) {
+      const el = $(id); const desde = actuales[id] || 0; actuales[id] = destino;
+      if (reduce || desde === destino) { el.textContent = fmt(destino); return; }
+      const t0 = performance.now(), dur = 700;
+      const paso = (t) => { const p = Math.min(1, (t - t0) / dur); el.textContent = fmt(desde + (destino - desde) * (1 - Math.pow(1 - p, 3))); if (p < 1) requestAnimationFrame(paso); };
+      requestAnimationFrame(paso);
+    }
+    async function cargarStats() {
+      try {
+        const r = await pedir('/api/estadisticas');
+        const d = r.datos;
+        if (!r.ok || !d || d.ok !== true || !d.metricas) throw new Error('Respuesta inesperada');
+        contar('stat-installations', d.metricas.instalaciones); contar('stat-users', d.metricas.usuarios); contar('stat-syncs', d.metricas.sincronizaciones);
+        $('stats-note').textContent = (d.nota || 'Métricas agregadas.') + (d.desde ? ' Desde: ' + new Date(d.desde).toLocaleString('es-PE') + '.' : '');
+      } catch (e) { $('stats-note').textContent = 'Estadísticas temporalmente no disponibles.'; }
+    }
+
+    // ── Ranking ──
+    const UNIDAD = { monedas: 'monedas', xp: 'XP', trabajos: 'ganadas', semana: 'XP semanal' };
+    let campo = 'monedas', cargando = false;
+    function esqueleto() { const box = $('rank-box'); box.replaceChildren(); const ul = document.createElement('ul'); ul.className = 'rank'; for (let i = 0; i < 5; i++) { const li = document.createElement('li'); li.className = 'skel'; ul.appendChild(li); } box.appendChild(ul); }
+    function mensaje(clase, texto) { const d = document.createElement('div'); d.className = clase; d.textContent = texto; $('rank-box').replaceChildren(d); }
+    async function cargarRanking(silencioso) {
+      if (cargando) return; cargando = true;
+      const miCampo = campo;
+      if (!silencioso) esqueleto();
+      $('rank-refresh-ico').classList.add('spin');
+      try {
+        const r = await pedir('/api/top?campo=' + encodeURIComponent(miCampo) + '&limite=10');
+        if (miCampo !== campo) return; // cambiaste de pestaña mientras cargaba
+        if (!r.ok || !r.datos || r.datos.ok !== true) throw new Error('HTTP ' + r.status);
+        const top = r.datos.top || [];
+        if (!top.length) { mensaje('empty', 'Todavía no hay datos en este ranking. Aparecerán cuando los bots sincronicen.'); }
+        else {
+          const max = Math.max(...top.map((t) => t.valor), 1);
+          const ul = document.createElement('ul'); ul.className = 'rank';
+          const medallas = ['🥇', '🥈', '🥉'];
+          top.forEach((t, i) => {
+            const li = document.createElement('li'); li.className = 'row' + (i === 0 ? ' top1' : '');
+            const bar = document.createElement('div'); bar.className = 'bar'; li.appendChild(bar);
+            const pos = document.createElement('div'); pos.className = 'pos'; pos.textContent = medallas[i] || String(t.pos); li.appendChild(pos);
+            const who = document.createElement('div'); who.className = 'who'; who.textContent = t.visible || '•••'; li.appendChild(who);
+            const val = document.createElement('div'); val.className = 'val'; val.textContent = fmt(t.valor); const u = document.createElement('small'); u.textContent = UNIDAD[miCampo]; val.appendChild(u); li.appendChild(val);
+            ul.appendChild(li);
+            requestAnimationFrame(() => requestAnimationFrame(() => li.style.setProperty('--w', Math.max(4, (t.valor / max) * 100) + '%')));
+          });
+          $('rank-box').replaceChildren(ul);
+        }
+        $('rank-updated').textContent = 'Actualizado ' + new Date().toLocaleTimeString('es-PE');
+      } catch (e) { if (miCampo === campo) mensaje('err', 'No se pudo cargar el ranking. Reintentaremos en unos segundos.'); }
+      finally { cargando = false; $('rank-refresh-ico').classList.remove('spin'); }
+    }
+    $('tabs').addEventListener('click', (ev) => {
+      const b = ev.target.closest('.tab'); if (!b || b.dataset.campo === campo) return;
+      campo = b.dataset.campo;
+      document.querySelectorAll('.tab').forEach((x) => x.setAttribute('aria-selected', String(x === b)));
+      cargando = false; cargarRanking(false);
+    });
+    $('rank-refresh').addEventListener('click', () => cargarRanking(false));
+
+    // ── Consola ──
+    async function probar(boton) {
+      document.querySelectorAll('.ep[data-url]').forEach((x) => x.setAttribute('aria-pressed', String(x === boton)));
+      const url = boton.dataset.url;
+      $('out-title').textContent = 'GET ' + url; $('out-meta').textContent = 'Consultando…'; $('out-body').textContent = '…';
+      try {
+        const r = await pedir(url);
+        $('out-meta').textContent = r.status + ' · ' + r.ms + ' ms';
+        $('out-body').textContent = JSON.stringify(r.datos, null, 2) || '(sin cuerpo)';
+      } catch (e) { $('out-meta').textContent = 'Error'; $('out-body').textContent = 'No se pudo conectar con la API.'; }
+    }
+    $('endpoints').addEventListener('click', (ev) => { const b = ev.target.closest('.ep[data-url]'); if (b) probar(b); });
+
+    // ── Copiar ──
+    document.addEventListener('click', async (ev) => {
+      const b = ev.target.closest('[data-copy]'); if (!b) return;
+      const texto = $(b.dataset.copy).textContent;
+      try { await navigator.clipboard.writeText(texto); b.textContent = '¡Copiado!'; } catch (e) { b.textContent = 'Selecciona y copia'; }
+      setTimeout(() => { b.textContent = 'Copiar'; }, 1800);
+    });
+
+    // ── Arranque y actualización automática (solo con la pestaña visible) ──
+    revisarEstado(); cargarStats(); cargarRanking(false); probar(document.querySelector('.ep[data-url]'));
+    setInterval(() => { if (document.hidden) return; revisarEstado(); cargarStats(); cargarRanking(true); }, 30000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) { revisarEstado(); cargarStats(); cargarRanking(true); } });
   </script>
 </body>
 </html>
