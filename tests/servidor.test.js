@@ -225,3 +225,19 @@ test('petición repetida (misma rid): no suma dos veces', async () => {
   const r4 = await svc.sincronizar({ almacen, cfg, instalacionId: otra.id, cuerpo, ahora: 1e12 + 3000 })
   assert.ok(!r4.repetida, 'la rid vale solo para su instalación')
 })
+
+test('Upstash: hmget funciona con la respuesta en objeto o en lista, y ztop lee puntajes', async () => {
+  const { crearUpstash } = require('../lib/almacen')
+  const env = { KV_REST_API_URL: 'https://x', KV_REST_API_TOKEN: 't' }
+  const clienteObjeto = { hmget: async (k, ...c) => Object.fromEntries(c.map((f, i) => [f, i === 0 ? '519•••479' : null])) }
+  const clienteLista = { hmget: async (k, ...c) => c.map((f, i) => (i === 0 ? '519•••479' : null)) }
+  for (const cliente of [clienteObjeto, clienteLista]) {
+    const a = crearUpstash(env, cliente)
+    assert.deepEqual(await a.hmget('vis', ['aa', 'bb']), ['519•••479', null])
+  }
+  assert.deepEqual(await crearUpstash(env, { hmget: async () => null }).hmget('vis', ['aa']), [null])
+  assert.deepEqual(await crearUpstash(env, {}).hmget('vis', []), [])
+  const z = crearUpstash(env, { zrange: async (k, a, b, op) => { assert.deepEqual(op, { rev: true, withScores: true }); return ['h1', '256', 'h2', 67] } })
+  assert.deepEqual(await z.ztop('rank:monedas', 5), [{ miembro: 'h1', puntaje: 256 }, { miembro: 'h2', puntaje: 67 }])
+  assert.throws(() => crearUpstash({}), /Upstash/)
+})
