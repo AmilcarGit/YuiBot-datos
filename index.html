@@ -51,6 +51,16 @@
       <div class="status-left"><div class="status-icon">⌁</div><div><strong>Estado del servicio</strong><small id="status-detail">Consultando la API…</small></div></div>
       <span id="status-pill" class="pill">Comprobando</span>
     </section>
+    <section id="estadisticas" style="margin:0 0 70px">
+      <h2 class="section-title">Estadísticas globales</h2>
+      <p class="section-copy">Actividad agregada del servicio. No mostramos teléfonos, identificadores ni datos privados.</p>
+      <div class="grid" style="margin-bottom:12px">
+        <article class="card"><div class="ico">🧩</div><h3>Instalaciones registradas</h3><p id="stat-installations" style="font-size:30px;font-weight:800;color:var(--text);margin-top:12px">—</p></article>
+        <article class="card"><div class="ico">👥</div><h3>Usuarios sincronizados</h3><p id="stat-users" style="font-size:30px;font-weight:800;color:var(--text);margin-top:12px">—</p></article>
+        <article class="card"><div class="ico">🔄</div><h3>Sincronizaciones</h3><p id="stat-syncs" style="font-size:30px;font-weight:800;color:var(--text);margin-top:12px">—</p></article>
+      </div>
+      <p id="stats-note" style="color:var(--muted);font-size:12px;line-height:1.6">Cargando estadísticas…</p>
+    </section>
     <section id="rutas">
       <h2 class="section-title">Rutas de la API</h2>
       <p class="section-copy">Endpoints disponibles para la integración de YuiBot-MD.</p>
@@ -66,6 +76,18 @@
   <footer class="wrap"><span>© <span id="year"></span> YuiBot-datos · AmilcarGit</span><span>Construido para acompañar a YuiBot-MD ✦</span></footer>
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
+    const fmt = value => new Intl.NumberFormat('es-PE').format(value || 0);
+    fetch('/api/estadisticas', {headers:{accept:'application/json'}})
+      .then(async response => {
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        const data = await response.json();
+        if (!data || data.ok !== true || !data.metricas) throw new Error('Respuesta inesperada');
+        document.getElementById('stat-installations').textContent = fmt(data.metricas.instalaciones);
+        document.getElementById('stat-users').textContent = fmt(data.metricas.usuarios);
+        document.getElementById('stat-syncs').textContent = fmt(data.metricas.sincronizaciones);
+        document.getElementById('stats-note').textContent = (data.nota || 'Métricas agregadas.') + ' Inicio: ' + new Date(data.desde).toLocaleString('es-PE');
+      })
+      .catch(() => { document.getElementById('stats-note').textContent = 'Estadísticas temporalmente no disponibles.'; });
     const pill = document.getElementById('status-pill');
     const detail = document.getElementById('status-detail');
     fetch('/api/salud', {headers:{accept:'application/json'}})
