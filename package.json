@@ -1,0 +1,10 @@
+{
+  "name": "yuibot-datos",
+  "version": "1.0.0",
+  "description": "Base de datos compartida de YuiBot-MD: API en Vercel + Upstash Redis (monedas, niveles, trabajos y ranking global)",
+  "private": true,
+  "license": "MIT",
+  "engines": { "node": ">=18" },
+  "scripts": { "test": "node --test tests/*.test.js" },
+  "dependencies": { "@upstash/redis": "^1.34.3" }
+}
