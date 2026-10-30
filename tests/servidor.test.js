@@ -241,3 +241,59 @@ test('Upstash: hmget funciona con la respuesta en objeto o en lista, y ztop lee 
   assert.deepEqual(await z.ztop('rank:monedas', 5), [{ miembro: 'h1', puntaje: 256 }, { miembro: 'h2', puntaje: 67 }])
   assert.throws(() => crearUpstash({}), /Upstash/)
 })
+
+test('búsqueda pública: devuelve solo datos de juego, posiciones y valida el número', async () => {
+  const almacen = nuevoAlmacen(); const A = await instalacion(almacen)
+  const sync = (num, d, extra = {}, ahora = 1e12) => svc.sincronizar({ almacen, cfg, instalacionId: A.id, ahora, cuerpo: { usuarios: { [num]: { vis: '519•••479', u: { r: { actualizado: ahora, nombre: 'Secreto', edad: 15, genero: 'x', racha: 3, logros: { a: 1, b: 1 }, ...extra }, d, semilla: true }, t: { r: { mejoras: { pico: 2, cana: 1 }, actualizado: 5 }, d: { ganado: 400, veces: { minar: 4, pescar: 2 } } } } } } })
+  await sync('51910227479', { monedas: 900, xp: 450, mensajes: 12 })
+  await sync('51900000009', { monedas: 5000, xp: 100 })
+  const buscar = (numero, ip = '5.5.5.5', ahora = 1e12) => svc.perfilPublico({ almacen, cfg, numero, ip, ahora })
+  const r = await buscar('+51 910-227 479')
+  assert.equal(r.existe, true)
+  assert.deepEqual([r.perfil.monedas, r.perfil.xp, r.perfil.nivel, r.perfil.xpNivelActual, r.perfil.xpNivelSiguiente], [900, 450, 2, 400, 900])
+  assert.deepEqual([r.perfil.mensajes, r.perfil.racha, r.perfil.logros, r.perfil.ganadoTrabajos, r.perfil.trabajosHechos, r.perfil.mejoras], [12, 3, 2, 400, 6, 3])
+  assert.deepEqual([r.posiciones.monedas, r.posiciones.xp], [2, 1])
+  assert.ok([1, 2].includes(r.posiciones.trabajos), 'empate en trabajos')
+  assert.deepEqual(r.totales, { monedas: 2, xp: 2, trabajos: 2 })
+  const texto = JSON.stringify(r)
+  for (const privado of ['Secreto', 'genero', 'edad', 'nombre']) assert.ok(!texto.includes(privado), `no debe filtrar ${privado}`)
+  assert.deepEqual(await buscar('51999999999'), { existe: false })
+  for (const malo of ['', 'abc', '123', '1'.repeat(20), undefined]) await assert.rejects(() => buscar(malo), { estado: 400 })
+  await assert.rejects(() => svc.perfilPublico({ almacen, cfg: S.config({}), numero: '51910227479', ip: 'x' }), { estado: 500 })
+})
+
+test('búsqueda pública: límite por minuto y por red', async () => {
+  const almacen = nuevoAlmacen()
+  for (let i = 0; i < cfg.maxBusquedasMin; i++) await svc.perfilPublico({ almacen, cfg, numero: `5190000${String(i).padStart(4, '0')}`, ip: '6.6.6.6', ahora: 2e12 })
+  await assert.rejects(() => svc.perfilPublico({ almacen, cfg, numero: '51900009999', ip: '6.6.6.6', ahora: 2e12 }), { estado: 429 })
+  assert.deepEqual(await svc.perfilPublico({ almacen, cfg, numero: '51900009999', ip: '7.7.7.7', ahora: 2e12 }), { existe: false }, 'otra red no se ve afectada')
+  assert.deepEqual(await svc.perfilPublico({ almacen, cfg, numero: '51900009999', ip: '6.6.6.6', ahora: 2e12 + 61000 }), { existe: false }, 'a los 61 s vuelve')
+})
+
+test('actividad: cuenta las sincronizaciones por minuto de los últimos 30 min', async () => {
+  const almacen = nuevoAlmacen(); const A = await instalacion(almacen)
+  const ahora = 60000 * 1000
+  for (const t of [ahora, ahora, ahora - 60000 * 5]) await svc.sincronizar({ almacen, cfg, instalacionId: A.id, cuerpo: {}, ahora: t })
+  const serie = await svc.actividad({ almacen, ahora })
+  assert.equal(serie.length, 30); assert.equal(serie.at(-1), 2); assert.equal(serie.at(-6), 1); assert.equal(serie[0], 0)
+})
+
+test('Upstash: zpos y zcount', async () => {
+  const { crearUpstash } = require('../lib/almacen')
+  const a = crearUpstash({ KV_REST_API_URL: 'https://x', KV_REST_API_TOKEN: 't' }, { zrevrank: async (k, m) => (m === 'yo' ? 1 : null), zscore: async () => '77', zcard: async () => 9 })
+  assert.deepEqual(await a.zpos('rank:monedas', 'yo'), { pos: 2, puntaje: 77 })
+  assert.deepEqual(await a.zpos('rank:monedas', 'otro'), { pos: null, puntaje: null })
+  assert.equal(await a.zcount('rank:monedas'), 9)
+})
+
+test('ruta /api/usuario responde y estadisticas incluye actividad', async () => {
+  const { usarAlmacen } = require('../lib/almacen')
+  usarAlmacen(nuevoAlmacen()); process.env.DATOS_PEPPER = 'pepper-prueba'
+  const res = () => { const r = { headers: {}, setHeader(k, v) { r.headers[k] = v }, end(c) { r.cuerpo = JSON.parse(c) } }; return r }
+  let r = res(); await require('../api/usuario')({ method: 'GET', headers: {}, query: { numero: '51910227479' } }, r)
+  assert.deepEqual([r.statusCode, r.cuerpo.ok, r.cuerpo.existe], [200, true, false])
+  r = res(); await require('../api/usuario')({ method: 'GET', headers: {}, url: '/api/usuario?numero=abc' }, r); assert.equal(r.statusCode, 400)
+  r = res(); await require('../api/estadisticas')({ method: 'GET', headers: {} }, r)
+  assert.equal(r.cuerpo.actividad.length, 30)
+  delete process.env.DATOS_PEPPER
+})

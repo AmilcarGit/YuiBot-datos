@@ -10,11 +10,11 @@ test('la página usa solo textContent con datos de la API (nada de innerHTML)', 
 })
 
 test('la página llama a las rutas públicas que existen y tiene sus secciones', () => {
-  for (const ruta of ['/api/salud', '/api/estadisticas', '/api/top']) {
+  for (const ruta of ['/api/salud', '/api/estadisticas', '/api/top', '/api/usuario']) {
     assert.ok(html.includes(ruta), ruta)
     assert.ok(fs.existsSync(path.join(__dirname, '..', 'api', `${ruta.split('/').pop()}.js`)), `falta api/${ruta.split('/').pop()}.js`)
   }
-  for (const id of ['ranking', 'consola', 'conectar', 'faq', 'estadisticas']) assert.ok(html.includes(`id="${id}"`), id)
+  for (const id of ['buscar', 'vivo', 'ranking', 'funciones', 'empezar', 'dev', 'faq', 'numero', 'resultado']) assert.ok(html.includes(`id="${id}"`), id)
   for (const campo of ['monedas', 'xp', 'trabajos', 'semana']) assert.ok(html.includes(`data-campo="${campo}"`), campo)
 })
 

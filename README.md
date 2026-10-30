@@ -51,3 +51,15 @@ Bot (Termux) ──cada 2 min──▶  POST /api/sync  ──▶  Upstash Redis
 npm install
 npm test        # pruebas con una base en memoria (no necesitan Upstash)
 ```
+
+
+## Panel web y búsqueda por número
+
+La página principal (`index.html`) es un panel rosado (modo claro/oscuro) con:
+
+- 🔎 **Buscador por número**: nivel, monedas, XP, racha, trabajos y tu puesto en cada ranking.
+- 📡 **En vivo**: instalaciones, usuarios, sincronizaciones y gráfica de actividad de los últimos 30 min (se actualiza cada 15 s).
+- 🏆 **Ranking mundial** con pestañas (monedas, XP, trabajos, semana).
+- Guía de inicio, FAQ y consola de la API.
+
+`GET /api/usuario?numero=51910227479` devuelve solo datos de juego (nunca nombre, edad ni género). Límite: `MAX_BUSQUEDAS_MIN` (20 por minuto y por IP).
