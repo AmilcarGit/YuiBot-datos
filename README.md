@@ -63,3 +63,10 @@ La página principal (`index.html`) es un panel rosado (modo claro/oscuro) con:
 - Guía de inicio, FAQ y consola de la API.
 
 `GET /api/usuario?numero=51910227479` devuelve solo datos de juego (nunca nombre, edad ni género). Límite: `MAX_BUSQUEDAS_MIN` (20 por minuto y por IP).
+
+### Novedades del panel
+
+- 📈 **Tu progreso por día**: monedas y XP de los últimos 30 días (`historial` en `/api/usuario`; una foto diaria, solo cuando hubo cambios).
+- 🖼️ **Tarjeta para compartir**: imagen vertical 1080×1350 lista para estados de WhatsApp (se genera en tu navegador, no sale nada de tu dispositivo).
+- 🔗 **Enlace propio**: `/?n=51910227479` abre la página ya buscando ese número.
+- 🛡️ **Administración**: en *Para desarrolladores → Administración* escribes tu `ADMIN_TOKEN` y ves las instalaciones (última sincronización) con botón para bloquear/desbloquear. El token no se guarda en ningún sitio. También por API: `GET /api/admin` (resumen) y `POST /api/admin {id, baneada}`, siempre con la cabecera `x-admin-token`.

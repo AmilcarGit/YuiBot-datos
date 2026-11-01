@@ -22,3 +22,9 @@ test('los ids que usa el script existen en la página', () => {
   const usados = [...html.matchAll(/\$\('([\w-]+)'\)/g)].map((m) => m[1])
   for (const id of new Set(usados)) assert.ok(html.includes(`id="${id}"`), `falta id="${id}"`)
 })
+
+test('la página trae tarjeta para compartir, historial, enlace por número y administración sin guardar el token', () => {
+  for (const id of ['adm-form', 'adm-token', 'adm-caja']) assert.ok(html.includes(`id="${id}"`), id)
+  for (const frase of ['/api/admin', 'x-admin-token', 'tarjetaSVG', 'cajaHistorial', "get('n')"]) assert.ok(html.includes(frase), frase)
+  assert.ok(!/(localStorage|sessionStorage|almacen\.poner)\([^)]*(tokenAdmin|adm-token)/.test(html), 'el token nunca va al almacenamiento')
+})

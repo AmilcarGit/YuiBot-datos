@@ -297,3 +297,33 @@ test('ruta /api/usuario responde y estadisticas incluye actividad', async () => 
   assert.equal(r.cuerpo.actividad.length, 30)
   delete process.env.DATOS_PEPPER
 })
+
+test('historial diario: una foto por día con los cambios y solo los últimos 30 días', async () => {
+  const almacen = nuevoAlmacen(); const A = await instalacion(almacen)
+  const dia = 86400000; const T = Date.parse('2031-01-01T12:00:00Z')
+  const sync = (d, ahora) => svc.sincronizar({ almacen, cfg, instalacionId: A.id, ahora, cuerpo: { usuarios: { '51910227479': { vis: '519•••479', u: { r: { actualizado: ahora }, d, semilla: ahora === T } } } } })
+  await sync({ monedas: 100, xp: 50 }, T)
+  await sync({ monedas: 20, xp: 10 }, T + 3600000) // mismo día: se queda el último valor
+  for (let i = 1; i <= 34; i++) await sync({ monedas: 1, xp: 1 }, T + i * dia)
+  await sync({}, T + 40 * dia) // sin cambios: no crea día nuevo
+  const r = await svc.perfilPublico({ almacen, cfg, numero: '51910227479', ip: '1.1.1.1', ahora: T })
+  assert.equal(r.historial.length, 30)
+  assert.ok(r.historial.every((p, i, a) => i === 0 || a[i - 1].dia < p.dia), 'en orden')
+  assert.equal(r.historial.at(-1).monedas, 120 + 34); assert.equal(r.historial.at(-1).dia, '2031-02-04')
+  assert.ok(!JSON.stringify(r.historial).includes('2031-02-10'))
+})
+
+test('panel admin: exige token y lista instalaciones con su última sincronización', async () => {
+  const almacen = nuevoAlmacen(); const A = await instalacion(almacen); const B = await instalacion(almacen)
+  const cfgAdmin = { ...cfg, adminToken: 'secreto-admin' }
+  await svc.sincronizar({ almacen, cfg, instalacionId: A.id, ahora: 5e12, cuerpo: { usuarios: {} } })
+  await assert.rejects(() => svc.resumenAdmin({ almacen, cfg: cfgAdmin, token: 'mal' }), { estado: 401 })
+  await assert.rejects(() => svc.resumenAdmin({ almacen, cfg, token: '' }), { estado: 401 })
+  await svc.banear({ almacen, cfg: cfgAdmin, token: 'secreto-admin', id: B.id })
+  const r = await svc.resumenAdmin({ almacen, cfg: cfgAdmin, token: 'secreto-admin' })
+  assert.equal(r.instalaciones.length, 2)
+  assert.equal(r.instalaciones.find((i) => i.id === A.id).ultimo, 5e12)
+  assert.equal(r.instalaciones.find((i) => i.id === B.id).baneada, true)
+  assert.ok(!JSON.stringify(r).includes(A.clave), 'nunca expone claves')
+  assert.equal(r.totales.instalaciones, 2)
+})

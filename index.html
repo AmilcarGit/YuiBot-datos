@@ -136,6 +136,16 @@
     @keyframes pulso{70%{box-shadow:0 0 0 9px transparent}100%{box-shadow:0 0 0 0 transparent}}
     @keyframes brillo{to{background-position:-200% 0}}@keyframes giro{to{transform:rotate(360deg)}}
     .giro{animation:giro .8s linear infinite}
+
+    /* Progreso, tarjeta y administración */
+    .hist{margin-top:16px;border:1px solid var(--line);border-radius:18px;background:var(--card);padding:14px 16px}
+    .hist h3{margin:0 0 6px;font-size:15px}.hist p{margin:6px 0 0;font-size:12.5px;color:var(--muted)}
+    .hist svg{width:100%;height:150px;display:block}
+    .leyenda{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin-top:6px}.leyenda i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+    .adm{display:grid;gap:10px;margin:6px 0 14px}.adm .campo{display:flex;gap:8px;flex-wrap:wrap}.adm input{flex:1;min-width:200px;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:var(--field)}
+    .tabla-adm{width:100%;border-collapse:collapse;font-size:13.5px}.tabla-adm th,.tabla-adm td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}.tabla-adm th{color:var(--muted);font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+    .tabla-adm td:first-child{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;word-break:break-all}.tabla-wrap{overflow-x:auto}
+    .pill.bad{background:rgba(255,138,155,.16);color:var(--bad)}
     @media(max-width:900px){.vivo{grid-template-columns:minmax(0,1fr)}.grid3{grid-template-columns:1fr 1fr}.consola{grid-template-columns:1fr}.eps{grid-template-columns:1fr 1fr}}
     @media(max-width:640px){.tiles{grid-template-columns:1fr 1fr}.pasos,.grid3{grid-template-columns:1fr}.puestos{grid-template-columns:1fr}.link.hide-s{display:none}.nav{height:64px}.search{flex-direction:column;border-radius:20px}.search .btn{width:100%}.contadores{grid-template-columns:1fr 1fr 1fr}.cont{padding:12px}.panel{padding:18px}.eps{grid-template-columns:1fr}}
     @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
@@ -262,10 +272,21 @@ npm start</code><button class="btn ghost small" type="button" data-copiar="cmd-t
                 <button class="ep" type="button" data-url="/api/top?campo=monedas&limite=5" aria-pressed="false"><code>GET /api/top</code><span>Ranking</span></button>
                 <div class="ep lock" aria-disabled="true"><code>GET /api/usuario</code><span>🔎 buscador</span></div>
                 <div class="ep lock" aria-disabled="true"><code>POST /api/sync</code><span>🔒 bot</span></div>
-                <div class="ep lock" aria-disabled="true"><code>POST /api/admin</code><span>🔒 admin</span></div>
+                <div class="ep lock" aria-disabled="true"><code>GET·POST /api/admin</code><span>🔒 admin</span></div>
               </div>
               <div class="out"><div class="out-h"><span id="out-t">GET /api/salud</span><span id="out-m">Elige una ruta</span></div><pre id="out-b" tabindex="0">Pulsa una ruta para ver su respuesta.</pre></div>
             </div>
+          </div>
+        </details>
+        <details id="admin-det">
+          <summary>Administración (solo dueños del servidor)</summary>
+          <div>
+            <p style="margin:0 0 10px">Necesitas la variable <code>ADMIN_TOKEN</code> de tu proyecto en Vercel. Se usa solo en esta pestaña: <strong>no se guarda en ningún sitio</strong>.</p>
+            <form class="adm" id="adm-form" autocomplete="off">
+              <div class="campo"><input id="adm-token" type="password" placeholder="ADMIN_TOKEN" aria-label="ADMIN_TOKEN" autocomplete="off"><button class="btn small" type="submit" id="adm-btn">Ver instalaciones</button></div>
+              <div id="adm-msg" class="sub" role="status"></div>
+            </form>
+            <div id="adm-caja"></div>
           </div>
         </details>
         <details>
@@ -336,6 +357,64 @@ npm start</code><button class="btn ghost small" type="button" data-copiar="cmd-t
     function tile(etiqueta, valor) { const t = h('div', 'tile'); t.append(h('span', null, etiqueta), h('b', null, valor)); return t; }
     function puesto(titulo, pos, total) { const p = h('div', 'puesto'); p.append(h('b', null, pos ? '#' + fmt(pos) : '—'), h('span', null, total ? `${titulo} · de ${fmt(total)}` : titulo)); return p; }
 
+
+    // ── Gráfica de progreso (monedas y XP por día) ──
+    const sv = (tag, attrs) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
+    function lineaSerie(svg, valores, x0, x1, y0, y1, color) {
+      const max = Math.max(...valores, 1), min = Math.min(...valores, 0), rango = Math.max(1, max - min);
+      const pts = valores.map((v, i) => [x0 + (valores.length === 1 ? 0 : (i / (valores.length - 1)) * (x1 - x0)), y1 - ((v - min) / rango) * (y1 - y0)]);
+      svg.appendChild(sv('polyline', { points: pts.map((p) => p.map((n) => n.toFixed(1)).join(',')).join(' '), fill: 'none', stroke: color, 'stroke-width': 2.5, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }));
+      const u = pts[pts.length - 1]; svg.appendChild(sv('circle', { cx: u[0].toFixed(1), cy: u[1].toFixed(1), r: 4, fill: color }));
+    }
+    function cajaHistorial(hist) {
+      const caja = h('div', 'hist'); caja.appendChild(h('h3', null, '📈 Tu progreso por día'));
+      if (!Array.isArray(hist) || hist.length < 2) { caja.appendChild(h('p', null, 'Tu gráfica aparece cuando tengas actividad en al menos 2 días distintos. ¡Sigue jugando! 🌸')); return caja; }
+      const svg = sv('svg', { viewBox: '0 0 300 120', preserveAspectRatio: 'none', role: 'img', 'aria-label': 'Monedas y XP de los últimos días' });
+      for (let i = 0; i < 4; i++) svg.appendChild(sv('line', { x1: 0, x2: 300, y1: 8 + i * 34, y2: 8 + i * 34, stroke: 'var(--line)', 'stroke-width': 1 }));
+      lineaSerie(svg, hist.map((p) => p.monedas), 6, 294, 10, 110, 'var(--gold)');
+      lineaSerie(svg, hist.map((p) => p.xp), 6, 294, 10, 110, 'var(--pink)');
+      caja.appendChild(svg);
+      const ley = h('div', 'leyenda'); const a = h('span'), b = h('span');
+      const ia = h('i'); ia.style.background = 'var(--gold)'; a.append(ia, document.createTextNode('Monedas'));
+      const ib = h('i'); ib.style.background = 'var(--pink)'; b.append(ib, document.createTextNode('XP'));
+      ley.append(a, b, h('span', null, `${hist[0].dia} → ${hist[hist.length - 1].dia}`)); caja.appendChild(ley);
+      return caja;
+    }
+
+    // ── Tarjeta para compartir (imagen vertical 1080×1350, lista para estados) ──
+    function tarjetaSVG(d, numero) {
+      const p = d.perfil, esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+      const span = Math.max(1, p.xpNivelSiguiente - p.xpNivelActual), pct = Math.max(0, Math.min(1, (p.xp - p.xpNivelActual) / span));
+      const fila = (y, ico, tit, val) => `<g><rect x="90" y="${y}" width="900" height="110" rx="30" fill="rgba(255,255,255,.14)"/><text x="140" y="${y + 70}" font-size="46">${ico}</text><text x="220" y="${y + 70}" font-size="38" fill="#ffe4f2">${esc(tit)}</text><text x="940" y="${y + 72}" font-size="48" font-weight="800" fill="#fff" text-anchor="end">${esc(val)}</text></g>`;
+      const rango = d.posiciones.monedas ? `#${fmt(d.posiciones.monedas)} del mundo en monedas` : 'Nuevo en el ranking';
+      return `<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350" font-family="Nunito,Segoe UI,system-ui,sans-serif">
+<defs><linearGradient id="f" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff7ac0"/><stop offset=".55" stop-color="#e91e8c"/><stop offset="1" stop-color="#8d5bd6"/></linearGradient></defs>
+<rect width="1080" height="1350" fill="url(#f)"/><circle cx="940" cy="150" r="260" fill="rgba(255,255,255,.08)"/><circle cx="120" cy="1230" r="300" fill="rgba(255,255,255,.07)"/>
+<text x="540" y="150" font-size="44" fill="#fff" text-anchor="middle" font-weight="800" letter-spacing="3">✦ YUIBOT-MD ✦</text>
+<text x="540" y="290" font-size="150" font-weight="900" fill="#fff" text-anchor="middle">Nivel ${p.nivel}</text>
+<text x="540" y="360" font-size="40" fill="#ffe4f2" text-anchor="middle">${esc(numero.slice(0, 3) + '•••' + numero.slice(-3))}</text>
+<rect x="140" y="410" width="800" height="34" rx="17" fill="rgba(255,255,255,.25)"/><rect x="140" y="410" width="${Math.max(34, 800 * pct).toFixed(0)}" height="34" rx="17" fill="#fff"/>
+<text x="540" y="486" font-size="32" fill="#ffe4f2" text-anchor="middle">${esc(fmt(p.xp))} XP · faltan ${esc(fmt(Math.max(0, p.xpNivelSiguiente - p.xp)))} para el nivel ${p.nivel + 1}</text>
+${fila(540, '💰', 'Monedas', fmt(p.monedas))}${fila(670, '🔥', 'Racha', p.racha + ' días')}${fila(800, '🏅', 'Logros', fmt(p.logros))}${fila(930, '⛏️', 'Trabajos', fmt(p.trabajosHechos))}
+<text x="540" y="1110" font-size="46" font-weight="800" fill="#fff" text-anchor="middle">🏆 ${esc(rango)}</text>
+<text x="540" y="1250" font-size="34" fill="#ffe4f2" text-anchor="middle">Mira el tuyo en ${esc(location.host)}</text></svg>`;
+    }
+    function tarjetaPNG(d, numero) {
+      return new Promise((ok, mal) => {
+        const url = URL.createObjectURL(new Blob([tarjetaSVG(d, numero)], { type: 'image/svg+xml;charset=utf-8' })), img = new Image();
+        img.onload = () => { const c = document.createElement('canvas'); c.width = 1080; c.height = 1350; c.getContext('2d').drawImage(img, 0, 0); URL.revokeObjectURL(url); c.toBlob((b) => (b ? ok(b) : mal(new Error('sin imagen'))), 'image/png'); };
+        img.onerror = () => { URL.revokeObjectURL(url); mal(new Error('sin imagen')); };
+        img.src = url;
+      });
+    }
+    async function compartirTarjeta(d, numero) {
+      try {
+        const blob = await tarjetaPNG(d, numero), archivo = new File([blob], 'yuibot-progreso.png', { type: 'image/png' });
+        if (navigator.canShare && navigator.canShare({ files: [archivo] })) { await navigator.share({ files: [archivo], title: 'Mi progreso en YuiBot-MD' }); return; }
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'yuibot-progreso.png'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); aviso('Tarjeta descargada 🌸');
+      } catch (e) { if (e && e.name !== 'AbortError') aviso('No se pudo crear la tarjeta'); }
+    }
+
     function pintarPerfil(d, numero) {
       const p = d.perfil, span = Math.max(1, p.xpNivelSiguiente - p.xpNivelActual);
       const pct = Math.max(0, Math.min(100, ((p.xp - p.xpNivelActual) / span) * 100));
@@ -360,8 +439,12 @@ npm start</code><button class="btn ghost small" type="button" data-copiar="cmd-t
         try { await navigator.clipboard.writeText(t); aviso('¡Resumen copiado!'); } catch (e) { aviso('No se pudo copiar'); }
       });
       const ver = h('a', 'btn ghost small', '🏆 Ver el ranking'); ver.href = '#ranking';
-      acc.append(copiar, ver);
-      panel.append(cab, tiles, puestos, acc);
+      const tarj = h('button', 'btn small', '🖼️ Tarjeta para compartir'); tarj.type = 'button';
+      tarj.addEventListener('click', () => compartirTarjeta(d, numero));
+      const enlace = h('button', 'btn ghost small', '🔗 Copiar mi enlace'); enlace.type = 'button';
+      enlace.addEventListener('click', async () => { try { await navigator.clipboard.writeText(location.origin + '/?n=' + numero + '#buscar'); aviso('¡Enlace copiado!'); } catch (e) { aviso('No se pudo copiar'); } });
+      acc.append(copiar, tarj, enlace, ver);
+      panel.append(cab, tiles, puestos, cajaHistorial(d.historial), acc);
       mostrar(panel);
       requestAnimationFrame(() => requestAnimationFrame(() => { relleno.style.width = pct + '%'; }));
     }
@@ -388,6 +471,7 @@ npm start</code><button class="btn ghost small" type="button" data-copiar="cmd-t
     }
     $('form').addEventListener('submit', (ev) => { ev.preventDefault(); buscar($('numero').value); });
     $('olvidar').addEventListener('click', () => { almacen.borrar('numero'); $('numero').value = ''; $('recordar').checked = false; $('olvidar').hidden = true; $('resultado').replaceChildren(); aviso('Número olvidado en este dispositivo'); });
+    const porEnlace = (new URLSearchParams(location.search).get('n') || '').replace(/\D/g, '');
     const guardado = almacen.leer('numero');
     if (guardado && /^\d{6,16}$/.test(guardado)) { $('numero').value = guardado; $('recordar').checked = true; $('olvidar').hidden = false; }
 
@@ -487,8 +571,56 @@ npm start</code><button class="btn ghost small" type="button" data-copiar="cmd-t
     });
 
     // ── Arranque y actualización en vivo (solo con la pestaña visible) ──
+
+    // ── Administración (el token vive solo en esta variable, nunca en el almacenamiento) ──
+    let tokenAdmin = '';
+    async function llamarAdmin(metodo, cuerpo) {
+      const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 12000);
+      try {
+        const res = await fetch('/api/admin', { method: metodo, cache: 'no-store', signal: ctl.signal, headers: { accept: 'application/json', 'x-admin-token': tokenAdmin, ...(cuerpo ? { 'content-type': 'application/json' } : {}) }, body: cuerpo ? JSON.stringify(cuerpo) : undefined });
+        let datos = null; try { datos = await res.json(); } catch (e) { /* sin JSON */ }
+        return { ok: res.ok, status: res.status, datos };
+      } finally { clearTimeout(timer); }
+    }
+    const haceTiempo = (ms) => { if (!ms) return 'nunca'; const s = Math.max(0, Math.round((Date.now() - ms) / 1000)); return s < 90 ? 'hace ' + s + ' s' : s < 5400 ? 'hace ' + Math.round(s / 60) + ' min' : s < 129600 ? 'hace ' + Math.round(s / 3600) + ' h' : 'hace ' + Math.round(s / 86400) + ' d'; };
+    function pintarAdmin(d) {
+      const caja = h('div'), tot = d.totales || {};
+      caja.appendChild(h('p', null, `Instalaciones: ${fmt(tot.instalaciones)} · Usuarios: ${fmt(tot.usuarios)} · Sincronizaciones: ${fmt(tot.sincronizaciones)}`));
+      const wrap = h('div', 'tabla-wrap'), tabla = h('table', 'tabla-adm'), cab = h('tr');
+      for (const t of ['Instalación', 'Última sync', 'Estado', '']) cab.appendChild(h('th', null, t));
+      const thead = h('thead'); thead.appendChild(cab); tabla.appendChild(thead);
+      const cuerpo = h('tbody');
+      for (const i of d.instalaciones || []) {
+        const tr = h('tr'); tr.appendChild(h('td', null, i.id)); tr.appendChild(h('td', null, haceTiempo(i.ultimo)));
+        const td = h('td'); td.appendChild(h('span', 'pill ' + (i.baneada ? 'bad' : 'ok'), i.baneada ? 'Bloqueada' : 'Activa')); tr.appendChild(td);
+        const ac = h('td'), b = h('button', 'btn ghost small', i.baneada ? 'Desbloquear' : 'Bloquear'); b.type = 'button';
+        b.addEventListener('click', async () => {
+          if (!i.baneada && !confirm('¿Bloquear esta instalación? Dejará de sincronizar.')) return;
+          b.disabled = true;
+          try { const r = await llamarAdmin('POST', { id: i.id, baneada: !i.baneada }); if (!r.ok) throw new Error(); aviso(i.baneada ? 'Instalación desbloqueada' : 'Instalación bloqueada'); cargarAdmin(); }
+          catch (e) { aviso('No se pudo cambiar'); b.disabled = false; }
+        });
+        ac.appendChild(b); tr.appendChild(ac); cuerpo.appendChild(tr);
+      }
+      tabla.appendChild(cuerpo); wrap.appendChild(tabla); caja.appendChild(wrap);
+      if (!(d.instalaciones || []).length) caja.appendChild(h('p', null, 'Todavía no hay instalaciones registradas.'));
+      $('adm-caja').replaceChildren(caja);
+    }
+    async function cargarAdmin() {
+      $('adm-btn').disabled = true; $('adm-msg').textContent = 'Consultando…';
+      try {
+        const r = await llamarAdmin('GET');
+        if (r.status === 401) { $('adm-msg').textContent = 'Token incorrecto, o el servidor no tiene ADMIN_TOKEN configurado.'; $('adm-caja').replaceChildren(); }
+        else if (!r.ok || !r.datos || r.datos.ok !== true) throw new Error('HTTP ' + r.status);
+        else { $('adm-msg').textContent = 'Actualizado ' + new Date().toLocaleTimeString('es-PE'); pintarAdmin(r.datos); }
+      } catch (e) { $('adm-msg').textContent = 'No se pudo consultar el servidor.'; }
+      finally { $('adm-btn').disabled = false; }
+    }
+    $('adm-form').addEventListener('submit', (ev) => { ev.preventDefault(); tokenAdmin = $('adm-token').value.trim(); if (!tokenAdmin) { $('adm-msg').textContent = 'Escribe tu ADMIN_TOKEN.'; return; } cargarAdmin(); });
+
     revisarEstado(); cargarVivo(); cargarRanking(false);
-    if (guardado && /^\d{6,16}$/.test(guardado)) buscar(guardado);
+    if (/^\d{6,16}$/.test(porEnlace)) { $('numero').value = porEnlace; buscar(porEnlace); }
+    else if (guardado && /^\d{6,16}$/.test(guardado)) buscar(guardado);
     const refrescar = () => { if (document.hidden) return; revisarEstado(); cargarVivo(); cargarRanking(true); };
     setInterval(refrescar, 15000);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) refrescar(); });
