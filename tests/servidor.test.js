@@ -327,3 +327,40 @@ test('panel admin: exige token y lista instalaciones con su última sincronizaci
   assert.ok(!JSON.stringify(r).includes(A.clave), 'nunca expone claves')
   assert.equal(r.totales.instalaciones, 2)
 })
+
+test('reiniciar: borra jugadores y rankings, conserva instalaciones y cambia la época', async () => {
+  const almacen = nuevoAlmacen(); const A = await instalacion(almacen)
+  const cfgAdmin = { ...cfg, adminToken: 'secreto-admin' }
+  const sync = (num, extra = {}) => svc.sincronizar({ almacen, cfg, instalacionId: A.id, ahora: 1e12, cuerpo: { usuarios: { [num]: { vis: '519•••479', u: { r: { actualizado: 1 }, d: { monedas: 50, xp: 20 }, semilla: true } } }, ...extra } })
+  const r1 = await sync('51910227479'); assert.equal(r1.epoca, '0')
+  assert.equal((await svc.top({ almacen })).top.length, 1)
+  await assert.rejects(() => svc.reiniciarDatos({ almacen, cfg: cfgAdmin, token: 'mal', confirmar: 'REINICIAR' }), { estado: 401 })
+  await assert.rejects(() => svc.reiniciarDatos({ almacen, cfg: cfgAdmin, token: 'secreto-admin', confirmar: 'si' }), { estado: 400 })
+  const r = await svc.reiniciarDatos({ almacen, cfg: cfgAdmin, token: 'secreto-admin', confirmar: 'REINICIAR' })
+  assert.ok(r.ok && r.borradas > 0 && r.epoca !== '0')
+  assert.equal((await svc.top({ almacen })).top.length, 0)
+  assert.deepEqual(await svc.perfilPublico({ almacen, cfg, numero: '51910227479', ip: '2.2.2.2' }), { existe: false })
+  await svc.autenticar({ almacen, cfg, id: A.id, clave: A.clave }) // la instalación sigue registrada
+  const resumen = await svc.resumenAdmin({ almacen, cfg: cfgAdmin, token: 'secreto-admin' })
+  assert.equal(resumen.instalaciones.length, 1); assert.equal(resumen.totales.usuarios, 0)
+  // Un bot con la época vieja: no se aplica nada y se le avisa para que vuelva a subir todo.
+  const vieja = await sync('51910227479', { epoca: '0' })
+  assert.equal(vieja.reinicio, true); assert.equal(vieja.epoca, r.epoca); assert.deepEqual(vieja.usuarios, {})
+  assert.equal((await svc.top({ almacen })).top.length, 0, 'no se aplicó el envío viejo')
+  // Con la época nueva (o sin época, bot antiguo) sí se acepta y vuelve a sembrar.
+  const nueva = await sync('51910227479', { epoca: r.epoca }); assert.ok(!nueva.reinicio); assert.equal(nueva.usuarios['51910227479'].u.monedas, 50)
+  assert.equal((await svc.top({ almacen })).top.length, 1)
+})
+
+test('Upstash: borrarPatron recorre el cursor y borra por lotes', async () => {
+  const { crearUpstash } = require('../lib/almacen')
+  const claves = Array.from({ length: 250 }, (_, i) => `u:${i}`)
+  const borradas = []; const llamadas = []
+  const cliente = {
+    async scan(cursor, op) { llamadas.push([cursor, op.match]); return cursor === '0' ? ['7', claves.slice(0, 150)] : ['0', claves.slice(150)] },
+    async del(...ks) { borradas.push(...ks); return ks.length },
+  }
+  const a = crearUpstash({ KV_REST_API_URL: 'https://x', KV_REST_API_TOKEN: 't' }, cliente)
+  assert.equal(await a.borrarPatron('u:*'), 250)
+  assert.equal(borradas.length, 250); assert.deepEqual(llamadas, [['0', 'u:*'], ['7', 'u:*']])
+})

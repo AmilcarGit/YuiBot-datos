@@ -287,6 +287,11 @@ npm start</code><button class="btn ghost small" type="button" data-copiar="cmd-t
               <div id="adm-msg" class="sub" role="status"></div>
             </form>
             <div id="adm-caja"></div>
+            <div id="adm-peligro" hidden style="margin-top:16px;padding:14px 16px;border:1px solid var(--bad);border-radius:16px">
+              <strong>Zona de peligro</strong>
+              <p style="margin:6px 0 10px">Borra los datos de todos los jugadores del servidor (rankings, perfiles y gráficas). Las instalaciones siguen registradas y cada bot vuelve a subir sus datos limpios en unos minutos. Escribe <code>REINICIAR</code> para confirmar.</p>
+              <div class="adm"><div class="campo"><input id="adm-confirmar" type="text" placeholder="REINICIAR" aria-label="Escribe REINICIAR" autocomplete="off"><button class="btn ghost small" type="button" id="adm-reiniciar">Borrar todos los datos</button></div></div>
+            </div>
           </div>
         </details>
         <details>
@@ -604,7 +609,7 @@ ${fila(540, '💰', 'Monedas', fmt(p.monedas))}${fila(670, '🔥', 'Racha', p.ra
       }
       tabla.appendChild(cuerpo); wrap.appendChild(tabla); caja.appendChild(wrap);
       if (!(d.instalaciones || []).length) caja.appendChild(h('p', null, 'Todavía no hay instalaciones registradas.'));
-      $('adm-caja').replaceChildren(caja);
+      $('adm-caja').replaceChildren(caja); $('adm-peligro').hidden = false;
     }
     async function cargarAdmin() {
       $('adm-btn').disabled = true; $('adm-msg').textContent = 'Consultando…';
@@ -616,6 +621,14 @@ ${fila(540, '💰', 'Monedas', fmt(p.monedas))}${fila(670, '🔥', 'Racha', p.ra
       } catch (e) { $('adm-msg').textContent = 'No se pudo consultar el servidor.'; }
       finally { $('adm-btn').disabled = false; }
     }
+    $('adm-reiniciar').addEventListener('click', async () => {
+      if ($('adm-confirmar').value.trim() !== 'REINICIAR') { aviso('Escribe REINICIAR para confirmar'); return; }
+      if (!confirm('¿Seguro? Se borrarán los datos de TODOS los jugadores del servidor.')) return;
+      $('adm-reiniciar').disabled = true;
+      try { const r = await llamarAdmin('POST', { accion: 'reiniciar', confirmar: 'REINICIAR' }); if (!r.ok) throw new Error(); $('adm-confirmar').value = ''; aviso('Datos borrados 🌱'); cargarAdmin(); cargarRanking(true); cargarVivo(); }
+      catch (e) { aviso('No se pudo reiniciar'); }
+      finally { $('adm-reiniciar').disabled = false; }
+    });
     $('adm-form').addEventListener('submit', (ev) => { ev.preventDefault(); tokenAdmin = $('adm-token').value.trim(); if (!tokenAdmin) { $('adm-msg').textContent = 'Escribe tu ADMIN_TOKEN.'; return; } cargarAdmin(); });
 
     revisarEstado(); cargarVivo(); cargarRanking(false);

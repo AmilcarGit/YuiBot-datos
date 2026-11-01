@@ -70,3 +70,9 @@ La página principal (`index.html`) es un panel rosado (modo claro/oscuro) con:
 - 🖼️ **Tarjeta para compartir**: imagen vertical 1080×1350 lista para estados de WhatsApp (se genera en tu navegador, no sale nada de tu dispositivo).
 - 🔗 **Enlace propio**: `/?n=51910227479` abre la página ya buscando ese número.
 - 🛡️ **Administración**: en *Para desarrolladores → Administración* escribes tu `ADMIN_TOKEN` y ves las instalaciones (última sincronización) con botón para bloquear/desbloquear. El token no se guarda en ningún sitio. También por API: `GET /api/admin` (resumen) y `POST /api/admin {id, baneada}`, siempre con la cabecera `x-admin-token`.
+
+### Reiniciar la base (borrar todos los datos de jugadores)
+
+En *Para desarrolladores → Administración* (con tu `ADMIN_TOKEN`), al final aparece la **Zona de peligro**: escribe `REINICIAR` y pulsa *Borrar todos los datos*. También por API: `POST /api/admin {"accion":"reiniciar","confirmar":"REINICIAR"}` con la cabecera `x-admin-token`.
+
+Se borran perfiles, rankings, historial y contadores; **se conservan las instalaciones registradas**. El servidor cambia su `epoca`: cuando cada bot (ya actualizado) se conecte lo nota, **no aplica nada de la respuesta** (no pierde sus datos locales), vacía su memoria de lo enviado y vuelve a subir todo limpio en el siguiente ciclo (unos 2 minutos).

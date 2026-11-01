@@ -28,3 +28,8 @@ test('la página trae tarjeta para compartir, historial, enlace por número y ad
   for (const frase of ['/api/admin', 'x-admin-token', 'tarjetaSVG', 'cajaHistorial', "get('n')"]) assert.ok(html.includes(frase), frase)
   assert.ok(!/(localStorage|sessionStorage|almacen\.poner)\([^)]*(tokenAdmin|adm-token)/.test(html), 'el token nunca va al almacenamiento')
 })
+
+test('el panel admin tiene el reinicio con confirmación escrita', () => {
+  for (const id of ['adm-peligro', 'adm-confirmar', 'adm-reiniciar']) assert.ok(html.includes(`id="${id}"`), id)
+  assert.ok(html.includes("accion: 'reiniciar'") && html.includes('REINICIAR'))
+})
