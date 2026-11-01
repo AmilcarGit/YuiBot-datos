@@ -4,6 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#1b0d1a">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="YuiBot">
   <meta name="description" content="YuiBot-datos: busca tu número y mira tu nivel, monedas y puesto mundial en YuiBot-MD. Ranking en vivo, guía de instalación y estado del servicio.">
   <title>YuiBot-datos — Tu progreso en YuiBot-MD</title>
   <style>
@@ -19,7 +23,7 @@
       --text:#3b0f2a;--muted:#8a5272;--soft:#c2185b;--pink:#e91e8c;--pink2:#d6197f;--rose:#ff6fb5;--lilac:#8d5bd6;--mint:#10936c;--gold:#b7791f;--bad:#c93a55;
       --glow:rgba(233,30,140,.22);--field:#fff;--shadow:0 14px 40px rgba(214,51,132,.14);
     }
-    *{box-sizing:border-box}html{scroll-behavior:smooth}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}[hidden]{display:none!important}
     body{margin:0;min-height:100vh;color:var(--text);font-family:"Nunito","Segoe UI",ui-rounded,system-ui,-apple-system,sans-serif;-webkit-text-size-adjust:100%;
       background:radial-gradient(900px 480px at 12% -5%,var(--glow),transparent 60%),radial-gradient(700px 420px at 95% 20%,rgba(201,164,255,.16),transparent 60%),linear-gradient(180deg,var(--bg),var(--bg2));background-attachment:fixed}
     a{color:inherit;text-decoration:none}button,input{font:inherit;color:inherit}button{cursor:pointer}
@@ -29,11 +33,11 @@
     .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
     /* Encabezado */
-    .nav{height:72px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .nav{min-height:72px;padding:6px 0;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px}
     .brand{display:flex;gap:11px;align-items:center;font-weight:900;font-size:18px;letter-spacing:-.01em}
     .logo{width:42px;height:42px;border-radius:15px;display:grid;place-items:center;background:linear-gradient(135deg,var(--rose),var(--pink2));box-shadow:0 8px 24px var(--glow);color:#fff}
     .logo svg{width:24px;height:24px}
-    .links{display:flex;gap:6px;align-items:center}
+    .links{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px;align-items:center}
     .link{font-size:14px;font-weight:700;color:var(--muted);padding:9px 13px;border-radius:999px;transition:.2s}.link:hover{color:var(--text);background:var(--card)}
     .icon-btn{width:40px;height:40px;border-radius:13px;border:1px solid var(--line);background:var(--card);display:grid;place-items:center;transition:.2s}.icon-btn:hover{transform:translateY(-1px);border-color:var(--rose)}
 
@@ -142,12 +146,30 @@
     .hist h3{margin:0 0 6px;font-size:15px}.hist p{margin:6px 0 0;font-size:12.5px;color:var(--muted)}
     .hist svg{width:100%;height:150px;display:block}
     .leyenda{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin-top:6px}.leyenda i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
-    .adm{display:grid;gap:10px;margin:6px 0 14px}.adm .campo{display:flex;gap:8px;flex-wrap:wrap}.adm input{flex:1;min-width:200px;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:var(--field)}
+    .adm{display:grid;gap:10px;margin:6px 0 14px}.adm .campo{display:flex;gap:8px;flex-wrap:wrap}.adm input{flex:1;min-width:0;width:100%;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:var(--field)}
     .tabla-adm{width:100%;border-collapse:collapse;font-size:13.5px}.tabla-adm th,.tabla-adm td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}.tabla-adm th{color:var(--muted);font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:.04em}
     .tabla-adm td:first-child{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;word-break:break-all}.tabla-wrap{overflow-x:auto}
     .pill.bad{background:rgba(255,138,155,.16);color:var(--bad)}
+
+    /* Medallas, accesibilidad, banner y administración extra */
+    .medallas{margin-top:16px;border:1px solid var(--line);border-radius:18px;background:var(--card);padding:14px 16px}.medallas h3{margin:0 0 4px;font-size:15px}.medallas p.sub2{margin:0 0 10px;font-size:12.5px;color:var(--muted)}
+    .med-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+    .med{display:flex;gap:9px;align-items:center;padding:9px 11px;border-radius:14px;border:1px solid var(--line);background:var(--card2);min-width:0}.med i{font-style:normal;font-size:22px;flex:none}.med b{display:block;font-size:13px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.med span{display:block;font-size:11.5px;color:var(--muted)}.med span.tier{text-transform:capitalize}
+    .med.off{opacity:.45;filter:grayscale(1)}.med.t-oro.on{border-color:var(--gold)}.med.t-diamante.on{border-color:#5de0ff;box-shadow:0 0 0 2px rgba(93,224,255,.18),0 0 18px rgba(93,224,255,.25)}.med.t-oro.on{box-shadow:0 0 14px rgba(255,215,122,.25)}.med.off{border-color:var(--line)}
+    .acc{position:relative}.acc-panel{position:absolute;right:0;top:52px;z-index:30;width:min(300px,calc(100vw - 32px));padding:16px;border-radius:18px;border:1px solid var(--line);background:var(--card);box-shadow:var(--shadow)}
+    .acc-panel h3{margin:0 0 10px;font-size:15px}.acc-fila{display:flex;gap:8px;align-items:center;justify-content:space-between;margin:10px 0;font-size:14px;font-weight:700}
+    .acc-tams{display:flex;gap:6px}.acc-tams button,.acc-sw{border:1px solid var(--line);background:var(--card2);border-radius:12px;padding:7px 11px;font-weight:800}.acc-tams button[aria-pressed="true"],.acc-sw[aria-pressed="true"]{background:linear-gradient(135deg,var(--rose),var(--pink2));color:#fff;border-color:transparent}
+    html[data-tam="1"] body{zoom:1.12}html[data-tam="2"] body{zoom:1.25}html[data-tam="3"] body{zoom:1.4}
+    html[data-contraste="alto"]{--muted:var(--text);--line:rgba(255,255,255,.55);--soft:var(--text)}html[data-contraste="alto"][data-theme="light"]{--line:rgba(0,0,0,.6)}
+    html[data-contraste="alto"] .btn.ghost,html[data-contraste="alto"] .tile,html[data-contraste="alto"] .card{border-width:2px}
+    html[data-anim="no"] *,html[data-anim="no"] *:before,html[data-anim="no"] *:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+    .banner{display:flex;gap:12px;align-items:center;margin:0 0 14px;padding:12px 16px;border-radius:18px;border:1px solid var(--gold);background:linear-gradient(100deg,rgba(255,215,122,.2),var(--card))}.banner .bi{font-size:28px;flex:none}.banner b{display:block}.banner span{color:var(--muted);font-size:13.5px}.banner small{margin-left:auto;font-weight:800;color:var(--gold);white-space:nowrap}
+    .adm-bloque{margin-top:16px;padding:14px 16px;border:1px solid var(--line);border-radius:16px}.adm-bloque h4{margin:0 0 8px}.adm-bloque select,.adm-bloque input[type=number],.adm-bloque input[type=text]{padding:11px 13px;border-radius:12px;border:1px solid var(--line);background:var(--field);min-width:0}
+    .adm-ev{display:grid;gap:8px}.adm-ev .campo{display:flex;gap:8px;flex-wrap:wrap}.adm-ev input[type=text]{flex:1;min-width:150px}
     @media(max-width:900px){.vivo{grid-template-columns:minmax(0,1fr)}.grid3{grid-template-columns:1fr 1fr}.consola{grid-template-columns:1fr}.eps{grid-template-columns:1fr 1fr}}
-    @media(max-width:640px){.tiles{grid-template-columns:1fr 1fr}.pasos,.grid3{grid-template-columns:1fr}.puestos{grid-template-columns:1fr}.link.hide-s{display:none}.nav{height:64px}.search{flex-direction:column;border-radius:20px}.search .btn{width:100%}.contadores{grid-template-columns:1fr 1fr 1fr}.cont{padding:12px}.panel{padding:18px}.eps{grid-template-columns:1fr}}
+    .cont span{overflow-wrap:anywhere}
+    @media(max-width:640px){.acc-panel{position:fixed;left:16px;right:16px;top:76px;width:auto}}
+    @media(max-width:640px){html:not([data-tam="0"]) .contadores{grid-template-columns:1fr}.tiles{grid-template-columns:1fr 1fr}.pasos,.grid3{grid-template-columns:1fr}.puestos{grid-template-columns:1fr}.link.hide-s{display:none}.nav{min-height:64px}.search{flex-direction:column;border-radius:20px}.search .btn{width:100%}.contadores{grid-template-columns:1fr 1fr 1fr}.cont{padding:12px}.panel{padding:18px}.eps{grid-template-columns:1fr}}
     @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
   </style>
 </head>
@@ -163,9 +185,19 @@
         <a class="link hide-s" href="#ranking">Ranking</a>
         <a class="link hide-s" href="#empezar">Empezar</a>
         <a class="link" href="https://github.com/AmilcarGit/YuiBot-MD" target="_blank" rel="noreferrer">GitHub ↗</a>
+        <button class="icon-btn" id="instalar" type="button" hidden aria-label="Instalar como app" title="Instalar como app"><span aria-hidden="true">📲</span></button>
+        <div class="acc"><button class="icon-btn" id="acc-btn" type="button" aria-label="Accesibilidad: tamaño de letra y contraste" aria-expanded="false" aria-controls="acc-panel" title="Accesibilidad"><span aria-hidden="true" style="font-weight:900;font-size:15px">Aa</span></button>
+          <div class="acc-panel" id="acc-panel" role="dialog" aria-label="Accesibilidad" hidden>
+            <h3>Accesibilidad</h3>
+            <div class="acc-fila"><span>Tamaño de letra</span><div class="acc-tams" id="acc-tams"><button type="button" data-tam="0" aria-label="Normal">A</button><button type="button" data-tam="1" aria-label="Grande" style="font-size:1.1em">A</button><button type="button" data-tam="2" aria-label="Más grande" style="font-size:1.25em">A</button><button type="button" data-tam="3" aria-label="Enorme" style="font-size:1.4em">A</button></div></div>
+            <div class="acc-fila"><span>Alto contraste</span><button class="acc-sw" type="button" id="acc-contraste" aria-pressed="false">No</button></div>
+            <div class="acc-fila"><span>Menos animaciones</span><button class="acc-sw" type="button" id="acc-anim" aria-pressed="false">No</button></div>
+            <button class="btn ghost small" type="button" id="acc-reset">Restablecer</button>
+          </div></div>
         <button class="icon-btn" id="tema" type="button" aria-label="Cambiar entre tema oscuro y claro" title="Cambiar tema"><span aria-hidden="true" id="tema-ico">☀️</span></button>
       </nav>
     </header>
+    <div class="banner" id="banner" role="status" hidden><span class="bi" id="banner-ico" aria-hidden="true">📣</span><div><b id="banner-t"></b><span id="banner-x"></span></div><small id="banner-fin"></small></div>
 
     <main>
       <section class="hero" id="buscar" style="margin-bottom:34px">
@@ -270,6 +302,7 @@ npm start</code><button class="btn ghost small" type="button" data-copiar="cmd-t
                 <button class="ep" type="button" data-url="/api/salud" aria-pressed="true"><code>GET /api/salud</code><span>Estado</span></button>
                 <button class="ep" type="button" data-url="/api/estadisticas" aria-pressed="false"><code>GET /api/estadisticas</code><span>Métricas</span></button>
                 <button class="ep" type="button" data-url="/api/top?campo=monedas&limite=5" aria-pressed="false"><code>GET /api/top</code><span>Ranking</span></button>
+                <button class="ep" type="button" data-url="/api/evento" aria-pressed="false"><code>GET /api/evento</code><span>Banner</span></button>
                 <div class="ep lock" aria-disabled="true"><code>GET /api/usuario</code><span>🔎 buscador</span></div>
                 <div class="ep lock" aria-disabled="true"><code>POST /api/sync</code><span>🔒 bot</span></div>
                 <div class="ep lock" aria-disabled="true"><code>GET·POST /api/admin</code><span>🔒 admin</span></div>
@@ -287,6 +320,23 @@ npm start</code><button class="btn ghost small" type="button" data-copiar="cmd-t
               <div id="adm-msg" class="sub" role="status"></div>
             </form>
             <div id="adm-caja"></div>
+            <div id="adm-extra" hidden>
+              <div class="adm-bloque">
+                <h4>📣 Evento del banner</h4>
+                <p style="margin:0 0 8px;color:var(--muted);font-size:13.5px">Aparece arriba de la web (doble monedas, torneo…). Solo es un aviso: no cambia el juego.</p>
+                <div class="adm-ev">
+                  <div class="campo"><input type="text" id="ev-titulo" maxlength="60" placeholder="Título (ej. ¡Doble monedas!)" aria-label="Título del evento"><select id="ev-tipo" aria-label="Tipo"><option value="monedas">💰 Monedas</option><option value="xp">⭐ XP</option><option value="torneo">🏆 Torneo</option><option value="fiesta">🎉 Fiesta</option><option value="aviso">📣 Aviso</option></select></div>
+                  <div class="campo"><input type="text" id="ev-texto" maxlength="200" placeholder="Detalle (opcional)" aria-label="Detalle del evento"><input type="number" id="ev-horas" min="1" max="336" value="24" style="width:92px" aria-label="Horas de duración"><span style="align-self:center;color:var(--muted)">horas</span></div>
+                  <div class="campo"><button class="btn small" type="button" id="ev-publicar">Publicar</button><button class="btn ghost small" type="button" id="ev-quitar">Quitar evento</button></div>
+                </div>
+              </div>
+              <div class="adm-bloque">
+                <h4>🧹 Registros sospechosos (LIDs)</h4>
+                <p style="margin:0 0 8px;color:var(--muted);font-size:13.5px">Busca números que no empiezan con un código de país real. Primero ves una vista previa; nada se borra hasta que confirmes.</p>
+                <div class="campo" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn ghost small" type="button" id="lid-buscar">Buscar sospechosos</button><button class="btn small" type="button" id="lid-borrar" hidden>Borrar estos</button></div>
+                <p id="lid-msg" class="sub" role="status" style="margin:8px 0 0"></p>
+              </div>
+            </div>
             <div id="adm-peligro" hidden style="margin-top:16px;padding:14px 16px;border:1px solid var(--bad);border-radius:16px">
               <strong>Zona de peligro</strong>
               <p style="margin:6px 0 10px">Borra los datos de todos los jugadores del servidor (rankings, perfiles y gráficas). Las instalaciones siguen registradas y cada bot vuelve a subir sus datos limpios en unos minutos. Escribe <code>REINICIAR</code> para confirmar.</p>
@@ -363,6 +413,45 @@ npm start</code><button class="btn ghost small" type="button" data-copiar="cmd-t
     function puesto(titulo, pos, total) { const p = h('div', 'puesto'); p.append(h('b', null, pos ? '#' + fmt(pos) : '—'), h('span', null, total ? `${titulo} · de ${fmt(total)}` : titulo)); return p; }
 
 
+    // ── Medallas (mismo catálogo que el bot: lib/logros.js) ──
+    const LOGROS = [
+      ['primeros-pasos', 'Primeros pasos', '🌱', 'bronce', 'Envía 10 mensajes'], ['conversador', 'Conversador', '💬', 'bronce', 'Envía 100 mensajes'], ['imparable', 'Imparable', '🔥', 'plata', 'Envía 1000 mensajes'], ['leyenda-chat', 'Leyenda del chat', '👑', 'oro', 'Envía 5000 mensajes'],
+      ['nivel-5', 'Aprendiz', '⭐', 'bronce', 'Llega al nivel 5'], ['nivel-10', 'Guerrero', '⚔️', 'plata', 'Llega al nivel 10'], ['nivel-25', 'Maestro', '🏅', 'oro', 'Llega al nivel 25'], ['nivel-50', 'Leyenda', '💎', 'diamante', 'Llega al nivel 50'],
+      ['racha-3', 'Constante', '📅', 'bronce', '3 días seguidos activo'], ['racha-7', 'Fiel', '🗓️', 'plata', '7 días seguidos activo'], ['racha-30', 'Inquebrantable', '🛡️', 'oro', '30 días seguidos activo'],
+      ['rico', 'Ahorrador', '💰', 'plata', 'Junta 5000 monedas'], ['millonario', 'Millonario', '🤑', 'diamante', 'Junta 100000 monedas'], ['querido', 'Querido', '💖', 'plata', 'Consigue 10 de reputación'],
+      ['primer-sueldo', 'Primer sueldo', '💼', 'bronce', 'Haz tu primer trabajo'], ['trabajador', 'Trabajador', '⛏️', 'plata', 'Haz 50 trabajos'], ['adicto-trabajo', 'Adicto al trabajo', '🏗️', 'oro', 'Haz 300 trabajos'],
+      ['buen-sueldo', 'Buen sueldo', '💵', 'plata', 'Gana 10000 monedas con trabajos'], ['magnate', 'Magnate', '🏦', 'diamante', 'Gana 100000 monedas con trabajos'], ['equipado', 'Bien equipado', '🛠️', 'plata', 'Suma 10 niveles de mejoras'], ['imperio', 'Imperio', '🏰', 'diamante', 'Suma 40 niveles de mejoras'],
+    ].map(([id, nombre, icono, tier, desc]) => ({ id, nombre, icono, tier, desc }));
+    const PESO_TIER = { diamante: 4, oro: 3, plata: 2, bronce: 1 };
+    function medallasDe(ids) {
+      const tengo = new Set(Array.isArray(ids) ? ids : []);
+      return LOGROS.map((l) => ({ ...l, on: tengo.has(l.id) })).sort((a, b) => (b.on - a.on) || (PESO_TIER[b.tier] - PESO_TIER[a.tier]));
+    }
+    function cajaMedallas(ids) {
+      const lista = medallasDe(ids), tengo = lista.filter((m) => m.on).length;
+      const caja = h('div', 'medallas'); caja.appendChild(h('h3', null, `🏅 Medallas · ${tengo} de ${lista.length}`));
+      caja.appendChild(h('p', 'sub2', tengo ? 'Las más raras (💎 diamante y 🥇 oro) brillan primero.' : 'Todavía no tienes medallas. ¡Usa el bot y desbloquéalas! 🌸'));
+      const grid = h('div', 'med-grid');
+      for (const m of lista) {
+        const d = h('div', `med t-${m.tier} ${m.on ? 'on' : 'off'}`); d.title = `${m.nombre}: ${m.desc}`;
+        const t = h('div'); t.append(h('b', null, m.on ? m.nombre : '🔒 ' + m.nombre), h('span', m.on ? 'tier' : null, m.on ? m.tier : m.desc));
+        d.append(h('i', null, m.icono), t); grid.appendChild(d);
+      }
+      caja.appendChild(grid); return caja;
+    }
+
+    // ── Descargar mi progreso (archivo .json hecho en tu navegador) ──
+    function descargarProgreso(d, numero) {
+      const datos = {
+        app: 'YuiBot-datos', generado: new Date().toISOString(), numero: numero.slice(0, 3) + '•••' + numero.slice(-3),
+        perfil: d.perfil, posiciones: d.posiciones, totalesRanking: d.totales,
+        medallas: medallasDe(d.medallas).filter((m) => m.on).map((m) => ({ id: m.id, nombre: m.nombre, nivel: m.tier })),
+        historial: d.historial || [],
+      };
+      const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(datos, null, 2)], { type: 'application/json' }));
+      a.download = 'mi-progreso-yuibot.json'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); aviso('Progreso descargado 💾');
+    }
+
     // ── Gráfica de progreso (monedas y XP por día) ──
     const sv = (tag, attrs) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
     function lineaSerie(svg, valores, x0, x1, y0, y1, color) {
@@ -391,6 +480,8 @@ npm start</code><button class="btn ghost small" type="button" data-copiar="cmd-t
       const p = d.perfil, esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
       const span = Math.max(1, p.xpNivelSiguiente - p.xpNivelActual), pct = Math.max(0, Math.min(1, (p.xp - p.xpNivelActual) / span));
       const fila = (y, ico, tit, val) => `<g><rect x="90" y="${y}" width="900" height="110" rx="30" fill="rgba(255,255,255,.14)"/><text x="140" y="${y + 70}" font-size="46">${ico}</text><text x="220" y="${y + 70}" font-size="38" fill="#ffe4f2">${esc(tit)}</text><text x="940" y="${y + 72}" font-size="48" font-weight="800" fill="#fff" text-anchor="end">${esc(val)}</text></g>`;
+      const raras = medallasDe(d.medallas).filter((m) => m.on).slice(0, 5);
+      const medallasSVG = raras.length ? `<text x="540" y="1190" font-size="64" text-anchor="middle">${raras.map((m) => m.icono).join(' ')}</text>` : '';
       const rango = d.posiciones.monedas ? `#${fmt(d.posiciones.monedas)} del mundo en monedas` : 'Nuevo en el ranking';
       return `<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350" font-family="Nunito,Segoe UI,system-ui,sans-serif">
 <defs><linearGradient id="f" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff7ac0"/><stop offset=".55" stop-color="#e91e8c"/><stop offset="1" stop-color="#8d5bd6"/></linearGradient></defs>
@@ -401,8 +492,9 @@ npm start</code><button class="btn ghost small" type="button" data-copiar="cmd-t
 <rect x="140" y="410" width="800" height="34" rx="17" fill="rgba(255,255,255,.25)"/><rect x="140" y="410" width="${Math.max(34, 800 * pct).toFixed(0)}" height="34" rx="17" fill="#fff"/>
 <text x="540" y="486" font-size="32" fill="#ffe4f2" text-anchor="middle">${esc(fmt(p.xp))} XP · faltan ${esc(fmt(Math.max(0, p.xpNivelSiguiente - p.xp)))} para el nivel ${p.nivel + 1}</text>
 ${fila(540, '💰', 'Monedas', fmt(p.monedas))}${fila(670, '🔥', 'Racha', p.racha + ' días')}${fila(800, '🏅', 'Logros', fmt(p.logros))}${fila(930, '⛏️', 'Trabajos', fmt(p.trabajosHechos))}
+${medallasSVG}
 <text x="540" y="1110" font-size="46" font-weight="800" fill="#fff" text-anchor="middle">🏆 ${esc(rango)}</text>
-<text x="540" y="1250" font-size="34" fill="#ffe4f2" text-anchor="middle">Mira el tuyo en ${esc(location.host)}</text></svg>`;
+<text x="540" y="1290" font-size="34" fill="#ffe4f2" text-anchor="middle">Mira el tuyo en ${esc(location.host)}</text></svg>`;
     }
     function tarjetaPNG(d, numero) {
       return new Promise((ok, mal) => {
@@ -448,8 +540,10 @@ ${fila(540, '💰', 'Monedas', fmt(p.monedas))}${fila(670, '🔥', 'Racha', p.ra
       tarj.addEventListener('click', () => compartirTarjeta(d, numero));
       const enlace = h('button', 'btn ghost small', '🔗 Copiar mi enlace'); enlace.type = 'button';
       enlace.addEventListener('click', async () => { try { await navigator.clipboard.writeText(location.origin + '/?n=' + numero + '#buscar'); aviso('¡Enlace copiado!'); } catch (e) { aviso('No se pudo copiar'); } });
-      acc.append(copiar, tarj, enlace, ver);
-      panel.append(cab, tiles, puestos, cajaHistorial(d.historial), acc);
+      const bajar = h('button', 'btn ghost small', '💾 Descargar mi progreso'); bajar.type = 'button';
+      bajar.addEventListener('click', () => descargarProgreso(d, numero));
+      acc.append(copiar, tarj, enlace, bajar, ver);
+      panel.append(cab, tiles, puestos, cajaHistorial(d.historial), cajaMedallas(d.medallas), acc);
       mostrar(panel);
       requestAnimationFrame(() => requestAnimationFrame(() => { relleno.style.width = pct + '%'; }));
     }
@@ -609,7 +703,7 @@ ${fila(540, '💰', 'Monedas', fmt(p.monedas))}${fila(670, '🔥', 'Racha', p.ra
       }
       tabla.appendChild(cuerpo); wrap.appendChild(tabla); caja.appendChild(wrap);
       if (!(d.instalaciones || []).length) caja.appendChild(h('p', null, 'Todavía no hay instalaciones registradas.'));
-      $('adm-caja').replaceChildren(caja); $('adm-peligro').hidden = false;
+      $('adm-caja').replaceChildren(caja); $('adm-peligro').hidden = false; $('adm-extra').hidden = false;
     }
     async function cargarAdmin() {
       $('adm-btn').disabled = true; $('adm-msg').textContent = 'Consultando…';
@@ -631,10 +725,76 @@ ${fila(540, '💰', 'Monedas', fmt(p.monedas))}${fila(670, '🔥', 'Racha', p.ra
     });
     $('adm-form').addEventListener('submit', (ev) => { ev.preventDefault(); tokenAdmin = $('adm-token').value.trim(); if (!tokenAdmin) { $('adm-msg').textContent = 'Escribe tu ADMIN_TOKEN.'; return; } cargarAdmin(); });
 
-    revisarEstado(); cargarVivo(); cargarRanking(false);
+
+    // ── Accesibilidad (se recuerda en este dispositivo) ──
+    const ACC = { tam: 0, contraste: false, anim: false };
+    function aplicarAcc() {
+      const r = document.documentElement;
+      r.dataset.tam = String(ACC.tam); if (ACC.contraste) r.dataset.contraste = 'alto'; else delete r.dataset.contraste; if (ACC.anim) r.dataset.anim = 'no'; else delete r.dataset.anim;
+      document.querySelectorAll('#acc-tams button').forEach((b) => b.setAttribute('aria-pressed', String(Number(b.dataset.tam) === ACC.tam)));
+      for (const [id, v] of [['acc-contraste', ACC.contraste], ['acc-anim', ACC.anim]]) { const b = $(id); b.setAttribute('aria-pressed', String(v)); b.textContent = v ? 'Sí' : 'No'; }
+    }
+    try { const g = JSON.parse(almacen.leer('acc') || 'null'); if (g && typeof g === 'object') { ACC.tam = [0, 1, 2, 3].includes(g.tam) ? g.tam : 0; ACC.contraste = g.contraste === true; ACC.anim = g.anim === true; } } catch (e) { /* sin preferencias guardadas */ }
+    const guardarAcc = () => { aplicarAcc(); almacen.poner('acc', JSON.stringify(ACC)); };
+    aplicarAcc();
+    $('acc-btn').addEventListener('click', () => { const abrir = $('acc-panel').hidden; $('acc-panel').hidden = !abrir; $('acc-btn').setAttribute('aria-expanded', String(abrir)); });
+    document.addEventListener('click', (ev) => { if (!$('acc-panel').hidden && !ev.target.closest('.acc')) { $('acc-panel').hidden = true; $('acc-btn').setAttribute('aria-expanded', 'false'); } });
+    document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && !$('acc-panel').hidden) { $('acc-panel').hidden = true; $('acc-btn').setAttribute('aria-expanded', 'false'); $('acc-btn').focus(); } });
+    $('acc-tams').addEventListener('click', (ev) => { const b = ev.target.closest('button[data-tam]'); if (b) { ACC.tam = Number(b.dataset.tam); guardarAcc(); } });
+    $('acc-contraste').addEventListener('click', () => { ACC.contraste = !ACC.contraste; guardarAcc(); });
+    $('acc-anim').addEventListener('click', () => { ACC.anim = !ACC.anim; guardarAcc(); });
+    $('acc-reset').addEventListener('click', () => { ACC.tam = 0; ACC.contraste = false; ACC.anim = false; guardarAcc(); aviso('Accesibilidad restablecida'); });
+
+    // ── Instalar como app (PWA) ──
+    let instalador = null;
+    if ('serviceWorker' in navigator) window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(() => { /* sin service worker la web funciona igual */ }); });
+    window.addEventListener('beforeinstallprompt', (ev) => { ev.preventDefault(); instalador = ev; $('instalar').hidden = false; });
+    window.addEventListener('appinstalled', () => { instalador = null; $('instalar').hidden = true; aviso('¡App instalada! 🌸'); });
+    $('instalar').addEventListener('click', async () => { if (!instalador) return; instalador.prompt(); try { await instalador.userChoice; } catch (e) { /* cerrado */ } instalador = null; $('instalar').hidden = true; });
+    if (/iphone|ipad|ipod/i.test(navigator.userAgent) && !navigator.standalone && !matchMedia('(display-mode: standalone)').matches) { $('instalar').hidden = false; $('instalar').addEventListener('click', () => aviso('En Safari: Compartir → “Añadir a pantalla de inicio”')); }
+
+    // ── Banner de evento ──
+    function textoFin(ms) { const m = Math.max(1, Math.round(ms / 60000)); return m < 90 ? `Termina en ${m} min` : m < 2880 ? `Termina en ${Math.round(m / 60)} h` : `Termina en ${Math.round(m / 1440)} d`; }
+    async function cargarEvento() {
+      try {
+        const r = await pedir('/api/evento');
+        if (!r.ok || !r.datos || r.datos.ok !== true) return;
+        const e = r.datos.activo ? r.datos.evento : null;
+        $('banner').hidden = !e;
+        if (e) { $('banner-ico').textContent = e.icono || '📣'; $('banner-t').textContent = e.titulo; $('banner-x').textContent = e.texto || ''; $('banner-fin').textContent = textoFin(e.hasta - Date.now()); }
+      } catch (e) { /* sin evento si no hay conexión */ }
+    }
+
+    // ── Administración: evento y limpieza de sospechosos ──
+    $('ev-publicar').addEventListener('click', async () => {
+      const titulo = $('ev-titulo').value.trim(); if (!titulo) { aviso('Escribe un título'); return; }
+      $('ev-publicar').disabled = true;
+      try { const r = await llamarAdmin('POST', { accion: 'evento', titulo, texto: $('ev-texto').value.trim(), tipo: $('ev-tipo').value, horas: Number($('ev-horas').value) || 24 }); if (!r.ok) throw new Error(); aviso('Evento publicado 📣'); cargarEvento(); }
+      catch (e) { aviso('No se pudo publicar'); } finally { $('ev-publicar').disabled = false; }
+    });
+    $('ev-quitar').addEventListener('click', async () => {
+      try { const r = await llamarAdmin('POST', { accion: 'evento', quitar: true }); if (!r.ok) throw new Error(); aviso('Evento quitado'); cargarEvento(); } catch (e) { aviso('No se pudo quitar'); }
+    });
+    $('lid-buscar').addEventListener('click', async () => {
+      $('lid-msg').textContent = 'Buscando…'; $('lid-borrar').hidden = true;
+      try {
+        const r = await llamarAdmin('POST', { accion: 'limpiar' }); if (!r.ok || !r.datos) throw new Error();
+        const n = r.datos.total || 0;
+        $('lid-msg').textContent = n ? `Encontré ${n} registro(s) sospechoso(s): ${(r.datos.ejemplos || []).slice(0, 8).join(', ')}${n > 8 ? '…' : ''}` : 'No hay registros sospechosos 🌸';
+        $('lid-borrar').hidden = !n; $('lid-borrar').textContent = `Borrar estos ${n}`;
+      } catch (e) { $('lid-msg').textContent = 'No se pudo consultar.'; }
+    });
+    $('lid-borrar').addEventListener('click', async () => {
+      if (!confirm('¿Borrar estos registros del servidor? No se puede deshacer.')) return;
+      $('lid-borrar').disabled = true;
+      try { const r = await llamarAdmin('POST', { accion: 'limpiar', confirmar: true }); if (!r.ok) throw new Error(); $('lid-msg').textContent = `Listo: ${r.datos.borrados} registro(s) borrado(s).`; $('lid-borrar').hidden = true; cargarRanking(true); cargarVivo(); }
+      catch (e) { $('lid-msg').textContent = 'No se pudo borrar.'; } finally { $('lid-borrar').disabled = false; }
+    });
+
+    revisarEstado(); cargarVivo(); cargarRanking(false); cargarEvento();
     if (/^\d{6,16}$/.test(porEnlace)) { $('numero').value = porEnlace; buscar(porEnlace); }
     else if (guardado && /^\d{6,16}$/.test(guardado)) buscar(guardado);
-    const refrescar = () => { if (document.hidden) return; revisarEstado(); cargarVivo(); cargarRanking(true); };
+    const refrescar = () => { if (document.hidden) return; revisarEstado(); cargarVivo(); cargarRanking(true); cargarEvento(); };
     setInterval(refrescar, 15000);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) refrescar(); });
   </script>

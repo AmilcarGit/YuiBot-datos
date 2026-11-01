@@ -364,3 +364,48 @@ test('Upstash: borrarPatron recorre el cursor y borra por lotes', async () => {
   assert.equal(await a.borrarPatron('u:*'), 250)
   assert.equal(borradas.length, 250); assert.deepEqual(llamadas, [['0', 'u:*'], ['7', 'u:*']])
 })
+
+test('medallas en el perfil público (solo ids válidos)', async () => {
+  const almacen = nuevoAlmacen(); const A = await instalacion(almacen)
+  await svc.sincronizar({ almacen, cfg, instalacionId: A.id, ahora: 1e12, cuerpo: { usuarios: { '51910227479': { vis: '519•••479', u: { r: { actualizado: 1, logros: { 'nivel-5': 1, 'racha-3': { fecha: 1 }, 'MAL ID<x>': 1, 'apagado': 0 } }, d: { xp: 10 }, semilla: true } } } } })
+  const r = await svc.perfilPublico({ almacen, cfg, numero: '51910227479', ip: '3.3.3.3', ahora: 1e12 })
+  assert.deepEqual([...r.medallas].sort(), ['nivel-5', 'racha-3'])
+})
+
+test('códigos de país: reconoce teléfonos reales y descarta los que no lo parecen', () => {
+  for (const m of ['519•••479', '5491•••44', '34•••••12', '1555•••99', '7999•••11', '58•••••12', '269•••844']) assert.ok(S.codigoPaisValido(m), m)
+  for (const m of ['113•••433', '110•••000', '999•••000', '700•••123', '']) assert.ok(!S.codigoPaisValido(m), m)
+})
+
+test('un número de 15 dígitos (típico LID) no entra a la base', async () => {
+  const almacen = nuevoAlmacen(); const A = await instalacion(almacen)
+  const r = await svc.sincronizar({ almacen, cfg, instalacionId: A.id, ahora: 1e12, cuerpo: { usuarios: { '181234567890123': { vis: '181•••123', u: { r: { actualizado: 1 }, d: { monedas: 10 }, semilla: true } }, '51910227479': { vis: '519•••479', u: { r: { actualizado: 1 }, d: { monedas: 10 }, semilla: true } } } } })
+  assert.match(r.errores['181234567890123'], /LID/); assert.ok(r.usuarios['51910227479'])
+  assert.equal((await svc.top({ almacen })).top.length, 1)
+})
+
+test('limpieza de sospechosos: vista previa, borrado confirmado y solo con token', async () => {
+  const almacen = nuevoAlmacen(); const A = await instalacion(almacen); const cfgAdmin = { ...cfg, adminToken: 'adm' }
+  const sync = (num, vis) => svc.sincronizar({ almacen, cfg, instalacionId: A.id, ahora: 1e12, cuerpo: { usuarios: { [num]: { vis, u: { r: { actualizado: 1 }, d: { monedas: 10, xp: 5 }, semilla: true } } } } })
+  await sync('51910227479', '519•••479'); await sync('1139999999999', '113•••999'); await sync('9991234567890', '999•••890')
+  await assert.rejects(() => svc.limpiarSospechosos({ almacen, cfg: cfgAdmin, token: 'mal' }), { estado: 401 })
+  const previa = await svc.limpiarSospechosos({ almacen, cfg: cfgAdmin, token: 'adm' })
+  assert.equal(previa.vistaPrevia, true); assert.equal(previa.total, 2); assert.equal((await svc.top({ almacen })).top.length, 3, 'la vista previa no borra')
+  const r = await svc.limpiarSospechosos({ almacen, cfg: cfgAdmin, token: 'adm', confirmar: true })
+  assert.equal(r.borrados, 2)
+  const top = (await svc.top({ almacen })).top; assert.equal(top.length, 1); assert.equal(top[0].visible, '519•••479')
+  assert.equal((await svc.perfilPublico({ almacen, cfg, numero: '51910227479', ip: '4.4.4.4' })).existe, true)
+})
+
+test('evento del banner: definir, expirar, quitar y limpiar el texto', async () => {
+  const almacen = nuevoAlmacen(); const cfgAdmin = { ...cfg, adminToken: 'adm' }
+  assert.deepEqual(await svc.eventoActual({ almacen }), { activo: false })
+  await assert.rejects(() => svc.definirEvento({ almacen, cfg: cfgAdmin, token: 'mal', titulo: 'x' }), { estado: 401 })
+  await assert.rejects(() => svc.definirEvento({ almacen, cfg: cfgAdmin, token: 'adm', titulo: '  ' }), { estado: 400 })
+  await svc.definirEvento({ almacen, cfg: cfgAdmin, token: 'adm', titulo: 'Doble <b>monedas</b>', texto: 'Hasta\nmedianoche', tipo: 'monedas', horas: 2, ahora: 1000 })
+  const e = await svc.eventoActual({ almacen, ahora: 2000 })
+  assert.equal(e.activo, true); assert.ok(!/[<>]/.test(e.evento.titulo)); assert.equal(e.evento.texto, 'Hasta medianoche'); assert.equal(e.evento.icono, '💰')
+  assert.deepEqual(await svc.eventoActual({ almacen, ahora: 1000 + 3 * 3600000 }), { activo: false }, 'expira solo')
+  await svc.definirEvento({ almacen, cfg: cfgAdmin, token: 'adm', quitar: true })
+  assert.equal((await svc.eventoActual({ almacen, ahora: 2000 })).activo, false)
+})

@@ -76,3 +76,12 @@ La página principal (`index.html`) es un panel rosado (modo claro/oscuro) con:
 En *Para desarrolladores → Administración* (con tu `ADMIN_TOKEN`), al final aparece la **Zona de peligro**: escribe `REINICIAR` y pulsa *Borrar todos los datos*. También por API: `POST /api/admin {"accion":"reiniciar","confirmar":"REINICIAR"}` con la cabecera `x-admin-token`.
 
 Se borran perfiles, rankings, historial y contadores; **se conservan las instalaciones registradas**. El servidor cambia su `epoca`: cuando cada bot (ya actualizado) se conecte lo nota, **no aplica nada de la respuesta** (no pierde sus datos locales), vacía su memoria de lo enviado y vuelve a subir todo limpio en el siguiente ciclo (unos 2 minutos).
+
+### Más novedades de la web
+
+- 🏅 **Medallas**: tus 21 logros con nombre, ícono y rareza (💎 diamante, 🥇 oro, plata, bronce); los más raros brillan primero y salen también en la tarjeta para compartir.
+- 💾 **Descargar mi progreso**: un `.json` con tu perfil, posiciones, medallas e historial, generado en tu navegador.
+- 📲 **App instalable (PWA)**: botón para instalar en el celular o la PC, ícono rosado y funciona sin conexión (la API nunca se guarda en caché). En iPhone: Compartir → *Añadir a pantalla de inicio*.
+- 🔠 **Accesibilidad** (botón **Aa**): 4 tamaños de letra, alto contraste y menos animaciones; se recuerdan en tu dispositivo.
+- 📣 **Banner de eventos**: `GET /api/evento` (público). El dueño lo publica desde *Administración* (título, detalle, tipo y horas) o con `POST /api/admin {"accion":"evento",…}`; es solo un aviso, no cambia el juego.
+- 🧹 **Limpiar registros sospechosos**: *Administración → Buscar sospechosos* muestra una vista previa (números que no empiezan con un código de país real) y solo borra si confirmas. Además, el servidor ya rechaza números de 15 dígitos (típicos LID).
