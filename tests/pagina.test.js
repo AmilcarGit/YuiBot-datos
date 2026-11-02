@@ -51,3 +51,8 @@ test('accesibilidad, medallas, descarga y banner están en la página', () => {
   const ids = [...html.matchAll(/\['([a-z0-9-]+)', '[^']+', '[^']+', '(?:bronce|plata|oro|diamante)'/g)].map((m) => m[1])
   assert.equal(ids.length, 21, 'catálogo de medallas completo')
 })
+
+test('el panel en vivo muestra el desafío semanal y las estadísticas diarias', () => {
+  for (const id of ['des-barra', 'des-texto', 'diario', 'diario-nota']) assert.ok(html.includes(`id="${id}"`), id)
+  assert.ok(html.includes('pintarDesafio') && html.includes('pintarDiario'))
+})

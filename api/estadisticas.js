@@ -1,7 +1,8 @@
 // GET /api/estadisticas → métricas globales agregadas; no expone identificadores ni datos personales.
 const { ruta } = require('../lib/http')
 const { obtenerAlmacen } = require('../lib/almacen')
-const { actividad } = require('../lib/servicio')
+const { config } = require('../lib/seguridad')
+const { actividad, diario, desafio } = require('../lib/servicio')
 
 module.exports = ruta(['GET'], async () => {
   const almacen = obtenerAlmacen()
@@ -23,6 +24,8 @@ module.exports = ruta(['GET'], async () => {
       sincronizaciones: numero(sincronizaciones),
     },
     actividad: await actividad({ almacen }),
+    diario: await diario({ almacen }),
+    desafio: await desafio({ almacen, cfg: config() }),
     nota: 'Contadores acumulados desde la activación de estas estadísticas. No incluyen actividad anterior.'
   }
 })

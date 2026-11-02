@@ -409,3 +409,24 @@ test('evento del banner: definir, expirar, quitar y limpiar el texto', async () 
   await svc.definirEvento({ almacen, cfg: cfgAdmin, token: 'adm', quitar: true })
   assert.equal((await svc.eventoActual({ almacen, ahora: 2000 })).activo, false)
 })
+
+test('estadísticas diarias y desafío semanal global', async () => {
+  const almacen = nuevoAlmacen(); const A = await instalacion(almacen)
+  const dia = 86400000; const T = Date.parse('2031-03-05T15:00:00Z') // miércoles
+  const sync = (num, d, ahora, semilla = false) => svc.sincronizar({ almacen, cfg, instalacionId: A.id, ahora, cuerpo: { usuarios: { [num]: { vis: '519•••479', u: { r: { actualizado: ahora }, d, ...(semilla ? { semilla: true } : {}) } } } } })
+  await sync('51910227479', { monedas: 100, trabajosVeces: 40 }, T, true) // semilla: no cuenta para el desafío
+  await sync('51910227479', { trabajosVeces: 10, monedas: 5 }, T + 60000)
+  await sync('51900000001', { trabajosVeces: 5 }, T + 120000)
+  await sync('51910227479', { trabajosVeces: 3 }, T + 180000) // misma persona, mismo día: sigue siendo 1 activo
+  await sync('51910227479', { trabajosVeces: 2 }, T + dia)
+  const d = await svc.desafio({ almacen, cfg: { desafioMeta: 20 }, ahora: T + 5000 })
+  assert.deepEqual([d.semana, d.actual, d.meta, d.completado], ['2031-03-03', 20, 20, true])
+  assert.equal(new Date(d.termina).toISOString(), '2031-03-10T05:00:00.000Z')
+  const sig = await svc.desafio({ almacen, cfg: { desafioMeta: 20 }, ahora: T + 6 * dia }) // otra semana: empieza de cero
+  assert.deepEqual([sig.semana, sig.actual, sig.completado], ['2031-03-10', 0, false])
+  const diario = await svc.diario({ almacen, dias: 3, ahora: T + dia })
+  assert.deepEqual(diario.map((x) => x.dia), ['2031-03-04', '2031-03-05', '2031-03-06'])
+  assert.deepEqual([diario[1].activos, diario[1].nuevos, diario[2].activos], [2, 2, 1])
+  assert.ok(diario[1].syncs >= 4 && diario[0].syncs === 0)
+  assert.equal(S.config({ DESAFIO_META: '5' }).desafioMeta, 10, 'meta mínima 10'); assert.equal(S.config({}).desafioMeta, 1000)
+})

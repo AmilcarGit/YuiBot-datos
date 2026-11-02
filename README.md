@@ -85,3 +85,8 @@ Se borran perfiles, rankings, historial y contadores; **se conservan las instala
 - 🔠 **Accesibilidad** (botón **Aa**): 4 tamaños de letra, alto contraste y menos animaciones; se recuerdan en tu dispositivo.
 - 📣 **Banner de eventos**: `GET /api/evento` (público). El dueño lo publica desde *Administración* (título, detalle, tipo y horas) o con `POST /api/admin {"accion":"evento",…}`; es solo un aviso, no cambia el juego.
 - 🧹 **Limpiar registros sospechosos**: *Administración → Buscar sospechosos* muestra una vista previa (números que no empiezan con un código de país real) y solo borra si confirmas. Además, el servidor ya rechaza números de 15 dígitos (típicos LID).
+
+### Desafío semanal y estadísticas diarias
+
+- 🎯 **Desafío de la semana**: entre todas las instalaciones hay que llegar a una meta de trabajos (`DESAFIO_META`, 1000 por defecto, mínimo 10). Se reinicia cada lunes (hora de Perú). Solo cuentan trabajos nuevos, no los datos que una instalación ya tenía al conectarse.
+- 📊 **Personas activas por día**: gráfica de los últimos 14 días (activas, nuevas y sincronizaciones). Ambas cosas salen en `GET /api/estadisticas` como `desafio` y `diario`.

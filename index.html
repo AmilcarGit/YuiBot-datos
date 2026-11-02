@@ -166,6 +166,9 @@
     .banner{display:flex;gap:12px;align-items:center;margin:0 0 14px;padding:12px 16px;border-radius:18px;border:1px solid var(--gold);background:linear-gradient(100deg,rgba(255,215,122,.2),var(--card))}.banner .bi{font-size:28px;flex:none}.banner b{display:block}.banner span{color:var(--muted);font-size:13.5px}.banner small{margin-left:auto;font-weight:800;color:var(--gold);white-space:nowrap}
     .adm-bloque{margin-top:16px;padding:14px 16px;border:1px solid var(--line);border-radius:16px}.adm-bloque h4{margin:0 0 8px}.adm-bloque select,.adm-bloque input[type=number],.adm-bloque input[type=text]{padding:11px 13px;border-radius:12px;border:1px solid var(--line);background:var(--field);min-width:0}
     .adm-ev{display:grid;gap:8px}.adm-ev .campo{display:flex;gap:8px;flex-wrap:wrap}.adm-ev input[type=text]{flex:1;min-width:150px}
+
+    .desafio{margin-top:14px}.desafio-cab{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}.barra-g{height:16px;border-radius:999px;background:var(--field);border:1px solid var(--line);overflow:hidden;margin:10px 0 6px}.barra-g i{display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,var(--rose),var(--pink2),var(--lilac));transition:width 1s cubic-bezier(.2,.8,.2,1)}
+    .barras{display:flex;gap:4px;align-items:flex-end;height:110px;margin-top:10px}.barras div{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px;height:100%}.barras i{display:block;width:100%;border-radius:6px 6px 2px 2px;background:linear-gradient(180deg,var(--pink),var(--lilac));min-height:3px}.barras span{font-size:10px;color:var(--muted)}
     @media(max-width:900px){.vivo{grid-template-columns:minmax(0,1fr)}.grid3{grid-template-columns:1fr 1fr}.consola{grid-template-columns:1fr}.eps{grid-template-columns:1fr 1fr}}
     .cont span{overflow-wrap:anywhere}
     @media(max-width:640px){.acc-panel{position:fixed;left:16px;right:16px;top:76px;width:auto}}
@@ -232,6 +235,18 @@
             <strong>Actividad de los últimos 30 minutos</strong>
             <svg id="grafica" viewBox="0 0 300 120" preserveAspectRatio="none" role="img" aria-label="Gráfica de sincronizaciones por minuto"></svg>
             <p><span id="g-total">—</span><span>hace 30 min → ahora</span></p>
+          </div>
+        </div>
+        <div class="vivo desafio">
+          <div class="card">
+            <div class="desafio-cab"><strong id="des-titulo">🎯 Desafío de la semana</strong><span class="pill" id="des-pill">—</span></div>
+            <div class="barra-g" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="des-barra"><i id="des-relleno"></i></div>
+            <p style="margin:0;color:var(--muted);font-size:13.5px" id="des-texto">Cargando…</p>
+          </div>
+          <div class="card">
+            <strong>Personas activas por día</strong>
+            <div class="barras" id="diario" role="img" aria-label="Personas activas por día en los últimos 14 días"></div>
+            <p style="margin:8px 0 0;color:var(--muted);font-size:12.5px" id="diario-nota">—</p>
           </div>
         </div>
         <div class="estado" aria-live="polite">
@@ -606,12 +621,35 @@ ${medallasSVG}
       const l = document.createElementNS(NS, 'path'); l.setAttribute('d', linea); l.setAttribute('fill', 'none'); l.setAttribute('stroke', '#ff69b4'); l.setAttribute('stroke-width', '2.5'); l.setAttribute('stroke-linejoin', 'round'); l.setAttribute('stroke-linecap', 'round'); l.setAttribute('vector-effect', 'non-scaling-stroke'); svg.appendChild(l);
       $('g-total').textContent = fmt(serie.reduce((a, b) => a + b, 0)) + ' sincronizaciones';
     }
+
+    // ── Desafío semanal y estadísticas diarias ──
+    function pintarDesafio(d) {
+      if (!d || !d.meta) return;
+      const pct = Math.max(0, Math.min(100, (d.actual / d.meta) * 100));
+      $('des-titulo').textContent = '🎯 Desafío de la semana: ' + fmt(d.meta) + ' trabajos entre todos';
+      $('des-pill').textContent = d.completado ? '¡Completado! 🎉' : fmt(pct) + '%'; $('des-pill').className = 'pill ' + (d.completado ? 'ok' : '');
+      $('des-barra').setAttribute('aria-valuenow', String(Math.round(pct)));
+      requestAnimationFrame(() => requestAnimationFrame(() => { $('des-relleno').style.width = Math.max(pct > 0 ? 2 : 0, pct) + '%'; }));
+      const resto = Math.max(0, d.termina - Date.now()), dias = Math.floor(resto / 86400000), horas = Math.floor((resto % 86400000) / 3600000);
+      $('des-texto').textContent = `${fmt(d.actual)} de ${fmt(d.meta)} trabajos${d.completado ? ' · ¡lo lograron!' : ` · faltan ${fmt(d.meta - d.actual)}`} · termina en ${dias} d ${horas} h. Cada trabajo de .trabajar, .minar, .pescar… suma.`;
+    }
+    function pintarDiario(lista) {
+      if (!Array.isArray(lista) || !lista.length) return;
+      const max = Math.max(...lista.map((x) => x.activos), 1), cont = $('diario'); cont.replaceChildren();
+      for (const x of lista) {
+        const col = h('div'), barra = h('i'); barra.style.height = Math.max(3, (x.activos / max) * 80) + 'px'; barra.title = `${x.dia}: ${x.activos} activos, ${x.nuevos} nuevos`;
+        col.append(barra, h('span', null, x.dia.slice(8))); cont.appendChild(col);
+      }
+      const total = lista.reduce((a, x) => a + x.activos, 0), nuevos = lista.reduce((a, x) => a + x.nuevos, 0);
+      $('diario-nota').textContent = `Últimos ${lista.length} días: ${fmt(total)} activaciones de personas · ${fmt(nuevos)} nuevas.`;
+    }
     async function cargarVivo() {
       try {
         const r = await pedir('/api/estadisticas'), d = r.datos;
         if (!r.ok || !d || d.ok !== true || !d.metricas) throw new Error('Respuesta inesperada');
         contar('c-inst', d.metricas.instalaciones); contar('c-user', d.metricas.usuarios); contar('c-sync', d.metricas.sincronizaciones);
         if (Array.isArray(d.actividad) && d.actividad.length > 1) pintarGrafica(d.actividad.map((v) => Number(v) || 0));
+        pintarDesafio(d.desafio); pintarDiario(d.diario);
         $('c-nota').textContent = (d.nota || '') + (d.desde ? ' Desde: ' + new Date(d.desde).toLocaleString('es-PE') + '.' : '');
         $('vivo-hora').textContent = 'Actualizado ' + new Date().toLocaleTimeString('es-PE');
       } catch (e) { $('c-nota').textContent = 'Estadísticas temporalmente no disponibles.'; }
