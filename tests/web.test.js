@@ -36,6 +36,7 @@ test('entrar: código correcto da sesión; incorrecto no; 5 fallos lo anulan; el
   assert.ok(ok.token.length > 20)
   assert.equal(ok.visible, '519•••001')
   assert.ok(ok.comandos.includes('menu'))
+  assert.ok(ok.catalogo.some((c) => c.nombre === 'daily' && c.ayuda && c.categoria === 'economia'), 'catálogo para copiar comandos')
   await assert.rejects(W.entrar({ almacen, cfg, numero: NUM, codigo, ip: '9.9.9.9', ahora: T0 }), /inválido/, 'ya se usó')
 
   const { codigo: c2 } = await W.crearVinculo({ almacen, cfg, instalacionId: id, numero: NUM, ahora: T0 })

@@ -64,6 +64,17 @@
     .chip{padding:8px 13px;border-radius:999px;border:1px solid currentColor;background:color-mix(in srgb,currentColor 12%,transparent);font-size:13px;font-weight:900}.chip:hover{background:color-mix(in srgb,currentColor 24%,transparent)}
     .g-a{color:var(--a)}.g-c{color:var(--c)}.g-d{color:var(--d)}.g-e{color:var(--e)}
     .acciones{margin-top:10px;display:flex;flex-direction:column;gap:8px}.acciones .grupo{margin-top:0}.acciones .chip:disabled{opacity:.35;cursor:default}
+    .pestanas{display:flex;gap:6px;margin:14px 0 12px;padding:5px;border-radius:16px;background:var(--field);border:1px solid var(--line)}
+    .pestana{flex:1;padding:10px 8px;border-radius:12px;border:0;background:transparent;font-weight:900;color:var(--muted)}
+    .pestana[aria-selected="true"]{background:linear-gradient(120deg,var(--a),var(--c));color:var(--onA)}
+    .buscar{margin-bottom:10px}
+    #catalogo{max-height:min(62vh,560px);overflow-y:auto;padding-right:4px}
+    .cat h3{margin:16px 0 8px;font-size:12px;letter-spacing:.07em;text-transform:uppercase}
+    .cmd{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 12px;margin-bottom:8px;border-radius:16px;background:var(--field);border:1px solid var(--line)}
+    .cmd .info{min-width:0}.cmd b{display:block;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:15px}
+    .cmd small{display:block;color:var(--muted);line-height:1.35;margin-top:2px}.cmd .ej{color:var(--d);font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px}
+    .cmd .acc{display:flex;gap:6px;flex:none}
+    .copiado{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);padding:10px 16px;border-radius:999px;background:var(--a);color:var(--onA);font-weight:900;box-shadow:0 10px 30px rgba(0,0,0,.4);z-index:9}
     form.enviar{display:flex;gap:8px;margin-top:14px}form.enviar input{flex:1}
     footer.pie{padding:22px 0 8px;text-align:center;color:var(--muted);font-size:13px}
   </style>
@@ -104,7 +115,18 @@
           <button class="btn ghost small" type="button" id="salir">Salir</button>
         </div>
         <div class="stats" id="stats" aria-live="polite"></div>
-        <div id="chat" role="log" aria-live="polite" aria-label="Conversación con Yui" style="margin-top:14px"></div>
+        <div class="pestanas" role="tablist" aria-label="Secciones">
+          <button class="pestana" role="tab" id="tab-chat" aria-selected="true" aria-controls="panel-chat" type="button">💬 Chat</button>
+          <button class="pestana" role="tab" id="tab-comandos" aria-selected="false" aria-controls="panel-comandos" type="button">📚 Comandos</button>
+        </div>
+
+        <div id="panel-comandos" role="tabpanel" aria-labelledby="tab-comandos" hidden>
+          <input class="buscar" id="buscar" type="search" placeholder="Buscar comando…" autocomplete="off" aria-label="Buscar comando">
+          <div id="catalogo"></div>
+        </div>
+
+        <div id="panel-chat" role="tabpanel" aria-labelledby="tab-chat">
+        <div id="chat" role="log" aria-live="polite" aria-label="Conversación con Yui"></div>
         <div id="atajos"></div>
         <form class="enviar" id="form-enviar" autocomplete="off">
           <label for="texto" style="position:absolute;left:-9999px">Comando</label>
@@ -112,6 +134,7 @@
           <button class="btn" type="submit" id="btn-enviar">Enviar</button>
         </form>
         <p class="error" id="error-chat" role="alert"></p>
+        </div>
       </section>
     </main>
     <footer class="pie">Los comandos de grupo y de dueño solo existen en WhatsApp.</footer>
@@ -208,14 +231,11 @@
         for (const b of item.botones) fila.appendChild(crear(b.texto, b.cmd));
         caja.appendChild(fila);
       }
-      const colores = ['g-c', 'g-d', 'g-e', 'g-a'];
-      (item.secciones || []).forEach((sec, i) => {
-        const g = document.createElement('div'); g.className = 'grupo ' + colores[i % colores.length];
-        const t = document.createElement('small'); t.textContent = sec.titulo; g.appendChild(t);
-        const fila = document.createElement('div'); fila.className = 'chips';
-        for (const f of sec.filas) fila.appendChild(crear(f.titulo, f.cmd, f.descripcion));
-        g.appendChild(fila); caja.appendChild(g);
-      });
+      if (item.secciones && item.secciones.length) {
+        const fila = document.createElement('div'); fila.className = 'chips g-c';
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.textContent = '📚 Ver y copiar comandos';
+        b.addEventListener('click', () => abrirTab('comandos')); fila.appendChild(b); caja.appendChild(fila);
+      }
       if (caja.children.length) destino.appendChild(caja);
     }
     function escribiendo(si) {
@@ -238,34 +258,92 @@
     }
     const refrescar = () => llamar({ accion: 'yo' }).then(pintarStats).catch(() => {});
 
-    /* ── Atajos por categoría ── */
-    const GRUPOS = [
-      ['g-c', 'Info', [['menu', 'menu'], ['ping', 'ping'], ['perfil', 'perfil'], ['inventario', 'inventario'], ['top', 'top'], ['top monedas', 'top monedas']]],
-      ['g-d', 'Dinero', [['daily', 'daily'], ['trabajar', 'trabajar'], ['tienda', 'tienda'], ['gacha', 'gacha']]],
-      ['g-e', 'Juegos', [['ruleta 100 rojo', 'ruleta'], ['ppt piedra', 'piedra'], ['ppt papel', 'papel'], ['ppt tijera', 'tijera']]],
-    ];
+    /* ── Atajos (solo los más usados; el resto está en la pestaña Comandos) ── */
+    const RAPIDOS = [['menu', 'menu'], ['perfil', 'perfil'], ['daily', 'daily'], ['trabajar', 'trabajar'], ['top', 'top']];
     function pintarAtajos(comandos) {
       const cont = $('atajos'); cont.textContent = '';
       const hay = new Set(comandos || []);
-      for (const [clase, titulo, lista] of GRUPOS) {
-        const usables = lista.filter(([cmd]) => hay.size === 0 || hay.has(cmd.split(' ')[0]));
-        if (!usables.length) continue;
-        const g = document.createElement('div'); g.className = 'grupo ' + clase;
-        const s = document.createElement('small'); s.textContent = titulo; g.appendChild(s);
-        const fila = document.createElement('div'); fila.className = 'chips';
-        for (const [cmd, etiqueta] of usables) {
-          const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.textContent = etiqueta;
-          b.addEventListener('click', () => enviar(cmd)); fila.appendChild(b);
+      const g = document.createElement('div'); g.className = 'grupo g-c';
+      const fila = document.createElement('div'); fila.className = 'chips';
+      for (const [cmd, etiqueta] of RAPIDOS) {
+        if (hay.size && !hay.has(cmd)) continue;
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.textContent = etiqueta;
+        b.addEventListener('click', () => enviar(cmd)); fila.appendChild(b);
+      }
+      g.appendChild(fila); cont.appendChild(g);
+    }
+
+    /* ── Pestañas ── */
+    function abrirTab(cual) {
+      for (const t of ['chat', 'comandos']) {
+        $('tab-' + t).setAttribute('aria-selected', String(t === cual));
+        $('panel-' + t).hidden = t !== cual;
+      }
+      if (cual === 'chat') bajar();
+    }
+    $('tab-chat').addEventListener('click', () => abrirTab('chat'));
+    $('tab-comandos').addEventListener('click', () => abrirTab('comandos'));
+
+    /* ── Copiar ── */
+    let aviso;
+    function avisar(texto) {
+      if (aviso) aviso.remove();
+      aviso = document.createElement('div'); aviso.className = 'copiado'; aviso.setAttribute('role', 'status'); aviso.textContent = texto;
+      document.body.appendChild(aviso); setTimeout(() => aviso && aviso.remove(), 1600);
+    }
+    async function copiar(texto) {
+      try { await navigator.clipboard.writeText(texto); }
+      catch {
+        const t = document.createElement('textarea'); t.value = texto; t.style.position = 'fixed'; t.style.opacity = '0';
+        document.body.appendChild(t); t.select();
+        try { document.execCommand('copy'); } catch {}
+        t.remove();
+      }
+      avisar('Copiado: ' + texto);
+    }
+
+    /* ── Catálogo de comandos ── */
+    const TITULOS = { general: 'General', economia: 'Economía', juegos: 'Juegos' };
+    const COLOR = { general: 'g-c', economia: 'g-d', juegos: 'g-e' };
+    const EJEMPLOS = { ruleta: 'ruleta 100 rojo', ppt: 'ppt piedra', tienda: 'tienda comprar pico', trabajar: 'trabajar granjero', top: 'top monedas', menu: 'menu economia' };
+    let catalogo = [];
+    function pintarCatalogo(filtro) {
+      const caja = $('catalogo'); caja.textContent = '';
+      const q = (filtro || '').trim().toLowerCase();
+      const lista = catalogo.filter((c) => !q || c.nombre.includes(q) || c.ayuda.toLowerCase().includes(q) || c.alias.some((a) => a.includes(q)));
+      if (!lista.length) { const p = document.createElement('p'); p.textContent = 'No hay comandos con ese nombre.'; caja.appendChild(p); return; }
+      const grupos = {};
+      for (const c of lista) (grupos[c.categoria] ||= []).push(c);
+      for (const [cat, items] of Object.entries(grupos)) {
+        const sec = document.createElement('section'); sec.className = 'cat ' + (COLOR[cat] || 'g-a');
+        const h = document.createElement('h3'); h.textContent = TITULOS[cat] || cat; sec.appendChild(h);
+        for (const c of items.sort((x, y) => x.nombre.localeCompare(y.nombre))) {
+          const fila = document.createElement('div'); fila.className = 'cmd';
+          const info = document.createElement('div'); info.className = 'info';
+          const n = document.createElement('b'); n.textContent = '.' + c.nombre; info.appendChild(n);
+          const d = document.createElement('small'); d.textContent = c.ayuda; info.appendChild(d);
+          const ej = EJEMPLOS[c.nombre];
+          if (ej) { const e = document.createElement('small'); e.className = 'ej'; e.textContent = 'Ej: .' + ej; info.appendChild(e); }
+          const acc = document.createElement('div'); acc.className = 'acc';
+          const bc = document.createElement('button'); bc.type = 'button'; bc.className = 'btn small'; bc.textContent = 'Copiar';
+          bc.setAttribute('aria-label', 'Copiar .' + (ej || c.nombre));
+          bc.addEventListener('click', () => copiar('.' + (ej || c.nombre)));
+          const bp = document.createElement('button'); bp.type = 'button'; bp.className = 'btn ghost small'; bp.textContent = 'Probar';
+          bp.setAttribute('aria-label', 'Probar ' + c.nombre + ' en el chat');
+          bp.addEventListener('click', () => { abrirTab('chat'); enviar(ej || c.nombre); });
+          acc.append(bc, bp); fila.append(info, acc); sec.appendChild(fila);
         }
-        g.appendChild(fila); cont.appendChild(g);
+        caja.appendChild(sec);
       }
     }
+    $('buscar').addEventListener('input', (ev) => pintarCatalogo(ev.target.value));
 
     function mostrarSala(datos) {
       $('entrada').hidden = true; $('sala').hidden = false;
       $('visible').textContent = datos.visible || 'Conectada';
+      catalogo = datos.catalogo || []; pintarCatalogo(''); abrirTab('chat');
       pintarAtajos(datos.comandos); pintarStats(datos);
-      if (!$('chat').children.length) burbuja('¡Hola! Soy Yui～ Toca un atajo o escribe menu para ver todo lo que puedo hacer (•̀ᴗ•́)و', 'yui');
+      if (!$('chat').children.length) burbuja('¡Hola! Soy Yui～ Escribe menu o abre la pestaña Comandos para copiarlos (•̀ᴗ•́)و', 'yui');
     }
 
     function cerrarSesion(mensaje) {
@@ -295,7 +373,7 @@
       try {
         const r = await llamar({ accion: 'entrar', numero: $('numero').value, codigo: $('codigo').value, nombre: $('nombre').value });
         token = r.token; guardar(CLAVE, token); $('codigo').value = '';
-        mostrarSala({ visible: r.visible, comandos: r.comandos });
+        mostrarSala({ visible: r.visible, comandos: r.comandos, catalogo: r.catalogo });
         refrescar();
       } catch (e) { $('error-entrar').textContent = e.message; }
       finally { $('btn-entrar').disabled = false; }
