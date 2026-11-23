@@ -81,6 +81,8 @@
     .copiado{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);padding:10px 16px;border-radius:999px;background:var(--a);color:var(--onA);font-weight:900;box-shadow:0 10px 30px rgba(0,0,0,.4);z-index:9}
     button.link{border:0;background:var(--card);border:1px solid var(--line);color:var(--text)}
     .medio{margin-top:8px;display:grid;gap:8px;max-width:340px}.medio audio,.medio video{width:100%;border-radius:14px}
+.sec-titulo{margin:10px 0 4px;font-size:12px;font-weight:900;color:var(--muted)}
+    .miniatura{width:100%;max-width:340px;border-radius:16px;display:block;margin-bottom:8px}
     form.enviar{display:flex;gap:8px;margin-top:14px}form.enviar input{flex:1}
     footer.pie{padding:22px 0 8px;text-align:center;color:var(--muted);font-size:13px}
   </style>
@@ -199,6 +201,7 @@
       if (item && item.medio) { medio(item.medio); bajar(); return; }
       const texto = typeof item === 'string' ? item : item.texto;
       const destino = dibujar(texto);
+      if (item && item.imagen) { const im = document.createElement('img'); im.className = 'miniatura'; im.alt = ''; im.src = item.imagen; destino.parentNode.insertBefore(im, destino); }
       if (typeof item === 'object') acciones(destino, item);
       bajar();
     }
@@ -250,9 +253,19 @@
         caja.appendChild(fila);
       }
       if (item.secciones && item.secciones.length) {
-        const fila = document.createElement('div'); fila.className = 'chips g-c';
-        const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.textContent = '📚 Ver y copiar comandos';
-        b.addEventListener('click', () => abrirTab('comandos')); fila.appendChild(b); caja.appendChild(fila);
+        if (item.enLinea) {
+          // Resultados de una búsqueda: cada opción se toca ahí mismo.
+          for (const sec of item.secciones) {
+            const t = document.createElement('div'); t.className = 'sec-titulo'; t.textContent = sec.titulo; caja.appendChild(t);
+            const fila = document.createElement('div'); fila.className = 'chips g-a';
+            for (const f of sec.filas) fila.appendChild(crear(f.titulo.length > 34 ? f.titulo.slice(0, 33) + '…' : f.titulo, f.cmd, f.descripcion));
+            caja.appendChild(fila);
+          }
+        } else {
+          const fila = document.createElement('div'); fila.className = 'chips g-c';
+          const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.textContent = '📚 Ver y copiar comandos';
+          b.addEventListener('click', () => abrirTab('comandos')); fila.appendChild(b); caja.appendChild(fila);
+        }
       }
       if (caja.children.length) destino.appendChild(caja);
     }

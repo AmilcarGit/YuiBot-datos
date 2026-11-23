@@ -128,6 +128,8 @@ test('descargas: la web devuelve audio y video como enlaces', async () => {
   try {
     const yts = await W.comando({ almacen, cfg, token, texto: 'yts patadas', ahora: T0 })
     assert.ok(yts.respuestas[0].secciones.length === 2 && yts.respuestas[0].secciones[0].filas[0].cmd.startsWith('ytmp3 https://youtu.be/a'))
+    assert.equal(yts.respuestas[0].enLinea, true)
+    assert.match(yts.respuestas[0].texto, /patadas/)
     const play = await W.comando({ almacen, cfg, token, texto: 'play patadas', ahora: T0 + 1000 })
     assert.deepEqual(play.respuestas.filter((r) => r.medio).map((r) => r.medio.tipo), ['audio'])
     assert.equal(play.respuestas.find((r) => r.medio).medio.url, 'https://x.test/a.mp3')
