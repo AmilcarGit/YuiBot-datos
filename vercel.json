@@ -1,9 +1,6 @@
 {
   "functions": {
     "api/*.js": {
-      "maxDuration": 15
-    },
-    "api/web.js": {
       "maxDuration": 60
     }
   },
