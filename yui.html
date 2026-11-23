@@ -8,50 +8,77 @@
   <meta name="description" content="Habla con Yui desde la web: usa los comandos de YuiBot-MD con tu mismo progreso de WhatsApp.">
   <title>Yui en la web — YuiBot-datos</title>
   <style>
-    :root{color-scheme:dark;--bg:#1b0d1a;--bg2:#241024;--card:#2a1429;--card2:#331a31;--line:rgba(255,150,210,.18);--text:#fff3fa;--muted:#d6b3c9;--soft:#ffb3dc;--pink:#ff69b4;--pink2:#ff3d9a;--rose:#ff9ad0;--lilac:#c9a4ff;--mint:#7be7c4;--bad:#ff8a9b;--glow:rgba(255,105,180,.28);--field:#1f0f1e}
-    :root[data-theme="light"]{color-scheme:light;--bg:#fff2f8;--bg2:#ffe6f2;--card:#fff;--card2:#fff0f7;--line:rgba(214,51,132,.2);--text:#3b0f2a;--muted:#8a5272;--soft:#c2185b;--pink:#e91e8c;--pink2:#d6197f;--rose:#ff6fb5;--lilac:#8d5bd6;--mint:#10936c;--bad:#c93a55;--glow:rgba(233,30,140,.22);--field:#fff}
+    :root{color-scheme:dark;--bg:#1b0d1a;--bg2:#2a1030;--card:#2a1429;--card2:#331a31;--line:rgba(255,150,210,.2);--text:#fff3fa;--muted:#d6b3c9;--field:#1f0f1e;--a:#ff9ad0;--b:#ff3d9a;--c:#c9a4ff;--d:#ffd27a;--e:#7be7c4;--bad:#ff8a9b;--glow:rgba(255,105,180,.3);--onA:#2a0a1f}
+    :root[data-tema="noche"]{--bg:#0d1030;--bg2:#171a4a;--card:#171b45;--card2:#1e2257;--line:rgba(122,162,255,.25);--text:#eef1ff;--muted:#aab4e8;--field:#0f1338;--a:#7aa2ff;--b:#6c4cff;--c:#5be3ff;--d:#ff9ad0;--e:#9af2c8;--glow:rgba(108,76,255,.35);--onA:#0b0d2b}
+    :root[data-tema="menta"]{--bg:#08201c;--bg2:#0f3a31;--card:#0f302a;--card2:#14423a;--line:rgba(111,240,192,.25);--text:#eafff7;--muted:#a6d9c9;--field:#0a2621;--a:#6ff0c0;--b:#1fb58a;--c:#ffe08a;--d:#8fd3ff;--e:#ffb3dc;--glow:rgba(31,181,138,.35);--onA:#04231c}
+    :root[data-tema="navidad"]{--bg:#1c0e12;--bg2:#10281c;--card:#2a1519;--card2:#173226;--line:rgba(255,216,107,.28);--text:#fff6ee;--muted:#e7c9b8;--field:#1a0f12;--a:#ff7b7b;--b:#d62839;--c:#5be58a;--d:#ffd86b;--e:#8fd3ff;--glow:rgba(214,40,57,.35);--onA:#2a0508}
     *{box-sizing:border-box}[hidden]{display:none!important}
-    body{margin:0;min-height:100vh;color:var(--text);font-family:"Nunito","Segoe UI",ui-rounded,system-ui,sans-serif;background:radial-gradient(900px 480px at 12% -5%,var(--glow),transparent 60%),linear-gradient(180deg,var(--bg),var(--bg2));background-attachment:fixed}
+    body{margin:0;min-height:100vh;color:var(--text);font-family:"Nunito","Segoe UI",ui-rounded,system-ui,sans-serif;background:radial-gradient(800px 460px at 8% -5%,var(--glow),transparent 60%),radial-gradient(700px 420px at 100% 10%,color-mix(in srgb,var(--c) 22%,transparent),transparent 60%),linear-gradient(160deg,var(--bg),var(--bg2));background-attachment:fixed;transition:background .4s}
     a{color:inherit;text-decoration:none}button,input{font:inherit;color:inherit}button{cursor:pointer}
-    :focus-visible{outline:3px solid var(--rose);outline-offset:3px;border-radius:12px}
-    .wrap{width:min(760px,calc(100% - 32px));margin:auto}
-    .nav{min-height:68px;display:flex;align-items:center;justify-content:space-between;gap:10px}
-    .brand{font-weight:900;font-size:18px}.link{font-size:14px;font-weight:700;color:var(--muted);padding:9px 13px;border-radius:999px}.link:hover{color:var(--text);background:var(--card)}
-    .panel{background:linear-gradient(160deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:24px;padding:22px;box-shadow:0 18px 50px rgba(0,0,0,.3)}
-    h1{font-size:clamp(26px,5vw,38px);letter-spacing:-.03em;margin:0 0 8px}
-    p{color:var(--muted);line-height:1.65;margin:0 0 14px}
-    ol{color:var(--muted);line-height:1.8;padding-left:22px;margin:0 0 18px}
-    code{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--field);padding:2px 7px;border-radius:8px;color:var(--soft)}
-    label{display:block;font-size:13px;font-weight:800;color:var(--soft);margin:12px 0 6px}
+    :focus-visible{outline:3px solid var(--a);outline-offset:3px;border-radius:12px}
+    .wrap{width:min(780px,calc(100% - 28px));margin:auto;padding-bottom:20px}
+    .nav{min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .brand{font-weight:900;font-size:18px}.link{font-size:14px;font-weight:800;color:var(--muted);padding:9px 13px;border-radius:999px}.link:hover{color:var(--text);background:var(--card)}
+    .panel{background:linear-gradient(160deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:24px;padding:20px;box-shadow:0 18px 50px rgba(0,0,0,.32)}
+    h1{font-size:clamp(26px,5vw,38px);letter-spacing:-.03em;margin:0 0 8px;background:linear-gradient(90deg,var(--a),var(--c),var(--d));-webkit-background-clip:text;background-clip:text;color:transparent}
+    p{color:var(--muted);line-height:1.65;margin:0 0 14px}ol{color:var(--muted);line-height:1.8;padding-left:22px;margin:0 0 18px}
+    code{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--field);padding:2px 7px;border-radius:8px;color:var(--d)}
+    label{display:block;font-size:13px;font-weight:800;color:var(--c);margin:12px 0 6px}
     input{width:100%;padding:13px 14px;border-radius:14px;border:1px solid var(--line);background:var(--field);font-size:16px;font-weight:700}
-    input:focus{border-color:var(--rose);outline:none;box-shadow:0 0 0 4px var(--glow)}
-    .btn{display:inline-flex;align-items:center;justify-content:center;padding:12px 20px;border-radius:14px;border:0;font-weight:900;color:#fff;background:linear-gradient(120deg,var(--rose),var(--pink2));box-shadow:0 8px 22px var(--glow)}
+    input:focus{border-color:var(--a);outline:none;box-shadow:0 0 0 4px var(--glow)}
+    .btn{display:inline-flex;align-items:center;justify-content:center;padding:12px 20px;border-radius:14px;border:0;font-weight:900;color:var(--onA);background:linear-gradient(120deg,var(--a),var(--c));box-shadow:0 8px 22px var(--glow)}
     .btn:disabled{opacity:.6;cursor:wait}.btn.ghost{background:var(--card);color:var(--text);border:1px solid var(--line);box-shadow:none}.btn.small{padding:8px 13px;font-size:13px;border-radius:12px}
     .error{color:var(--bad);font-weight:800;min-height:1.4em;margin:10px 0 0}
-    .barra{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
-    .yo{font-weight:900}.yo small{display:block;color:var(--muted);font-weight:700}
-    #chat{height:min(56vh,520px);overflow-y:auto;padding:14px;border-radius:18px;background:var(--field);border:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
-    .msg{max-width:92%;padding:10px 13px;border-radius:16px;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.45;font-size:14.5px}
-    .msg.tu{align-self:flex-end;background:linear-gradient(120deg,var(--rose),var(--pink2));color:#fff;border-bottom-right-radius:5px;font-weight:700}
-    .msg.yui{align-self:flex-start;background:var(--card);border:1px solid var(--line);border-bottom-left-radius:5px}
+    /* Cabecera de jugadora */
+    .heroe{display:flex;gap:14px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+    .avatar{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;font-size:28px;background:conic-gradient(from 200deg,var(--a),var(--c),var(--d),var(--a));box-shadow:0 0 0 3px var(--card),0 0 22px var(--glow)}
+    .quien{flex:1;min-width:150px}.quien b{font-size:17px;display:block}.quien small{color:var(--muted);font-weight:700}
+    .stats{display:flex;gap:8px;flex-wrap:wrap}
+    .stat{padding:7px 12px;border-radius:14px;background:var(--field);border:1px solid var(--line);font-weight:900;font-size:13px;white-space:nowrap}
+    .stat.m{color:var(--d)}.stat.x{color:var(--c)}.stat.r{color:var(--e)}
+    .temas{display:flex;gap:6px;align-items:center}
+    .tema{width:24px;height:24px;border-radius:50%;border:2px solid var(--line);padding:0}.tema[aria-pressed="true"]{border-color:var(--text);transform:scale(1.12)}
+    /* Chat */
+    #chat{height:min(54vh,520px);overflow-y:auto;padding:14px;border-radius:20px;background:linear-gradient(180deg,var(--field),color-mix(in srgb,var(--field) 80%,var(--c)));border:1px solid var(--line);display:flex;flex-direction:column;gap:12px;scroll-behavior:smooth}
+    .fila{display:flex;gap:8px;align-items:flex-end;animation:sube .25s ease-out}
+    .fila.tu{justify-content:flex-end}
+    .mini{width:30px;height:30px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:16px;background:conic-gradient(from 200deg,var(--a),var(--c),var(--a))}
+    .msg{max-width:88%;padding:10px 13px;border-radius:18px;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.45;font-size:15px}
+    .msg.tu{background:linear-gradient(120deg,var(--a),var(--c));color:var(--onA);border-bottom-right-radius:5px;font-weight:800}
+    .msg.yui{background:var(--card);border:1px solid var(--line);border-bottom-left-radius:5px}
     .msg.mal{border-color:var(--bad)}
-    .chips{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}
-    .chip{padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--card);font-size:13px;font-weight:800;color:var(--soft)}.chip:hover{border-color:var(--rose)}
-    form.enviar{display:flex;gap:8px}form.enviar input{flex:1}
-    footer{padding:26px 0;text-align:center;color:var(--muted);font-size:13px}
+    .tarjeta{max-width:92%;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:var(--card);border-bottom-left-radius:5px}
+    .tarjeta header{padding:9px 14px;font-weight:900;background:linear-gradient(110deg,var(--a),var(--c) 60%,var(--d));color:var(--onA);font-size:15px}
+    .tarjeta .cuerpo{padding:10px 14px 12px;display:flex;flex-direction:column;gap:5px}
+    .tarjeta .item{padding:5px 10px;border-radius:10px;background:var(--field);border-left:3px solid var(--a);font-size:14.5px;line-height:1.4;overflow-wrap:anywhere}
+    .tarjeta .item:nth-child(3n+2){border-left-color:var(--c)}.tarjeta .item:nth-child(3n){border-left-color:var(--d)}
+    .tarjeta .texto{color:var(--muted);font-size:14.5px;line-height:1.45;padding-bottom:3px}
+    .tarjeta footer{height:5px;background:linear-gradient(90deg,var(--d),var(--c),var(--a))}
+    .escribiendo{display:inline-flex;gap:4px;padding:12px 14px}.escribiendo i{width:7px;height:7px;border-radius:50%;background:var(--a);animation:rebota 1s infinite}.escribiendo i:nth-child(2){animation-delay:.15s;background:var(--c)}.escribiendo i:nth-child(3){animation-delay:.3s;background:var(--d)}
+    @keyframes rebota{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-6px);opacity:1}}
+    @keyframes sube{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+    @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+    /* Atajos */
+    .grupo{margin-top:12px}.grupo small{display:block;font-weight:900;font-size:12px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+    .chips{display:flex;gap:7px;flex-wrap:wrap}
+    .chip{padding:8px 13px;border-radius:999px;border:1px solid currentColor;background:color-mix(in srgb,currentColor 12%,transparent);font-size:13px;font-weight:900}.chip:hover{background:color-mix(in srgb,currentColor 24%,transparent)}
+    .g-a{color:var(--a)}.g-c{color:var(--c)}.g-d{color:var(--d)}.g-e{color:var(--e)}
+    form.enviar{display:flex;gap:8px;margin-top:14px}form.enviar input{flex:1}
+    footer.pie{padding:22px 0 8px;text-align:center;color:var(--muted);font-size:13px}
   </style>
 </head>
 <body>
   <div class="wrap">
     <header class="nav">
       <a class="brand" href="/">🌸 YuiBot-datos</a>
-      <a class="link" href="/">Ranking y perfil</a>
+      <div class="temas" role="group" aria-label="Colores de la página" id="temas"></div>
+      <a class="link" href="/">Ranking</a>
     </header>
 
     <main>
       <section class="panel" id="entrada">
         <h1>Habla con Yui desde la web</h1>
-        <p>Usa los mismos comandos del bot de WhatsApp con tu mismo progreso: monedas, nivel, trabajos y ranking.</p>
+        <p>Usa los mismos comandos del bot de WhatsApp con tu mismo progreso: monedas, XP, trabajos y ranking.</p>
         <ol>
           <li>Escríbele a Yui por privado en WhatsApp: <code>.registrar tuNombre</code> (si aún no lo hiciste).</li>
           <li>Luego envía <code>.web</code>: te responde con un código de 6 dígitos.</li>
@@ -70,28 +97,48 @@
       </section>
 
       <section class="panel" id="sala" hidden>
-        <div class="barra">
-          <div class="yo" id="yo">Conectada<small id="visible"></small></div>
+        <div class="heroe">
+          <div class="avatar" aria-hidden="true">🌸</div>
+          <div class="quien"><b id="visible">Conectada</b><small id="subtitulo">Hablando con Yui</small></div>
           <button class="btn ghost small" type="button" id="salir">Salir</button>
         </div>
-        <div id="chat" role="log" aria-live="polite" aria-label="Conversación con Yui"></div>
-        <div class="chips" id="chips" aria-label="Comandos rápidos"></div>
+        <div class="stats" id="stats" aria-live="polite"></div>
+        <div id="chat" role="log" aria-live="polite" aria-label="Conversación con Yui" style="margin-top:14px"></div>
+        <div id="atajos"></div>
         <form class="enviar" id="form-enviar" autocomplete="off">
-          <label class="sr" for="texto" style="position:absolute;left:-9999px">Comando</label>
-          <input id="texto" type="text" placeholder="Escribe un comando, por ejemplo: menu" maxlength="200" required>
+          <label for="texto" style="position:absolute;left:-9999px">Comando</label>
+          <input id="texto" type="text" placeholder="Escribe un comando…" maxlength="200" required enterkeyhint="send">
           <button class="btn" type="submit" id="btn-enviar">Enviar</button>
         </form>
         <p class="error" id="error-chat" role="alert"></p>
       </section>
     </main>
-    <footer>Los comandos de grupo y de dueño solo existen en WhatsApp.</footer>
+    <footer class="pie">Los comandos de grupo y de dueño solo existen en WhatsApp.</footer>
   </div>
 
   <script>
     const $ = (id) => document.getElementById(id);
-    const CLAVE = 'yui-sesion';
+    const CLAVE = 'yui-sesion', CLAVE_TEMA = 'yui-tema';
     let token = '';
-    try { token = localStorage.getItem(CLAVE) || ''; } catch {}
+    const guardado = (k) => { try { return localStorage.getItem(k) || ''; } catch { return ''; } };
+    const guardar = (k, v) => { try { v ? localStorage.setItem(k, v) : localStorage.removeItem(k); } catch {} };
+    token = guardado(CLAVE);
+
+    /* ── Colores ── */
+    const TEMAS = [['sakura', '#ff9ad0', '#c9a4ff'], ['noche', '#7aa2ff', '#5be3ff'], ['menta', '#6ff0c0', '#ffe08a'], ['navidad', '#ff7b7b', '#5be58a']];
+    function aplicarTema(nombre) {
+      if (nombre === 'sakura') document.documentElement.removeAttribute('data-tema'); else document.documentElement.setAttribute('data-tema', nombre);
+      for (const b of document.querySelectorAll('.tema')) b.setAttribute('aria-pressed', String(b.dataset.tema === nombre));
+      guardar(CLAVE_TEMA, nombre);
+    }
+    for (const [nombre, c1, c2] of TEMAS) {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'tema'; b.dataset.tema = nombre; b.title = nombre; b.setAttribute('aria-label', 'Tema ' + nombre);
+      b.style.background = 'linear-gradient(135deg,' + c1 + ',' + c2 + ')';
+      b.addEventListener('click', () => aplicarTema(nombre));
+      $('temas').appendChild(b);
+    }
+    aplicarTema(TEMAS.some((t) => t[0] === guardado(CLAVE_TEMA)) ? guardado(CLAVE_TEMA) : 'sakura');
 
     async function llamar(cuerpo) {
       const res = await fetch('/api/web', {
@@ -104,45 +151,108 @@
       return datos;
     }
 
+    /* ── Mensajes ── */
+    const bajar = () => { $('chat').scrollTop = $('chat').scrollHeight; };
+    function fila(clase) {
+      const f = document.createElement('div'); f.className = 'fila ' + clase;
+      if (clase !== 'tu') { const m = document.createElement('div'); m.className = 'mini'; m.textContent = '🌸'; m.setAttribute('aria-hidden', 'true'); f.appendChild(m); }
+      $('chat').appendChild(f); return f;
+    }
     function burbuja(texto, clase) {
-      const d = document.createElement('div');
-      d.className = 'msg ' + clase;
-      d.textContent = texto;
-      $('chat').appendChild(d);
-      $('chat').scrollTop = $('chat').scrollHeight;
+      const f = fila(clase.split(' ')[0]);
+      const d = document.createElement('div'); d.className = 'msg ' + clase; d.textContent = texto;
+      f.appendChild(d); bajar();
+    }
+    // Las cajas del bot (╭━〔 Título 〕━⬣ / ┃ línea / ╰━⬣) se dibujan como tarjetas de colores.
+    function respuesta(texto) {
+      const lineas = String(texto).split('\n');
+      const ini = lineas[0].indexOf('〔'), fin = lineas[0].lastIndexOf('〕');
+      if (!(lineas[0].startsWith('╭') && ini >= 0 && fin > ini)) return burbuja(texto, 'yui');
+      const f = fila('yui');
+      const t = document.createElement('div'); t.className = 'tarjeta';
+      const h = document.createElement('header'); h.textContent = lineas[0].slice(ini + 1, fin).trim(); t.appendChild(h);
+      const cuerpo = document.createElement('div'); cuerpo.className = 'cuerpo';
+      for (const l of lineas.slice(1)) {
+        if (l.startsWith('╰')) continue;
+        const limpio = l.replace(/^[┃│║]\s?/, '').trimEnd();
+        if (!limpio.trim()) continue;
+        const d = document.createElement('div');
+        // Línea con emoji o símbolo al inicio = dato; texto normal = frase de Yui.
+        d.className = /^(\p{Extended_Pictographic}|[✦•▸➤⭐★☆◆◇]|\d+[.)])/u.test(limpio) ? 'item' : 'texto';
+        d.textContent = limpio; cuerpo.appendChild(d);
+      }
+      t.appendChild(cuerpo); const pie = document.createElement('footer'); t.appendChild(pie);
+      f.appendChild(t); bajar();
+    }
+    function escribiendo(si) {
+      const viejo = $('pensando'); if (viejo) viejo.remove();
+      if (!si) return;
+      const f = fila('yui'); f.id = 'pensando';
+      const d = document.createElement('div'); d.className = 'msg yui escribiendo'; d.setAttribute('aria-label', 'Yui está escribiendo');
+      for (let i = 0; i < 3; i++) d.appendChild(document.createElement('i'));
+      f.appendChild(d); bajar();
     }
 
-    function mostrarSala(visible, comandos) {
-      $('entrada').hidden = true; $('sala').hidden = false;
-      $('visible').textContent = visible || '';
-      const chips = $('chips'); chips.textContent = '';
-      for (const c of (comandos || []).slice(0, 14)) {
-        const b = document.createElement('button');
-        b.type = 'button'; b.className = 'chip'; b.textContent = c;
-        b.addEventListener('click', () => enviar(c));
-        chips.appendChild(b);
+    /* ── Cabecera de estadísticas ── */
+    const num = (n) => Number(n || 0).toLocaleString('es');
+    function pintarStats(p) {
+      const caja = $('stats'); caja.textContent = '';
+      if (!p || !p.perfil) return;
+      const piezas = [['m', '🪙 ' + num(p.perfil.monedas) + ' monedas'], ['x', '⭐ ' + num(p.perfil.xp) + ' XP'], ['r', '🔥 Racha ' + num(p.perfil.racha)]];
+      if (p.posiciones && p.posiciones.xp) piezas.push(['r', '🏆 Puesto #' + p.posiciones.xp]);
+      for (const [c, t] of piezas) { const s = document.createElement('span'); s.className = 'stat ' + c; s.textContent = t; caja.appendChild(s); }
+    }
+    const refrescar = () => llamar({ accion: 'yo' }).then(pintarStats).catch(() => {});
+
+    /* ── Atajos por categoría ── */
+    const GRUPOS = [
+      ['g-c', 'Info', [['menu', 'menu'], ['ping', 'ping'], ['perfil', 'perfil'], ['inventario', 'inventario'], ['top', 'top'], ['top monedas', 'top monedas']]],
+      ['g-d', 'Dinero', [['daily', 'daily'], ['trabajar', 'trabajar'], ['tienda', 'tienda'], ['gacha', 'gacha']]],
+      ['g-e', 'Juegos', [['ruleta 100 rojo', 'ruleta'], ['ppt piedra', 'piedra'], ['ppt papel', 'papel'], ['ppt tijera', 'tijera']]],
+    ];
+    function pintarAtajos(comandos) {
+      const cont = $('atajos'); cont.textContent = '';
+      const hay = new Set(comandos || []);
+      for (const [clase, titulo, lista] of GRUPOS) {
+        const usables = lista.filter(([cmd]) => hay.size === 0 || hay.has(cmd.split(' ')[0]));
+        if (!usables.length) continue;
+        const g = document.createElement('div'); g.className = 'grupo ' + clase;
+        const s = document.createElement('small'); s.textContent = titulo; g.appendChild(s);
+        const fila = document.createElement('div'); fila.className = 'chips';
+        for (const [cmd, etiqueta] of usables) {
+          const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.textContent = etiqueta;
+          b.addEventListener('click', () => enviar(cmd)); fila.appendChild(b);
+        }
+        g.appendChild(fila); cont.appendChild(g);
       }
-      if (!$('chat').children.length) burbuja('¡Hola! Soy Yui. Escribe menu para ver todo lo que puedo hacer (•̀ᴗ•́)و', 'yui');
+    }
+
+    function mostrarSala(datos) {
+      $('entrada').hidden = true; $('sala').hidden = false;
+      $('visible').textContent = datos.visible || 'Conectada';
+      pintarAtajos(datos.comandos); pintarStats(datos);
+      if (!$('chat').children.length) burbuja('¡Hola! Soy Yui～ Toca un atajo o escribe menu para ver todo lo que puedo hacer (•̀ᴗ•́)و', 'yui');
     }
 
     function cerrarSesion(mensaje) {
-      token = '';
-      try { localStorage.removeItem(CLAVE); } catch {}
+      token = ''; guardar(CLAVE, '');
       $('sala').hidden = true; $('entrada').hidden = false; $('chat').textContent = '';
       $('error-entrar').textContent = mensaje || '';
     }
 
     async function enviar(texto) {
       $('error-chat').textContent = '';
-      burbuja(texto, 'tu');
-      $('btn-enviar').disabled = true;
+      burbuja(texto, 'tu'); $('btn-enviar').disabled = true; escribiendo(true);
       try {
         const r = await llamar({ accion: 'comando', texto });
-        for (const t of r.respuestas) burbuja(t, 'yui');
+        escribiendo(false);
+        for (const t of r.respuestas) respuesta(t);
+        refrescar();
       } catch (e) {
+        escribiendo(false);
         if (e.estado === 401) return cerrarSesion(e.message);
         burbuja(e.message, 'yui mal');
-      } finally { $('btn-enviar').disabled = false; $('texto').focus(); }
+      } finally { $('btn-enviar').disabled = false; $('texto').focus({ preventScroll: true }); }
     }
 
     $('form-entrar').addEventListener('submit', async (ev) => {
@@ -150,10 +260,9 @@
       $('error-entrar').textContent = ''; $('btn-entrar').disabled = true;
       try {
         const r = await llamar({ accion: 'entrar', numero: $('numero').value, codigo: $('codigo').value, nombre: $('nombre').value });
-        token = r.token;
-        try { localStorage.setItem(CLAVE, token); } catch {}
-        $('codigo').value = '';
-        mostrarSala(r.visible, r.comandos);
+        token = r.token; guardar(CLAVE, token); $('codigo').value = '';
+        mostrarSala({ visible: r.visible, comandos: r.comandos });
+        refrescar();
       } catch (e) { $('error-entrar').textContent = e.message; }
       finally { $('btn-entrar').disabled = false; }
     });
@@ -166,7 +275,7 @@
 
     $('salir').addEventListener('click', async () => { try { await llamar({ accion: 'salir' }); } catch {} cerrarSesion(''); });
 
-    if (token) llamar({ accion: 'yo' }).then((r) => mostrarSala(r.visible, r.comandos)).catch(() => cerrarSesion(''));
+    if (token) llamar({ accion: 'yo' }).then(mostrarSala).catch(() => cerrarSesion(''));
   </script>
 </body>
 </html>
