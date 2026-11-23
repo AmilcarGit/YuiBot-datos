@@ -408,6 +408,8 @@
     if (token) llamar({ accion: 'yo' }).then(mostrarSala).catch(() => cerrarSesion(''));
   
     /* ── Instalar como app ── */
+    // Si hay versión nueva de la app, se recarga una sola vez para mostrarla.
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) { let recargado = false; navigator.serviceWorker.addEventListener('controllerchange', () => { if (!recargado) { recargado = true; location.reload(); } }); }
     if ('serviceWorker' in navigator) window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(() => {}); });
     let instalador = null;
     window.addEventListener('beforeinstallprompt', (ev) => { ev.preventDefault(); instalador = ev; $('instalar').hidden = false; });

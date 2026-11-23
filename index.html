@@ -786,6 +786,8 @@ ${medallasSVG}
 
     // ── Instalar como app (PWA) ──
     let instalador = null;
+    // Si hay versión nueva de la app, se recarga una sola vez para mostrarla.
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) { let recargado = false; navigator.serviceWorker.addEventListener('controllerchange', () => { if (!recargado) { recargado = true; location.reload(); } }); }
     if ('serviceWorker' in navigator) window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(() => { /* sin service worker la web funciona igual */ }); });
     window.addEventListener('beforeinstallprompt', (ev) => { ev.preventDefault(); instalador = ev; $('instalar').hidden = false; });
     window.addEventListener('appinstalled', () => { instalador = null; $('instalar').hidden = true; aviso('¡App instalada! 🌸'); });
