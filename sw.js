@@ -1,5 +1,5 @@
 // Service worker de YuiBot-datos: la página abre al instante y funciona sin conexión (la API siempre va a la red).
-const VERSION = 'yui-v6'
+const VERSION = 'yui-v7'
 const BASE = ['/', '/yui', '/manifest.webmanifest', '/icons/yui-192.png', '/icons/yui-512.png', '/icons/yui-apple-touch.png']
 
 self.addEventListener('install', (e) => {
@@ -18,6 +18,11 @@ self.addEventListener('fetch', (e) => {
   if (req.mode === 'navigate') {
     // Páginas: primero la red (siempre lo último); sin conexión, la copia guardada.
     e.respondWith(fetch(req).then((r) => { const copia = r.clone(); caches.open(VERSION).then((c) => c.put(req, copia)).catch(() => {}); return r }).catch(() => caches.match(req).then((c) => c || caches.match('/'))))
+    return
+  }
+  // Manifiesto e íconos: siempre lo último (si no, el ícono de la app se queda viejo).
+  if (url.pathname === '/manifest.webmanifest' || url.pathname.startsWith('/icons/')) {
+    e.respondWith(fetch(req).then((r) => { if (r.ok) { const copia = r.clone(); caches.open(VERSION).then((x) => x.put(req, copia)).catch(() => {}) } return r }).catch(() => caches.match(req)))
     return
   }
   // Archivos estáticos: copia rápida y se renueva en segundo plano.
