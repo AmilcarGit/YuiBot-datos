@@ -8,6 +8,7 @@ const W = require('../lib/web')
 const cfg = S.config({ DATOS_PEPPER: 'pimienta-de-prueba' })
 const NUM = '51910000001'
 const T0 = Date.UTC(2026, 10, 22, 17)
+const texto = (r) => r.respuestas.map((x) => (typeof x === 'string' ? x : x.texto)).join('\n')
 
 async function jugadorSincronizado(almacen) {
   const { id } = await svc.registrarInstalacion({ almacen, cfg, ip: '1.1.1.1', ahora: T0 })
@@ -54,11 +55,11 @@ test('comandos: menu, daily y trabajar usan los datos reales y los guardan', asy
   const { token } = await sesion(almacen, id)
 
   const menu = await W.comando({ almacen, cfg, token, texto: '.menu', ahora: T0 })
-  assert.match(menu.respuestas.join('\n'), /daily/)
-  assert.doesNotMatch(menu.respuestas.join('\n'), /serbot|antienlaces/, 'solo comandos que funcionan en la web')
+  assert.match(texto(menu), /daily/)
+  assert.doesNotMatch(texto(menu), /serbot|antienlaces/, 'solo comandos que funcionan en la web')
 
   const d = await W.comando({ almacen, cfg, token, texto: 'daily', ahora: T0 + 1000 })
-  assert.match(d.respuestas.join('\n'), /monedas/i)
+  assert.match(texto(d), /monedas/i)
   const guardado = await svc.leerJson(almacen, `u:${S.idUsuario(cfg.pepper, NUM)}`)
   assert.ok(guardado.monedas > 1000 && guardado.ultimoDaily > 0)
   assert.equal(guardado.nombre, 'Ana')
@@ -70,7 +71,7 @@ test('comandos: menu, daily y trabajar usan los datos reales y los guardan', asy
   const t = await W.comando({ almacen, cfg, token, texto: 'trabajar granjero', ahora: T0 + 30000 })
   assert.ok(t.respuestas.length)
   const trabajo = await W.comando({ almacen, cfg, token, texto: 'trabajar', ahora: T0 + 40000 })
-  assert.match(trabajo.respuestas.join('\n'), /monedas/i)
+  assert.match(texto(trabajo), /monedas/i)
   const rec = await svc.leerJson(almacen, `u:${S.idUsuario(cfg.pepper, NUM)}`)
   const tr = await svc.leerJson(almacen, `t:${S.idUsuario(cfg.pepper, NUM)}`)
   assert.ok(rec.trabajosGanado > 0 && tr.ganado === rec.trabajosGanado && tr.veces.granjero === 1)
@@ -82,11 +83,11 @@ test('comandos: top y perfil leen el ranking global; uno desconocido avisa', asy
   const id = await jugadorSincronizado(almacen)
   const { token } = await sesion(almacen, id)
   const top = await W.comando({ almacen, cfg, token, texto: 'top monedas', ahora: T0 })
-  assert.match(top.respuestas.join('\n'), /519•••001/)
+  assert.match(texto(top), /519•••001/)
   const perfil = await W.comando({ almacen, cfg, token, texto: 'perfil', ahora: T0 })
-  assert.match(perfil.respuestas.join('\n'), /Ranking global/)
+  assert.match(texto(perfil), /Ranking global/)
   const raro = await W.comando({ almacen, cfg, token, texto: 'inventadoxyz', ahora: T0 })
-  assert.match(raro.respuestas.join('\n'), /No conozco/)
+  assert.match(texto(raro), /No conozco/)
 })
 
 test('lo hecho en la web vuelve al bot en la siguiente sincronización (previo)', async () => {
@@ -96,6 +97,22 @@ test('lo hecho en la web vuelve al bot en la siguiente sincronización (previo)'
   await W.comando({ almacen, cfg, token, texto: 'daily', ahora: T0 + 1000 })
   const r = await svc.sincronizar({ almacen, cfg, instalacionId: id, ahora: T0 + 60000, cuerpo: { usuarios: { [NUM]: { u: { r: { actualizado: T0 + 60000 }, d: { monedas: 0 } } } } } })
   assert.ok(r.usuarios[NUM].previo.monedas > 1000, 'el bot sabe que había monedas nuevas')
+})
+
+test('las respuestas con botones llegan con sus atajos y desplegables', async () => {
+  const almacen = crearMemoria()
+  const id = await jugadorSincronizado(almacen)
+  const { token } = await sesion(almacen, id)
+  const ppt = await W.comando({ almacen, cfg, token, texto: 'ppt', ahora: T0 })
+  assert.deepEqual(ppt.respuestas[0].botones.map((b) => b.cmd), ['ppt piedra', 'ppt papel', 'ppt tijera'])
+  const juego = await W.comando({ almacen, cfg, token, texto: 'ppt papel', ahora: T0 + 1000 })
+  assert.match(juego.respuestas[0].texto, /Yui/)
+  assert.equal(juego.respuestas[0].botones.length, 3, 'otra ronda con un toque')
+  const menu = await W.comando({ almacen, cfg, token, texto: 'menu', ahora: T0 + 2000 })
+  const secciones = menu.respuestas[0].secciones
+  assert.ok(secciones.length >= 2 && secciones.every((s) => s.filas.length && s.filas.every((f) => f.cmd)))
+  const ruleta = await W.comando({ almacen, cfg, token, texto: 'ruleta', ahora: T0 + 3000 })
+  assert.deepEqual(ruleta.respuestas[0].botones.map((b) => b.cmd), ['ruleta 100 rojo', 'ruleta 100 negro', 'ruleta 100 verde'])
 })
 
 test('salir cierra la sesión', async () => {

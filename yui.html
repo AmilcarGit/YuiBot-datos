@@ -63,6 +63,7 @@
     .chips{display:flex;gap:7px;flex-wrap:wrap}
     .chip{padding:8px 13px;border-radius:999px;border:1px solid currentColor;background:color-mix(in srgb,currentColor 12%,transparent);font-size:13px;font-weight:900}.chip:hover{background:color-mix(in srgb,currentColor 24%,transparent)}
     .g-a{color:var(--a)}.g-c{color:var(--c)}.g-d{color:var(--d)}.g-e{color:var(--e)}
+    .acciones{margin-top:10px;display:flex;flex-direction:column;gap:8px}.acciones .grupo{margin-top:0}.acciones .chip:disabled{opacity:.35;cursor:default}
     form.enviar{display:flex;gap:8px;margin-top:14px}form.enviar input{flex:1}
     footer.pie{padding:22px 0 8px;text-align:center;color:var(--muted);font-size:13px}
   </style>
@@ -164,10 +165,19 @@
       f.appendChild(d); bajar();
     }
     // Las cajas del bot (╭━〔 Título 〕━⬣ / ┃ línea / ╰━⬣) se dibujan como tarjetas de colores.
-    function respuesta(texto) {
+    function respuesta(item) {
+      const texto = typeof item === 'string' ? item : item.texto;
+      const destino = dibujar(texto);
+      if (typeof item === 'object') acciones(destino, item);
+      bajar();
+    }
+    // Devuelve el elemento donde caben los botones (cuerpo de la tarjeta o la burbuja).
+    function dibujar(texto) {
       const lineas = String(texto).split('\n');
       const ini = lineas[0].indexOf('〔'), fin = lineas[0].lastIndexOf('〕');
-      if (!(lineas[0].startsWith('╭') && ini >= 0 && fin > ini)) return burbuja(texto, 'yui');
+      if (!(lineas[0].startsWith('╭') && ini >= 0 && fin > ini)) {
+        const f = fila('yui'); const d = document.createElement('div'); d.className = 'msg yui'; d.textContent = texto; f.appendChild(d); return d;
+      }
       const f = fila('yui');
       const t = document.createElement('div'); t.className = 'tarjeta';
       const h = document.createElement('header'); h.textContent = lineas[0].slice(ini + 1, fin).trim(); t.appendChild(h);
@@ -181,8 +191,32 @@
         d.className = /^(\p{Extended_Pictographic}|[✦•▸➤⭐★☆◆◇]|\d+[.)])/u.test(limpio) ? 'item' : 'texto';
         d.textContent = limpio; cuerpo.appendChild(d);
       }
-      t.appendChild(cuerpo); const pie = document.createElement('footer'); t.appendChild(pie);
-      f.appendChild(t); bajar();
+      t.appendChild(cuerpo); t.appendChild(document.createElement('footer'));
+      f.appendChild(t); return cuerpo;
+    }
+    // Botones de respuesta rápida y menús desplegables que manda el servidor.
+    function acciones(destino, item) {
+      for (const viejo of document.querySelectorAll('.acciones button')) viejo.disabled = true; // solo se usan los más recientes
+      const crear = (texto, cmd, ayuda) => {
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.textContent = texto;
+        if (ayuda) b.title = ayuda;
+        b.addEventListener('click', () => enviar(cmd)); return b;
+      };
+      const caja = document.createElement('div'); caja.className = 'acciones';
+      if (item.botones && item.botones.length) {
+        const fila = document.createElement('div'); fila.className = 'chips g-a';
+        for (const b of item.botones) fila.appendChild(crear(b.texto, b.cmd));
+        caja.appendChild(fila);
+      }
+      const colores = ['g-c', 'g-d', 'g-e', 'g-a'];
+      (item.secciones || []).forEach((sec, i) => {
+        const g = document.createElement('div'); g.className = 'grupo ' + colores[i % colores.length];
+        const t = document.createElement('small'); t.textContent = sec.titulo; g.appendChild(t);
+        const fila = document.createElement('div'); fila.className = 'chips';
+        for (const f of sec.filas) fila.appendChild(crear(f.titulo, f.cmd, f.descripcion));
+        g.appendChild(fila); caja.appendChild(g);
+      });
+      if (caja.children.length) destino.appendChild(caja);
     }
     function escribiendo(si) {
       const viejo = $('pensando'); if (viejo) viejo.remove();
