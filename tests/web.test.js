@@ -116,6 +116,28 @@ test('las respuestas con botones llegan con sus atajos y desplegables', async ()
   assert.deepEqual(ruleta.respuestas[0].botones.map((b) => b.cmd), ['ruleta 100 rojo', 'ruleta 100 negro', 'ruleta 100 verde'])
 })
 
+test('descargas: la web devuelve audio y video como enlaces', async () => {
+  const almacen = crearMemoria()
+  const id = await jugadorSincronizado(almacen)
+  const { token } = await sesion(almacen, id)
+  const original = globalThis.fetch
+  globalThis.fetch = async (u) => ({ ok: true, status: 200, json: async () => String(u).includes('busqueda')
+    ? { status: true, data: [{ type: 'video', url: 'https://youtu.be/a', title: 'Patadas', duration: '3:45', author: { name: 'LM' } }] }
+    : String(u).includes('ytmp3') ? { status: true, data: { download: 'https://x.test/a.mp3' } }
+    : { result: [{ title: 'V', downloads: { mp4: { url: 'https://x.test/v.mp4' } } }] } })
+  try {
+    const yts = await W.comando({ almacen, cfg, token, texto: 'yts patadas', ahora: T0 })
+    assert.ok(yts.respuestas[0].secciones.length === 2 && yts.respuestas[0].secciones[0].filas[0].cmd.startsWith('ytmp3 https://youtu.be/a'))
+    const play = await W.comando({ almacen, cfg, token, texto: 'play patadas', ahora: T0 + 1000 })
+    assert.deepEqual(play.respuestas.filter((r) => r.medio).map((r) => r.medio.tipo), ['audio'])
+    assert.equal(play.respuestas.find((r) => r.medio).medio.url, 'https://x.test/a.mp3')
+    const mp4 = await W.comando({ almacen, cfg, token, texto: 'ytmp4 https://youtu.be/a', ahora: T0 + 2000 })
+    assert.equal(mp4.respuestas.find((r) => r.medio).medio.tipo, 'video')
+    const mal = await W.comando({ almacen, cfg, token, texto: 'ytmp3 hola', ahora: T0 + 3000 })
+    assert.ok(!mal.respuestas.some((r) => r.medio))
+  } finally { globalThis.fetch = original }
+})
+
 test('salir cierra la sesión', async () => {
   const almacen = crearMemoria()
   const id = await jugadorSincronizado(almacen)

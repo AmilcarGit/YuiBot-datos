@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#1b0d1a">
   <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Yui">
   <meta name="description" content="Habla con Yui desde la web: usa los comandos de YuiBot-MD con tu mismo progreso de WhatsApp.">
   <title>Yui en la web — YuiBot-datos</title>
   <style>
@@ -75,6 +79,8 @@
     .cmd small{display:block;color:var(--muted);line-height:1.35;margin-top:2px}.cmd .ej{color:var(--d);font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px}
     .cmd .acc{display:flex;gap:6px;flex:none}
     .copiado{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);padding:10px 16px;border-radius:999px;background:var(--a);color:var(--onA);font-weight:900;box-shadow:0 10px 30px rgba(0,0,0,.4);z-index:9}
+    button.link{border:0;background:var(--card);border:1px solid var(--line);color:var(--text)}
+    .medio{margin-top:8px;display:grid;gap:8px;max-width:340px}.medio audio,.medio video{width:100%;border-radius:14px}
     form.enviar{display:flex;gap:8px;margin-top:14px}form.enviar input{flex:1}
     footer.pie{padding:22px 0 8px;text-align:center;color:var(--muted);font-size:13px}
   </style>
@@ -84,6 +90,7 @@
     <header class="nav">
       <a class="brand" href="/">🌸 YuiBot-datos</a>
       <div class="temas" role="group" aria-label="Colores de la página" id="temas"></div>
+      <button class="link" id="instalar" type="button" hidden aria-label="Instalar como app">📲 Instalar</button>
       <a class="link" href="/">Ranking</a>
     </header>
 
@@ -189,10 +196,21 @@
     }
     // Las cajas del bot (╭━〔 Título 〕━⬣ / ┃ línea / ╰━⬣) se dibujan como tarjetas de colores.
     function respuesta(item) {
+      if (item && item.medio) { medio(item.medio); bajar(); return; }
       const texto = typeof item === 'string' ? item : item.texto;
       const destino = dibujar(texto);
       if (typeof item === 'object') acciones(destino, item);
       bajar();
+    }
+    // Audio o video descargable: se reproduce aquí y tiene su botón para guardarlo.
+    function medio(m) {
+      const f = fila('yui'); const d = document.createElement('div'); d.className = 'msg yui medio';
+      if (m.tipo === 'audio' || m.tipo === 'video') {
+        const r = document.createElement(m.tipo); r.controls = true; r.preload = 'metadata'; r.src = m.url; d.appendChild(r);
+      }
+      const a = document.createElement('a'); a.className = 'btn small'; a.href = m.url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+      a.setAttribute('download', m.nombre || 'yui'); a.textContent = m.tipo === 'audio' ? '⬇ Descargar audio' : m.tipo === 'video' ? '⬇ Descargar video' : '⬇ Descargar archivo';
+      d.appendChild(a); f.appendChild(d);
     }
     // Devuelve el elemento donde caben los botones (cuerpo de la tarjeta o la burbuja).
     function dibujar(texto) {
@@ -303,9 +321,9 @@
     }
 
     /* ── Catálogo de comandos ── */
-    const TITULOS = { general: 'General', economia: 'Economía', juegos: 'Juegos' };
-    const COLOR = { general: 'g-c', economia: 'g-d', juegos: 'g-e' };
-    const EJEMPLOS = { ruleta: 'ruleta 100 rojo', ppt: 'ppt piedra', tienda: 'tienda comprar pico', trabajar: 'trabajar granjero', top: 'top monedas', menu: 'menu economia' };
+    const TITULOS = { general: 'General', economia: 'Economía', juegos: 'Juegos', descargas: 'Descargas' };
+    const COLOR = { general: 'g-c', economia: 'g-d', juegos: 'g-e', descargas: 'g-a' };
+    const EJEMPLOS = { ruleta: 'ruleta 100 rojo', ppt: 'ppt piedra', tienda: 'tienda comprar pico', trabajar: 'trabajar granjero', top: 'top monedas', menu: 'menu economia', yts: 'yts patadas de ahogado', play: 'play patadas de ahogado', ytmp3: 'ytmp3 https://youtu.be/…', ytmp4: 'ytmp4 https://youtu.be/…' };
     let catalogo = [];
     function pintarCatalogo(filtro) {
       const caja = $('catalogo'); caja.textContent = '';
@@ -388,6 +406,17 @@
     $('salir').addEventListener('click', async () => { try { await llamar({ accion: 'salir' }); } catch {} cerrarSesion(''); });
 
     if (token) llamar({ accion: 'yo' }).then(mostrarSala).catch(() => cerrarSesion(''));
-  </script>
+  
+    /* ── Instalar como app ── */
+    if ('serviceWorker' in navigator) window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(() => {}); });
+    let instalador = null;
+    window.addEventListener('beforeinstallprompt', (ev) => { ev.preventDefault(); instalador = ev; $('instalar').hidden = false; });
+    window.addEventListener('appinstalled', () => { instalador = null; $('instalar').hidden = true; avisar('¡App instalada! 🌸'); });
+    $('instalar').addEventListener('click', async () => {
+      if (instalador) { instalador.prompt(); try { await instalador.userChoice; } catch (e) { /* cerrado */ } instalador = null; $('instalar').hidden = true; }
+      else avisar('En Safari: Compartir → “Añadir a pantalla de inicio”');
+    });
+    if (/iphone|ipad|ipod/i.test(navigator.userAgent) && !navigator.standalone && !matchMedia('(display-mode: standalone)').matches) $('instalar').hidden = false;
+</script>
 </body>
 </html>
