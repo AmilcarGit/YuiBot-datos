@@ -90,3 +90,12 @@ Se borran perfiles, rankings, historial y contadores; **se conservan las instala
 
 - 🎯 **Desafío de la semana**: entre todas las instalaciones hay que llegar a una meta de trabajos (`DESAFIO_META`, 1000 por defecto, mínimo 10). Se reinicia cada lunes (hora de Perú). Solo cuentan trabajos nuevos, no los datos que una instalación ya tenía al conectarse.
 - 📊 **Personas activas por día**: gráfica de los últimos 14 días (activas, nuevas y sincronizaciones). Ambas cosas salen en `GET /api/estadisticas` como `desafio` y `diario`.
+
+
+## Yui en la web (`/yui`)
+
+Además de ver tu progreso, puedes **usar los comandos del bot desde la página** (menu, perfil, daily, trabajar, tienda, gacha, ppt, ruleta, top…) con los mismos datos que en WhatsApp. Los comandos corren aquí en Vercel; no hace falta que el bot esté encendido.
+
+**Cómo se entra:** la persona le escribe `.web` al bot por privado, el bot pide un código (`POST /api/vincular`, solo instalaciones registradas) y se lo manda por WhatsApp; en la web escribe su número y el código (`POST /api/web`). El código dura 10 minutos, se anula tras 5 fallos y la sesión dura 30 días.
+
+**Mantenimiento:** la lógica de los comandos es una copia de la del bot en `lib/yui/`. Para actualizarla: `node scripts/sync-bot.mjs ../YuiBot-MD`.

@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1b0d1a">
+  <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
+  <meta name="description" content="Habla con Yui desde la web: usa los comandos de YuiBot-MD con tu mismo progreso de WhatsApp.">
+  <title>Yui en la web — YuiBot-datos</title>
+  <style>
+    :root{color-scheme:dark;--bg:#1b0d1a;--bg2:#241024;--card:#2a1429;--card2:#331a31;--line:rgba(255,150,210,.18);--text:#fff3fa;--muted:#d6b3c9;--soft:#ffb3dc;--pink:#ff69b4;--pink2:#ff3d9a;--rose:#ff9ad0;--lilac:#c9a4ff;--mint:#7be7c4;--bad:#ff8a9b;--glow:rgba(255,105,180,.28);--field:#1f0f1e}
+    :root[data-theme="light"]{color-scheme:light;--bg:#fff2f8;--bg2:#ffe6f2;--card:#fff;--card2:#fff0f7;--line:rgba(214,51,132,.2);--text:#3b0f2a;--muted:#8a5272;--soft:#c2185b;--pink:#e91e8c;--pink2:#d6197f;--rose:#ff6fb5;--lilac:#8d5bd6;--mint:#10936c;--bad:#c93a55;--glow:rgba(233,30,140,.22);--field:#fff}
+    *{box-sizing:border-box}[hidden]{display:none!important}
+    body{margin:0;min-height:100vh;color:var(--text);font-family:"Nunito","Segoe UI",ui-rounded,system-ui,sans-serif;background:radial-gradient(900px 480px at 12% -5%,var(--glow),transparent 60%),linear-gradient(180deg,var(--bg),var(--bg2));background-attachment:fixed}
+    a{color:inherit;text-decoration:none}button,input{font:inherit;color:inherit}button{cursor:pointer}
+    :focus-visible{outline:3px solid var(--rose);outline-offset:3px;border-radius:12px}
+    .wrap{width:min(760px,calc(100% - 32px));margin:auto}
+    .nav{min-height:68px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .brand{font-weight:900;font-size:18px}.link{font-size:14px;font-weight:700;color:var(--muted);padding:9px 13px;border-radius:999px}.link:hover{color:var(--text);background:var(--card)}
+    .panel{background:linear-gradient(160deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:24px;padding:22px;box-shadow:0 18px 50px rgba(0,0,0,.3)}
+    h1{font-size:clamp(26px,5vw,38px);letter-spacing:-.03em;margin:0 0 8px}
+    p{color:var(--muted);line-height:1.65;margin:0 0 14px}
+    ol{color:var(--muted);line-height:1.8;padding-left:22px;margin:0 0 18px}
+    code{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--field);padding:2px 7px;border-radius:8px;color:var(--soft)}
+    label{display:block;font-size:13px;font-weight:800;color:var(--soft);margin:12px 0 6px}
+    input{width:100%;padding:13px 14px;border-radius:14px;border:1px solid var(--line);background:var(--field);font-size:16px;font-weight:700}
+    input:focus{border-color:var(--rose);outline:none;box-shadow:0 0 0 4px var(--glow)}
+    .btn{display:inline-flex;align-items:center;justify-content:center;padding:12px 20px;border-radius:14px;border:0;font-weight:900;color:#fff;background:linear-gradient(120deg,var(--rose),var(--pink2));box-shadow:0 8px 22px var(--glow)}
+    .btn:disabled{opacity:.6;cursor:wait}.btn.ghost{background:var(--card);color:var(--text);border:1px solid var(--line);box-shadow:none}.btn.small{padding:8px 13px;font-size:13px;border-radius:12px}
+    .error{color:var(--bad);font-weight:800;min-height:1.4em;margin:10px 0 0}
+    .barra{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+    .yo{font-weight:900}.yo small{display:block;color:var(--muted);font-weight:700}
+    #chat{height:min(56vh,520px);overflow-y:auto;padding:14px;border-radius:18px;background:var(--field);border:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
+    .msg{max-width:92%;padding:10px 13px;border-radius:16px;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.45;font-size:14.5px}
+    .msg.tu{align-self:flex-end;background:linear-gradient(120deg,var(--rose),var(--pink2));color:#fff;border-bottom-right-radius:5px;font-weight:700}
+    .msg.yui{align-self:flex-start;background:var(--card);border:1px solid var(--line);border-bottom-left-radius:5px}
+    .msg.mal{border-color:var(--bad)}
+    .chips{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}
+    .chip{padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--card);font-size:13px;font-weight:800;color:var(--soft)}.chip:hover{border-color:var(--rose)}
+    form.enviar{display:flex;gap:8px}form.enviar input{flex:1}
+    footer{padding:26px 0;text-align:center;color:var(--muted);font-size:13px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="nav">
+      <a class="brand" href="/">🌸 YuiBot-datos</a>
+      <a class="link" href="/">Ranking y perfil</a>
+    </header>
+
+    <main>
+      <section class="panel" id="entrada">
+        <h1>Habla con Yui desde la web</h1>
+        <p>Usa los mismos comandos del bot de WhatsApp con tu mismo progreso: monedas, nivel, trabajos y ranking.</p>
+        <ol>
+          <li>Escríbele a Yui por privado en WhatsApp: <code>.registrar tuNombre</code> (si aún no lo hiciste).</li>
+          <li>Luego envía <code>.web</code>: te responde con un código de 6 dígitos.</li>
+          <li>Escribe aquí tu número y el código.</li>
+        </ol>
+        <form id="form-entrar" autocomplete="off">
+          <label for="numero">Tu número de WhatsApp con código de país</label>
+          <input id="numero" type="tel" inputmode="numeric" placeholder="51910227479" maxlength="24" required>
+          <label for="codigo">Código de 6 dígitos</label>
+          <input id="codigo" type="text" inputmode="numeric" placeholder="123456" maxlength="6" pattern="\d{6}" required>
+          <label for="nombre">Tu nombre (solo la primera vez, opcional)</label>
+          <input id="nombre" type="text" placeholder="Ana" maxlength="24">
+          <p class="error" id="error-entrar" role="alert"></p>
+          <button class="btn" type="submit" id="btn-entrar">Entrar</button>
+        </form>
+      </section>
+
+      <section class="panel" id="sala" hidden>
+        <div class="barra">
+          <div class="yo" id="yo">Conectada<small id="visible"></small></div>
+          <button class="btn ghost small" type="button" id="salir">Salir</button>
+        </div>
+        <div id="chat" role="log" aria-live="polite" aria-label="Conversación con Yui"></div>
+        <div class="chips" id="chips" aria-label="Comandos rápidos"></div>
+        <form class="enviar" id="form-enviar" autocomplete="off">
+          <label class="sr" for="texto" style="position:absolute;left:-9999px">Comando</label>
+          <input id="texto" type="text" placeholder="Escribe un comando, por ejemplo: menu" maxlength="200" required>
+          <button class="btn" type="submit" id="btn-enviar">Enviar</button>
+        </form>
+        <p class="error" id="error-chat" role="alert"></p>
+      </section>
+    </main>
+    <footer>Los comandos de grupo y de dueño solo existen en WhatsApp.</footer>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const CLAVE = 'yui-sesion';
+    let token = '';
+    try { token = localStorage.getItem(CLAVE) || ''; } catch {}
+
+    async function llamar(cuerpo) {
+      const res = await fetch('/api/web', {
+        method: 'POST', cache: 'no-store',
+        headers: { 'content-type': 'application/json', ...(token ? { authorization: 'Bearer ' + token } : {}) },
+        body: JSON.stringify(cuerpo),
+      });
+      const datos = await res.json().catch(() => ({}));
+      if (!res.ok || datos.ok === false) { const e = new Error(datos.error || 'Error ' + res.status); e.estado = res.status; throw e; }
+      return datos;
+    }
+
+    function burbuja(texto, clase) {
+      const d = document.createElement('div');
+      d.className = 'msg ' + clase;
+      d.textContent = texto;
+      $('chat').appendChild(d);
+      $('chat').scrollTop = $('chat').scrollHeight;
+    }
+
+    function mostrarSala(visible, comandos) {
+      $('entrada').hidden = true; $('sala').hidden = false;
+      $('visible').textContent = visible || '';
+      const chips = $('chips'); chips.textContent = '';
+      for (const c of (comandos || []).slice(0, 14)) {
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = 'chip'; b.textContent = c;
+        b.addEventListener('click', () => enviar(c));
+        chips.appendChild(b);
+      }
+      if (!$('chat').children.length) burbuja('¡Hola! Soy Yui. Escribe menu para ver todo lo que puedo hacer (•̀ᴗ•́)و', 'yui');
+    }
+
+    function cerrarSesion(mensaje) {
+      token = '';
+      try { localStorage.removeItem(CLAVE); } catch {}
+      $('sala').hidden = true; $('entrada').hidden = false; $('chat').textContent = '';
+      $('error-entrar').textContent = mensaje || '';
+    }
+
+    async function enviar(texto) {
+      $('error-chat').textContent = '';
+      burbuja(texto, 'tu');
+      $('btn-enviar').disabled = true;
+      try {
+        const r = await llamar({ accion: 'comando', texto });
+        for (const t of r.respuestas) burbuja(t, 'yui');
+      } catch (e) {
+        if (e.estado === 401) return cerrarSesion(e.message);
+        burbuja(e.message, 'yui mal');
+      } finally { $('btn-enviar').disabled = false; $('texto').focus(); }
+    }
+
+    $('form-entrar').addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      $('error-entrar').textContent = ''; $('btn-entrar').disabled = true;
+      try {
+        const r = await llamar({ accion: 'entrar', numero: $('numero').value, codigo: $('codigo').value, nombre: $('nombre').value });
+        token = r.token;
+        try { localStorage.setItem(CLAVE, token); } catch {}
+        $('codigo').value = '';
+        mostrarSala(r.visible, r.comandos);
+      } catch (e) { $('error-entrar').textContent = e.message; }
+      finally { $('btn-entrar').disabled = false; }
+    });
+
+    $('form-enviar').addEventListener('submit', (ev) => {
+      ev.preventDefault();
+      const t = $('texto').value.trim(); if (!t) return;
+      $('texto').value = ''; enviar(t);
+    });
+
+    $('salir').addEventListener('click', async () => { try { await llamar({ accion: 'salir' }); } catch {} cerrarSesion(''); });
+
+    if (token) llamar({ accion: 'yo' }).then((r) => mostrarSala(r.visible, r.comandos)).catch(() => cerrarSesion(''));
+  </script>
+</body>
+</html>
