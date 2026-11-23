@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#1b0d1a">
   <link rel="manifest" href="/manifest.webmanifest">
-  <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
-  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="/icons/yui-192.png">
+  <link rel="apple-touch-icon" href="/icons/yui-apple-touch.png">
   <meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="YuiBot">
   <meta name="description" content="YuiBot-datos: busca tu número y mira tu nivel, monedas y puesto mundial en YuiBot-MD. Ranking en vivo, guía de instalación y estado del servicio.">
   <title>YuiBot-datos — Tu progreso en YuiBot-MD</title>
@@ -36,7 +36,7 @@
     .nav{min-height:72px;padding:6px 0;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px}
     .brand{display:flex;gap:11px;align-items:center;font-weight:900;font-size:18px;letter-spacing:-.01em}
     .logo{width:42px;height:42px;border-radius:15px;display:grid;place-items:center;background:linear-gradient(135deg,var(--rose),var(--pink2));box-shadow:0 8px 24px var(--glow);color:#fff}
-    .logo svg{width:24px;height:24px}
+    .logo img{width:100%;height:100%;border-radius:inherit;object-fit:cover;display:block}
     .links{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px;align-items:center}
     .link{font-size:14px;font-weight:700;color:var(--muted);padding:9px 13px;border-radius:999px;transition:.2s}.link:hover{color:var(--text);background:var(--card)}
     .icon-btn{width:40px;height:40px;border-radius:13px;border:1px solid var(--line);background:var(--card);display:grid;place-items:center;transition:.2s}.icon-btn:hover{transform:translateY(-1px);border-color:var(--rose)}
@@ -180,7 +180,7 @@
   <div class="wrap">
     <header class="nav">
       <a class="brand" href="/" aria-label="YuiBot-datos, inicio">
-        <span class="logo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2c1.1 2.9 1.4 3.2 4.3 4.3-2.9 1.1-3.2 1.4-4.3 4.3-1.1-2.9-1.4-3.2-4.3-4.3C10.6 5.4 10.9 5.1 12 2.2Zm6 8.3c.7 1.9.9 2.1 2.8 2.8-1.9.7-2.1.9-2.8 2.8-.7-1.9-.9-2.1-2.8-2.8 1.9-.7 2.1-.9 2.8-2.8ZM8 13.5c.9 2.4 1.1 2.6 3.5 3.5-2.4.9-2.6 1.1-3.5 3.5-.9-2.4-1.1-2.6-3.5-3.5 2.4-.9 2.6-1.1 3.5-3.5Z"/></svg></span>
+        <span class="logo" aria-hidden="true"><img src="/icons/yui-192.png" alt="" width="42" height="42"></span>
         <span>YuiBot-datos</span>
       </a>
       <nav class="links" aria-label="Secciones">

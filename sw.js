@@ -1,6 +1,6 @@
 // Service worker de YuiBot-datos: la página abre al instante y funciona sin conexión (la API siempre va a la red).
-const VERSION = 'yui-v5'
-const BASE = ['/', '/yui', '/manifest.webmanifest', '/icons/icon-192.png', '/icons/icon-512.png', '/icons/apple-touch-icon.png']
+const VERSION = 'yui-v6'
+const BASE = ['/', '/yui', '/manifest.webmanifest', '/icons/yui-192.png', '/icons/yui-512.png', '/icons/yui-apple-touch.png']
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(VERSION).then((c) => c.addAll(BASE)).then(() => self.skipWaiting()).catch(() => self.skipWaiting()))
