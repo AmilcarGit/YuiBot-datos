@@ -338,6 +338,14 @@ npm start</code><button class="btn ghost small" type="button" data-copiar="cmd-t
             <div id="adm-caja"></div>
             <div id="adm-extra" hidden>
               <div class="adm-bloque">
+                <h4>🎁 Dar a un jugador</h4>
+                <p style="margin:0 0 8px;color:var(--muted);font-size:13.5px">Regala monedas, XP o un artículo de la tienda. El jugador debe tener datos (haberse registrado en el bot). Usa números negativos para quitar. Su bot lo recibe en la próxima sincronización.</p>
+                <div class="campo"><input type="text" inputmode="numeric" id="dar-numero" placeholder="Número con código de país" aria-label="Número del jugador" autocomplete="off"></div>
+                <div class="campo"><input type="number" id="dar-monedas" placeholder="Monedas" aria-label="Monedas" style="width:50%"><input type="number" id="dar-xp" placeholder="XP" aria-label="XP" style="width:50%"></div>
+                <div class="campo"><select id="dar-articulo" aria-label="Artículo de la tienda"><option value="">Sin artículo</option><option value="pico">⛏️ Pico de hierro</option><option value="mochila">🎒 Mochila</option><option value="amuleto">🍀 Amuleto de la suerte</option></select><button class="btn small" type="button" id="dar-enviar">Dar</button></div>
+                <p id="dar-msg" class="sub" role="status" style="margin:8px 0 0"></p>
+              </div>
+              <div class="adm-bloque">
                 <h4>📣 Evento del banner</h4>
                 <p style="margin:0 0 8px;color:var(--muted);font-size:13.5px">Aparece arriba de la web (doble monedas, torneo…). Solo es un aviso: no cambia el juego.</p>
                 <div class="adm-ev">
@@ -761,6 +769,20 @@ ${medallasSVG}
       try { const r = await llamarAdmin('POST', { accion: 'reiniciar', confirmar: 'REINICIAR' }); if (!r.ok) throw new Error(); $('adm-confirmar').value = ''; aviso('Datos borrados 🌱'); cargarAdmin(); cargarRanking(true); cargarVivo(); }
       catch (e) { aviso('No se pudo reiniciar'); }
       finally { $('adm-reiniciar').disabled = false; }
+    });
+    $('dar-enviar').addEventListener('click', async () => {
+      const msg = $('dar-msg'); msg.textContent = '';
+      const cuerpo = { accion: 'dar', numero: $('dar-numero').value.trim(), monedas: Number($('dar-monedas').value) || 0, xp: Number($('dar-xp').value) || 0, articulo: $('dar-articulo').value };
+      if (!cuerpo.numero) { msg.textContent = 'Escribe el número del jugador.'; return; }
+      if (!confirm('¿Dar ' + cuerpo.monedas + ' monedas, ' + cuerpo.xp + ' XP' + (cuerpo.articulo ? ' y ' + cuerpo.articulo : '') + ' al ' + cuerpo.numero + '?')) return;
+      $('dar-enviar').disabled = true;
+      try {
+        const r = await llamarAdmin('POST', cuerpo);
+        if (!r.ok) throw new Error((r.datos && (r.datos.error || r.datos.message)) || 'HTTP ' + r.status);
+        msg.textContent = 'Listo 🎁 Ahora tiene ' + fmt(r.datos.monedas) + ' monedas y ' + fmt(r.datos.xp) + ' XP.';
+        $('dar-monedas').value = ''; $('dar-xp').value = ''; $('dar-articulo').value = ''; cargarRanking(true);
+      } catch (e) { msg.textContent = e.message || 'No se pudo dar.'; }
+      finally { $('dar-enviar').disabled = false; }
     });
     $('adm-form').addEventListener('submit', (ev) => { ev.preventDefault(); tokenAdmin = $('adm-token').value.trim(); if (!tokenAdmin) { $('adm-msg').textContent = 'Escribe tu ADMIN_TOKEN.'; return; } cargarAdmin(); });
 

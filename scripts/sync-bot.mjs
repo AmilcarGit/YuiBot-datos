@@ -11,7 +11,7 @@ const archivos = [
   'nucleo/juego.js', 'nucleo/utiles.js', 'nucleo/botones.js', 'nucleo/descargas.js',
   'habilidades/general/menu.js', 'habilidades/general/ping.js',
   'habilidades/economia/perfil.js', 'habilidades/economia/inventario.js', 'habilidades/economia/top.js',
-  'habilidades/economia/daily.js', 'habilidades/economia/trabajar.js', 'habilidades/economia/tienda.js', 'habilidades/economia/gacha.js',
+  'habilidades/economia/daily.js', 'habilidades/economia/trabajar.js', 'habilidades/economia/tienda.js', 'habilidades/economia/gacha.js', 'habilidades/economia/dar.js',
   'habilidades/juegos/ppt.js', 'habilidades/juegos/ruleta.js',
   'habilidades/descargas/_enviar.js', 'habilidades/descargas/yts.js', 'habilidades/descargas/play.js', 'habilidades/descargas/ytmp3.js', 'habilidades/descargas/ytmp4.js'
 ]

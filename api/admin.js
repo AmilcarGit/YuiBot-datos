@@ -2,16 +2,18 @@
 // POST /api/admin { accion: 'reiniciar', confirmar: 'REINICIAR' } → borra los datos de jugadores (las instalaciones siguen registradas).
 // POST /api/admin { accion: 'evento', titulo, texto, tipo, horas } o { accion: 'evento', quitar: true } → banner de la web.
 // POST /api/admin { accion: 'limpiar' } → vista previa de registros sospechosos (LIDs); con confirmar:true los borra.
+// POST /api/admin { accion: 'dar', numero, monedas, xp, articulo } → regala monedas, XP o un artículo (pico, mochila, amuleto) a un jugador.
 // GET  /api/admin con la misma cabecera → resumen de instalaciones (para el panel de administración de la web).
 const { ruta } = require('../lib/http')
 const { obtenerAlmacen } = require('../lib/almacen')
 const { config } = require('../lib/seguridad')
-const { banear, resumenAdmin, reiniciarDatos, definirEvento, limpiarSospechosos } = require('../lib/servicio')
+const { banear, resumenAdmin, reiniciarDatos, darAdmin, definirEvento, limpiarSospechosos } = require('../lib/servicio')
 
 module.exports = ruta(['GET', 'POST'], async ({ req, cuerpo }) => {
   const token = req.headers['x-admin-token']
   const almacen = obtenerAlmacen(); const cfg = config()
   if (req.method === 'GET') return resumenAdmin({ almacen, cfg, token })
+  if (cuerpo.accion === 'dar') return darAdmin({ almacen, cfg, token, numero: cuerpo.numero, monedas: cuerpo.monedas, xp: cuerpo.xp, articulo: cuerpo.articulo })
   if (cuerpo.accion === 'evento') return definirEvento({ almacen, cfg, token, titulo: cuerpo.titulo, texto: cuerpo.texto, tipo: cuerpo.tipo, horas: cuerpo.horas, quitar: cuerpo.quitar === true })
   if (cuerpo.accion === 'limpiar') return limpiarSospechosos({ almacen, cfg, token, confirmar: cuerpo.confirmar === true })
   if (cuerpo.accion === 'reiniciar') return reiniciarDatos({ almacen, cfg, token, confirmar: cuerpo.confirmar })

@@ -430,3 +430,20 @@ test('estadísticas diarias y desafío semanal global', async () => {
   assert.ok(diario[1].syncs >= 4 && diario[0].syncs === 0)
   assert.equal(S.config({ DESAFIO_META: '5' }).desafioMeta, 10, 'meta mínima 10'); assert.equal(S.config({}).desafioMeta, 1000)
 })
+
+test('panel admin: dar monedas, XP y artículos exige token y actualiza ranking', async () => {
+  const almacen = nuevoAlmacen(); const A = await instalacion(almacen)
+  const cfgAdmin = { ...cfg, adminToken: 'secreto-admin' }
+  const NUM = '51911112222'
+  await svc.sincronizar({ almacen, cfg, instalacionId: A.id, ahora: 5e12, cuerpo: { usuarios: { [NUM]: { u: { semilla: true, r: { actualizado: 5e12 }, d: { monedas: 100, xp: 10 } }, vis: '519•••222' } } } })
+  await assert.rejects(() => svc.darAdmin({ almacen, cfg: cfgAdmin, token: 'mal', numero: NUM, monedas: 5 }), { estado: 401 })
+  await assert.rejects(() => svc.darAdmin({ almacen, cfg: cfgAdmin, token: 'secreto-admin', numero: NUM }), { estado: 400 })
+  await assert.rejects(() => svc.darAdmin({ almacen, cfg: cfgAdmin, token: 'secreto-admin', numero: NUM, articulo: 'espada' }), { estado: 400 })
+  await assert.rejects(() => svc.darAdmin({ almacen, cfg: cfgAdmin, token: 'secreto-admin', numero: '51900000000', monedas: 5 }), { estado: 404 })
+  const r = await svc.darAdmin({ almacen, cfg: cfgAdmin, token: 'secreto-admin', numero: NUM, monedas: 500, xp: 90, articulo: 'pico' })
+  assert.equal(r.monedas, 600); assert.equal(r.xp, 100); assert.deepEqual(r.inventario, ['pico'])
+  const t = await svc.top({ almacen, campo: 'monedas' })
+  assert.equal(t.top[0].valor, 600)
+  const quita = await svc.darAdmin({ almacen, cfg: cfgAdmin, token: 'secreto-admin', numero: NUM, monedas: -9999 })
+  assert.equal(quita.monedas, 0, 'nunca queda en negativo')
+})

@@ -147,3 +147,22 @@ test('salir cierra la sesión', async () => {
   await W.salir({ almacen, cfg, token })
   await assert.rejects(W.yo({ almacen, cfg, token }), /sesión|Inicia/)
 })
+
+test('.dar regala monedas a otro jugador y el servidor lo guarda', async () => {
+  const almacen = crearMemoria()
+  const id = await jugadorSincronizado(almacen)
+  const OTRO = '51910000002'
+  await svc.sincronizar({ almacen, cfg, instalacionId: id, ahora: T0 + 1, cuerpo: { usuarios: { [OTRO]: { u: { semilla: true, r: { actualizado: T0 }, d: { monedas: 50, xp: 0 } }, vis: '519•••002' } } } })
+  const { token } = await sesion(almacen, id)
+  const r = await W.comando({ almacen, cfg, token, texto: `.dar ${OTRO} 300`, ahora: T0 + 5000 })
+  assert.match(texto(r), /Le diste 300/)
+  const yo = await svc.leerJson(almacen, `u:${S.idUsuario(cfg.pepper, NUM)}`)
+  const otro = await svc.leerJson(almacen, `u:${S.idUsuario(cfg.pepper, OTRO)}`)
+  assert.equal(yo.monedas, 700); assert.equal(otro.monedas, 350)
+  const mucho = await W.comando({ almacen, cfg, token, texto: `.dar ${OTRO} 5000`, ahora: T0 + 20000 })
+  assert.match(texto(mucho), /No tienes tantas/)
+  const yoMismo = await W.comando({ almacen, cfg, token, texto: `.dar ${NUM} 10`, ahora: T0 + 40000 })
+  assert.match(texto(yoMismo), /ti mismo/)
+  const nadie = await W.comando({ almacen, cfg, token, texto: '.dar 51999999999 10', ahora: T0 + 60000 })
+  assert.match(texto(nadie), /no tiene datos|datos todavía/i)
+})
