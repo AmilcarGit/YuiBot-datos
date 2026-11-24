@@ -82,7 +82,14 @@
     button.link{border:0;background:var(--card);border:1px solid var(--line);color:var(--text)}
     .medio{margin-top:8px;display:grid;gap:8px;max-width:340px}.medio audio,.medio video{width:100%;border-radius:14px}
 .sec-titulo{margin:10px 0 4px;font-size:12px;font-weight:900;color:var(--muted)}
-    .miniatura{width:100%;max-width:340px;border-radius:16px;display:block;margin-bottom:8px}
+    .miniatura{width:100%;height:150px;object-fit:cover;border-radius:14px;display:block;margin-bottom:8px}
+    .acciones{white-space:normal;min-width:0}
+    .msg:has(.lista-op){width:100%;min-width:0}
+    .lista-op{min-width:0;display:grid;grid-template-columns:minmax(0,1fr);gap:6px;max-height:300px;overflow-y:auto;padding-right:2px}
+    .opcion{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:14px;border:1px solid var(--line);background:var(--field)}
+    .opcion{min-width:0}.opcion .info{min-width:0;flex:1}.opcion .acc{display:flex;gap:6px;flex:none}
+    .opcion b{font-size:14px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:normal}
+    .opcion small{display:block;color:var(--muted);font-size:12px;margin-top:1px}
     form.enviar{display:flex;gap:8px;margin-top:14px}form.enviar input{flex:1}
     footer.pie{padding:22px 0 8px;text-align:center;color:var(--muted);font-size:13px}
   </style>
@@ -220,9 +227,10 @@
       if (item && item.medio) { medio(item.medio); bajar(); return; }
       const texto = typeof item === 'string' ? item : item.texto;
       const destino = dibujar(texto);
-      if (item && item.imagen) { const im = document.createElement('img'); im.className = 'miniatura'; im.alt = ''; im.src = item.imagen; destino.parentNode.insertBefore(im, destino); }
+      if (item && item.imagen) { const im = document.createElement('img'); im.className = 'miniatura'; im.alt = ''; im.loading = 'lazy'; im.src = item.imagen; im.addEventListener('error', () => im.remove()); destino.prepend(im); }
       if (typeof item === 'object') acciones(destino, item);
-      bajar(); anotar({ k: 'r', item });
+      if (item && (item.imagen || item.enLinea)) { const c = $('chat'); c.scrollTop += destino.getBoundingClientRect().top - c.getBoundingClientRect().top - 6; } else bajar();
+      anotar({ k: 'r', item });
     }
     // Audio o video descargable: se reproduce aquí y tiene su botón para guardarlo.
     function medio(m) {
@@ -273,13 +281,21 @@
       }
       if (item.secciones && item.secciones.length) {
         if (item.enLinea) {
-          // Resultados de una búsqueda: cada opción se toca ahí mismo.
-          for (const sec of item.secciones) {
-            const t = document.createElement('div'); t.className = 'sec-titulo'; t.textContent = sec.titulo; caja.appendChild(t);
-            const fila = document.createElement('div'); fila.className = 'chips g-a';
-            for (const f of sec.filas) fila.appendChild(crear(f.titulo.length > 34 ? f.titulo.slice(0, 33) + '…' : f.titulo, f.cmd, f.descripcion));
-            caja.appendChild(fila);
-          }
+          // Resultados de una búsqueda: una fila por resultado con sus botones de música y video.
+          const [musica, video] = item.secciones;
+          const lista = document.createElement('div'); lista.className = 'lista-op';
+          musica.filas.forEach((f, i) => {
+            const fila = document.createElement('div'); fila.className = 'opcion';
+            const info = document.createElement('div'); info.className = 'info';
+            const t1 = document.createElement('b'); t1.textContent = f.titulo; const t2 = document.createElement('small'); t2.textContent = (f.descripcion || '').replace(/^\S+\s/, '');
+            info.append(t1, t2);
+            const acc = document.createElement('div'); acc.className = 'acc';
+            const mk = (txt, cmd, ayuda) => { const x = document.createElement('button'); x.type = 'button'; x.className = 'btn small'; x.textContent = txt; x.setAttribute('aria-label', ayuda + ': ' + f.titulo); x.addEventListener('click', () => enviar(cmd)); return x; };
+            acc.appendChild(mk('🎵', f.cmd, 'Descargar música'));
+            if (video && video.filas[i]) acc.appendChild(mk('🎬', video.filas[i].cmd, 'Descargar video'));
+            fila.append(info, acc); lista.appendChild(fila);
+          });
+          caja.appendChild(lista);
         } else {
           const fila = document.createElement('div'); fila.className = 'chips g-c';
           const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.textContent = '📚 Ver y copiar comandos';
