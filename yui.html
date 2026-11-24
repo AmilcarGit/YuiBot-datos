@@ -103,6 +103,7 @@
     .medio{margin-top:8px;display:grid;gap:8px;max-width:340px}.medio audio,.medio video{width:100%;border-radius:14px}
 .sec-titulo{margin:10px 0 4px;font-size:12px;font-weight:900;color:var(--muted)}
     .miniatura{width:100%;height:150px;object-fit:cover;border-radius:14px;display:block;margin-bottom:8px}
+    .reproductor{width:100%;aspect-ratio:16/9;border:0;border-radius:14px;margin-top:8px;background:#000;display:block}
     .acciones{white-space:normal;min-width:0}
     .msg:has(.lista-op){width:100%;min-width:0}
     .lista-op{min-width:0;display:grid;grid-template-columns:minmax(0,1fr);gap:6px;max-height:300px;overflow-y:auto;padding-right:2px}
@@ -262,6 +263,14 @@
       a.setAttribute('download', m.nombre || 'yui'); a.textContent = m.tipo === 'audio' ? '⬇ Descargar audio' : m.tipo === 'video' ? '⬇ Descargar video' : '⬇ Descargar archivo';
       d.appendChild(a); f.appendChild(d);
     }
+    // Reproduce un video de YouTube dentro del chat (reproductor oficial incrustado).
+    function verVideo(id, titulo) {
+      const f = fila('yui'); const d = document.createElement('div'); d.className = 'msg yui medio';
+      const t = document.createElement('div'); t.textContent = '▶ ' + titulo; t.style.fontWeight = '800'; d.appendChild(t);
+      const marco = document.createElement('iframe'); marco.className = 'reproductor'; marco.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&rel=0';
+      marco.title = titulo; marco.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen'; marco.allowFullscreen = true; marco.loading = 'lazy';
+      d.appendChild(marco); f.appendChild(d); bajar();
+    }
     // Devuelve el elemento donde caben los botones (cuerpo de la tarjeta o la burbuja).
     function dibujar(texto) {
       const lineas = String(texto).split('\n');
@@ -311,6 +320,8 @@
             info.append(t1, t2);
             const acc = document.createElement('div'); acc.className = 'acc';
             const mk = (txt, cmd, ayuda) => { const x = document.createElement('button'); x.type = 'button'; x.className = 'btn small'; x.textContent = txt; x.setAttribute('aria-label', ayuda + ': ' + f.titulo); x.addEventListener('click', () => enviar(cmd)); return x; };
+            const idYt = (f.cmd.match(/(?:youtu\.be\/|v=)([\w-]{11})/) || [])[1];
+            if (idYt) { const v = document.createElement('button'); v.type = 'button'; v.className = 'btn ghost small'; v.textContent = '▶'; v.setAttribute('aria-label', 'Ver aquí: ' + f.titulo); v.addEventListener('click', () => verVideo(idYt, f.titulo)); acc.appendChild(v); }
             acc.appendChild(mk('🎵', f.cmd, 'Descargar música'));
             if (video && video.filas[i]) acc.appendChild(mk('🎬', video.filas[i].cmd, 'Descargar video'));
             fila.append(info, acc); lista.appendChild(fila);
