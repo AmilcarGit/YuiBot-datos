@@ -446,7 +446,7 @@
     }
 
     function cerrarSesion(mensaje) {
-      token = ''; guardar(CLAVE, '');
+      token = ''; guardar(CLAVE, ''); guardar('yui-yo', '');
       $('sala').hidden = true; $('entrada').hidden = false; $('chat').textContent = ''; document.body.classList.remove('en-sala');
       $('error-entrar').textContent = mensaje || '';
     }
@@ -487,7 +487,17 @@
     $('salir').addEventListener('click', async () => { try { await llamar({ accion: 'salir' }); } catch {} borrarChat(); cerrarSesion(''); });
     $('borrar').addEventListener('click', () => { borrarChat(); burbuja('Listo, borré la conversación de este dispositivo (•ᴗ•)', 'yui'); });
 
-    if (token) llamar({ accion: 'yo' }).then(mostrarSala).catch(() => cerrarSesion(''));
+    // La sesión dura 30 días: solo se cierra si el servidor dice que ya no vale (401).
+    // Si falla la red o el servidor está despertando, se entra igual con lo último guardado y se reintenta.
+    const CLAVE_YO = 'yui-yo';
+    function recuperarSesion(intento) {
+      llamar({ accion: 'yo' }).then((d) => { guardar(CLAVE_YO, JSON.stringify(d)); mostrarSala(d); }).catch((e) => {
+        if (e.estado === 401) return cerrarSesion('Tu sesión venció, entra de nuevo.');
+        if (!intento) { let d = {}; try { d = JSON.parse(guardado(CLAVE_YO) || '{}'); } catch {} mostrarSala(d); }
+        if ((intento || 0) < 5) setTimeout(() => recuperarSesion((intento || 0) + 1), 3000);
+      });
+    }
+    if (token) recuperarSesion(0);
   
     /* ── Instalar como app ── */
     // Si hay versión nueva de la app, se recarga una sola vez para mostrarla.
