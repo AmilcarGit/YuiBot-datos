@@ -1,0 +1,111 @@
+/* Estilo kawaii de YuiBot-datos: se carga después del CSS de cada página y solo usa sus variables (--rose, --pink2, --card…). */
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap');
+
+:root{
+  --k-fuente:"Fredoka","Nunito",ui-rounded,system-ui,sans-serif;
+  --k-radio:28px;
+  --k-sombra:0 6px 0 rgba(255,105,180,.22),0 18px 40px rgba(255,105,180,.18);
+  --k-vidrio:rgba(255,255,255,.07);
+}
+:root[data-theme="light"]{--k-sombra:0 6px 0 rgba(233,30,140,.14),0 18px 36px rgba(233,30,140,.12);--k-vidrio:rgba(255,255,255,.7)}
+
+/* Fondo con burbujas suaves y pétalos que caen */
+body{background-image:
+  radial-gradient(520px 340px at 8% 6%,var(--glow),transparent 70%),
+  radial-gradient(460px 320px at 96% 22%,rgba(201,164,255,.22),transparent 70%),
+  radial-gradient(520px 380px at 50% 105%,rgba(255,154,208,.2),transparent 70%),
+  linear-gradient(180deg,var(--bg),var(--bg2))!important}
+.petalos{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.petalos i{position:absolute;top:-8%;font-style:normal;opacity:.55;animation:caer linear infinite;filter:drop-shadow(0 2px 6px var(--glow))}
+@keyframes caer{0%{transform:translate3d(0,-10vh,0) rotate(0)}50%{transform:translate3d(28px,55vh,0) rotate(180deg)}100%{transform:translate3d(-16px,112vh,0) rotate(360deg)}}
+.wrap,.dock{position:relative;z-index:1}
+
+/* Tipografía */
+h1,h2,h3,.brand,.btn,.pestana,.link,.chip{font-family:var(--k-fuente)}
+h1{letter-spacing:-.01em;font-weight:700}
+.t{font-family:var(--k-fuente);font-weight:700}
+.t::before{content:"✿ ";color:var(--rose)}
+.sub,.lead{font-weight:600}
+
+/* Encabezado flotante tipo pastilla de vidrio */
+.nav{position:sticky;top:10px;z-index:20;margin-top:10px;padding:8px 10px 8px 12px!important;border-radius:999px;
+  background:var(--k-vidrio);border:1px solid var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:var(--k-sombra)}
+.brand{font-weight:700;font-size:19px}
+.logo{animation:latido 3.2s ease-in-out infinite;border-radius:50%!important;box-shadow:0 0 0 3px var(--rose),0 8px 22px var(--glow)!important}
+@keyframes latido{0%,100%{transform:scale(1) rotate(0)}50%{transform:scale(1.07) rotate(-4deg)}}
+.link{font-weight:600;transition:transform .2s,background .2s,color .2s}
+.link:hover{transform:translateY(-2px) rotate(-1.5deg);background:linear-gradient(120deg,rgba(255,154,208,.25),rgba(201,164,255,.22));color:var(--text)}
+.icon-btn{border-radius:50%!important}
+.icon-btn:hover{transform:rotate(12deg) scale(1.08)!important}
+
+/* Portada */
+.hero{position:relative;padding-top:18px}
+.mascota{display:block;width:136px;height:136px;margin:0 auto 6px;border-radius:50%;object-fit:cover;
+  border:5px solid var(--rose);box-shadow:0 0 0 6px rgba(255,154,208,.25),0 18px 40px var(--glow);animation:flota 4s ease-in-out infinite}
+.mascota-caja{position:relative;width:max-content;margin:0 auto}
+.mascota-caja::before,.mascota-caja::after{content:"✨";position:absolute;font-size:26px;animation:brillo 2.4s ease-in-out infinite}
+.mascota-caja::before{left:-30px;top:6px}.mascota-caja::after{right:-26px;bottom:12px;content:"💗";animation-delay:1s}
+@keyframes flota{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@keyframes brillo{0%,100%{transform:scale(.8) rotate(-10deg);opacity:.5}50%{transform:scale(1.15) rotate(10deg);opacity:1}}
+h1 em{background:linear-gradient(100deg,var(--rose),var(--pink2) 45%,var(--lilac) 90%);-webkit-background-clip:text;background-clip:text;color:transparent;text-decoration:underline wavy rgba(255,154,208,.7);text-decoration-thickness:3px;text-underline-offset:9px}
+.chip{border-radius:999px;background:var(--k-vidrio);box-shadow:0 4px 0 rgba(255,105,180,.18)}
+.search{border-radius:999px!important;padding:8px 8px 8px 20px!important;border:2px solid var(--rose)!important;box-shadow:var(--k-sombra)!important}
+.search .btn{border-radius:999px}
+
+/* Botones: burbuja con sombra "pegada" que se hunde al pulsar */
+.btn{border-radius:999px!important;font-weight:600;letter-spacing:.01em;box-shadow:0 5px 0 rgba(180,20,100,.45),0 12px 24px var(--glow)!important;transition:transform .15s,box-shadow .15s,filter .15s}
+.btn:hover{transform:translateY(-2px) scale(1.03)}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(180,20,100,.45),0 4px 10px var(--glow)!important}
+.btn.ghost{box-shadow:0 4px 0 rgba(255,105,180,.2)!important;border:2px solid var(--line)}
+.btn.ghost:active{box-shadow:0 1px 0 rgba(255,105,180,.2)!important}
+
+/* Tarjetas tipo sticker */
+.panel,.card,.tile,.cont,.puesto,.ep,details,.adm-bloque,.banner{border-radius:var(--k-radio)!important}
+.panel,.card,.tile,.cont{border:2px solid var(--line)!important;box-shadow:var(--k-sombra)}
+.card,.tile,.cont{transition:transform .25s cubic-bezier(.3,1.6,.5,1),box-shadow .25s}
+.card:hover,.tile:hover,.cont:hover{transform:translateY(-5px) rotate(-.8deg)}
+.card:nth-child(even):hover,.tile:nth-child(even):hover{transform:translateY(-5px) rotate(.8deg)}
+.feat .em{display:inline-grid;place-items:center;width:54px;height:54px;border-radius:20px;background:linear-gradient(135deg,rgba(255,154,208,.3),rgba(201,164,255,.28));font-size:28px;box-shadow:inset 0 -4px 0 rgba(255,105,180,.2)}
+details{border:2px dashed var(--line)!important}
+details>summary{font-family:var(--k-fuente);font-weight:600}
+.cmd,.pill,.chip{border-radius:999px}
+input,select,textarea{border-radius:18px!important}
+input:focus,select:focus{border-color:var(--rose)!important}
+
+/* Barra inferior de la app (solo teléfono) */
+.dock{display:none}
+@media(max-width:720px){
+  .link.hide-s{display:none}
+  body{padding-bottom:92px}
+  .dock{display:flex;position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom));z-index:30;justify-content:space-around;gap:2px;padding:8px 8px;border-radius:30px;
+    background:var(--k-vidrio);border:2px solid var(--line);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:var(--k-sombra),0 -6px 30px var(--glow)}
+  .dock a{flex:1;display:grid;justify-items:center;gap:1px;padding:7px 4px;border-radius:22px;font-family:var(--k-fuente);font-size:11px;font-weight:600;color:var(--muted);transition:transform .2s,background .2s}
+  .dock a span{font-size:22px;line-height:1;transition:transform .25s cubic-bezier(.3,1.8,.5,1)}
+  .dock a:active span,.dock a[aria-current="page"] span{transform:translateY(-4px) scale(1.25)}
+  .dock a[aria-current="page"]{background:linear-gradient(120deg,rgba(255,154,208,.3),rgba(201,164,255,.26));color:var(--text)}
+  .nav{border-radius:26px}
+  .mascota{width:112px;height:112px}
+}
+html[data-anim="no"] .petalos,html[data-anim="no"] .mascota,html[data-anim="no"] .logo{animation:none!important}
+@media(prefers-reduced-motion:reduce){.petalos{display:none}.mascota,.logo,.mascota-caja::before,.mascota-caja::after{animation:none!important}}
+
+/* ── Chat (yui.html) ── */
+.pestanas{display:flex;gap:6px;padding:5px;border-radius:999px;background:var(--field);border:2px solid var(--line);margin:12px 0}
+.pestana{flex:1;border:0!important;border-radius:999px!important;padding:10px 12px;font-weight:600;background:transparent;color:var(--muted);transition:.2s}
+.pestana[aria-selected="true"]{background:linear-gradient(120deg,var(--a,var(--rose)),var(--c,var(--lilac)));color:var(--onA,#fff);box-shadow:0 4px 0 rgba(0,0,0,.18)}
+.avatar{box-shadow:0 0 0 4px var(--a,var(--rose)),0 10px 24px var(--glow)!important;animation:flota 4s ease-in-out infinite}
+.msg{border-radius:22px!important;box-shadow:0 3px 0 rgba(0,0,0,.14)}
+.msg.yui{border-bottom-left-radius:6px!important}
+.msg.tu{border-bottom-right-radius:6px!important}
+.mini{animation:flota 5s ease-in-out infinite}
+.opcion{border-radius:20px!important;border:2px solid var(--line)!important}
+form.enviar input{border-radius:999px!important;padding-left:18px}
+.stats>*{border-radius:999px}
+.entrada-mascota{display:block;width:104px;height:104px;margin:0 auto 10px;border-radius:50%;object-fit:cover;border:4px solid var(--a,var(--rose));box-shadow:0 0 0 5px rgba(255,154,208,.25),0 14px 30px var(--glow);animation:flota 4s ease-in-out infinite}
+#entrada h1,#entrada>p{text-align:center}
+
+/* El chat necesita toda la altura: sin barra inferior ni pastilla grande arriba */
+body.en-sala .dock{display:none}
+body.en-sala{padding-bottom:0}
+body.en-sala .nav{position:static;margin-top:4px;padding:4px 10px!important}
+body.en-sala .mascota-caja{display:none}

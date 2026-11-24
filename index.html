@@ -175,6 +175,7 @@
     @media(max-width:640px){html:not([data-tam="0"]) .contadores{grid-template-columns:1fr}.tiles{grid-template-columns:1fr 1fr}.pasos,.grid3{grid-template-columns:1fr}.puestos{grid-template-columns:1fr}.link.hide-s{display:none}.nav{min-height:64px}.search{flex-direction:column;border-radius:20px}.search .btn{width:100%}.contadores{grid-template-columns:1fr 1fr 1fr}.cont{padding:12px}.panel{padding:18px}.eps{grid-template-columns:1fr}}
     @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
   </style>
+  <link rel="stylesheet" href="/kawaii.css?v=1">
 </head>
 <body>
   <div class="wrap">
@@ -185,9 +186,9 @@
       </a>
       <nav class="links" aria-label="Secciones">
         <a class="link" href="/yui">💬 Hablar con Yui</a>
-        <a class="link hide-s" href="#vivo">En vivo</a>
-        <a class="link hide-s" href="#ranking">Ranking</a>
-        <a class="link hide-s" href="#empezar">Empezar</a>
+        <a class="link hide-s" href="#vivo">📡 En vivo</a>
+        <a class="link hide-s" href="#ranking">🏆 Ranking</a>
+        <a class="link hide-s" href="#empezar">🚀 Empezar</a>
         <a class="link" href="https://github.com/AmilcarGit/YuiBot-MD" target="_blank" rel="noreferrer">GitHub ↗</a>
         <button class="icon-btn" id="instalar" type="button" hidden aria-label="Instalar como app" title="Instalar como app"><span aria-hidden="true">📲</span></button>
         <div class="acc"><button class="icon-btn" id="acc-btn" type="button" aria-label="Accesibilidad: tamaño de letra y contraste" aria-expanded="false" aria-controls="acc-panel" title="Accesibilidad"><span aria-hidden="true" style="font-weight:900;font-size:15px">Aa</span></button>
@@ -205,6 +206,7 @@
 
     <main>
       <section class="hero" id="buscar" style="margin-bottom:34px">
+        <div class="mascota-caja"><img class="mascota" src="/icons/yui-512.png" alt="Yui, la mascota del bot" width="136" height="136"></div>
         <span class="chip"><span class="dot" id="hero-dot"></span><span id="hero-estado">Comprobando servicio…</span></span>
         <h1>Tu progreso en YuiBot-MD, <em>en cualquier lugar.</em></h1>
         <p class="lead">Busca tu número y mira tu nivel, tus monedas y tu puesto en el ranking mundial. Tus datos son los mismos en todas las instalaciones del bot.</p>
@@ -861,5 +863,13 @@ ${medallasSVG}
     setInterval(refrescar, 15000);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) refrescar(); });
   </script>
+  <nav class="dock" aria-label="Menú principal">
+    <a href="/"><span aria-hidden="true">🏠</span>Inicio</a>
+    <a href="/yui"><span aria-hidden="true">💬</span>Yui</a>
+    <a href="#ranking"><span aria-hidden="true">🏆</span>Ranking</a>
+    <a href="#empezar"><span aria-hidden="true">🚀</span>Empezar</a>
+    <a href="#faq"><span aria-hidden="true">💡</span>Ayuda</a>
+  </nav>
+  <script src="/kawaii.js" defer></script>
 </body>
 </html>

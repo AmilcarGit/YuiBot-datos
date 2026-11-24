@@ -114,6 +114,7 @@
     form.enviar{display:flex;gap:8px;margin-top:14px}form.enviar input{flex:1}
     footer.pie{padding:22px 0 8px;text-align:center;color:var(--muted);font-size:13px}
   </style>
+  <link rel="stylesheet" href="/kawaii.css?v=1">
 </head>
 <body>
   <div class="wrap">
@@ -126,6 +127,7 @@
 
     <main>
       <section class="panel" id="entrada">
+        <img class="entrada-mascota" src="/icons/yui-512.png" alt="" width="104" height="104">
         <h1>Habla con Yui desde la web</h1>
         <p>Usa los mismos comandos del bot de WhatsApp con tu mismo progreso: monedas, XP, trabajos y ranking.</p>
         <ol>
@@ -512,5 +514,12 @@
     });
     if (/iphone|ipad|ipod/i.test(navigator.userAgent) && !navigator.standalone && !matchMedia('(display-mode: standalone)').matches) $('instalar').hidden = false;
 </script>
+  <nav class="dock" aria-label="Menú principal">
+    <a href="/"><span aria-hidden="true">🏠</span>Inicio</a>
+    <a href="/yui"><span aria-hidden="true">💬</span>Yui</a>
+    <a href="/#ranking"><span aria-hidden="true">🏆</span>Ranking</a>
+    <a href="/#empezar"><span aria-hidden="true">🚀</span>Empezar</a>
+  </nav>
+  <script src="/kawaii.js" defer></script>
 </body>
 </html>
