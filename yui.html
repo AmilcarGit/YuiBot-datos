@@ -121,6 +121,7 @@
         <div class="heroe">
           <div class="avatar" aria-hidden="true">🌸</div>
           <div class="quien"><b id="visible">Conectada</b><small id="subtitulo">Hablando con Yui</small></div>
+          <button class="btn ghost small" type="button" id="borrar" title="Borrar la conversación guardada en este dispositivo">🗑 Chat</button>
           <button class="btn ghost small" type="button" id="salir">Salir</button>
         </div>
         <div class="stats" id="stats" aria-live="polite"></div>
@@ -156,6 +157,24 @@
     const guardado = (k) => { try { return localStorage.getItem(k) || ''; } catch { return ''; } };
     const guardar = (k, v) => { try { v ? localStorage.setItem(k, v) : localStorage.removeItem(k); } catch {} };
     token = guardado(CLAVE);
+
+    /* ── Chat guardado en este dispositivo ── */
+    const CLAVE_CHAT = 'yui-chat', MAX_CHAT = 80;
+    let restaurando = false;
+    const leerChat = () => { try { const d = JSON.parse(guardado(CLAVE_CHAT) || 'null'); return d && Array.isArray(d.items) ? d : { dueno: '', items: [] }; } catch { return { dueno: '', items: [] }; } };
+    let dueno = '';
+    function anotar(entrada) {
+      if (restaurando) return;
+      const d = leerChat(); if (d.dueno !== dueno) { d.dueno = dueno; d.items = []; }
+      d.items.push(entrada); d.items = d.items.slice(-MAX_CHAT);
+      try { localStorage.setItem(CLAVE_CHAT, JSON.stringify(d)); } catch {}
+    }
+    function restaurarChat() {
+      const d = leerChat(); if (!dueno || d.dueno !== dueno || !d.items.length) return;
+      restaurando = true;
+      try { for (const e of d.items) { if (e.k === 'b') burbuja(e.texto, e.clase); else if (e.k === 'r') respuesta(e.item); } } finally { restaurando = false; }
+    }
+    function borrarChat() { guardar(CLAVE_CHAT, ''); $('chat').textContent = ''; }
 
     /* ── Colores ── */
     const TEMAS = [['sakura', '#ff9ad0', '#c9a4ff'], ['noche', '#7aa2ff', '#5be3ff'], ['menta', '#6ff0c0', '#ffe08a'], ['navidad', '#ff7b7b', '#5be58a']];
@@ -194,7 +213,7 @@
     function burbuja(texto, clase) {
       const f = fila(clase.split(' ')[0]);
       const d = document.createElement('div'); d.className = 'msg ' + clase; d.textContent = texto;
-      f.appendChild(d); bajar();
+      f.appendChild(d); bajar(); anotar({ k: 'b', texto, clase });
     }
     // Las cajas del bot (╭━〔 Título 〕━⬣ / ┃ línea / ╰━⬣) se dibujan como tarjetas de colores.
     function respuesta(item) {
@@ -203,7 +222,7 @@
       const destino = dibujar(texto);
       if (item && item.imagen) { const im = document.createElement('img'); im.className = 'miniatura'; im.alt = ''; im.src = item.imagen; destino.parentNode.insertBefore(im, destino); }
       if (typeof item === 'object') acciones(destino, item);
-      bajar();
+      bajar(); anotar({ k: 'r', item });
     }
     // Audio o video descargable: se reproduce aquí y tiene su botón para guardarlo.
     function medio(m) {
@@ -374,6 +393,8 @@
       $('visible').textContent = datos.visible || 'Conectada';
       catalogo = datos.catalogo || []; pintarCatalogo(''); abrirTab('chat');
       pintarAtajos(datos.comandos); pintarStats(datos);
+      dueno = datos.visible || '';
+      if (!$('chat').children.length) restaurarChat();
       if (!$('chat').children.length) burbuja('¡Hola! Soy Yui～ Escribe menu o abre la pestaña Comandos para copiarlos (•̀ᴗ•́)و', 'yui');
     }
 
@@ -416,7 +437,8 @@
       $('texto').value = ''; enviar(t);
     });
 
-    $('salir').addEventListener('click', async () => { try { await llamar({ accion: 'salir' }); } catch {} cerrarSesion(''); });
+    $('salir').addEventListener('click', async () => { try { await llamar({ accion: 'salir' }); } catch {} borrarChat(); cerrarSesion(''); });
+    $('borrar').addEventListener('click', () => { borrarChat(); burbuja('Listo, borré la conversación de este dispositivo (•ᴗ•)', 'yui'); });
 
     if (token) llamar({ accion: 'yo' }).then(mostrarSala).catch(() => cerrarSesion(''));
   
