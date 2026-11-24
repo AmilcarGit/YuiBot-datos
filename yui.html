@@ -42,6 +42,26 @@
     .stat.m{color:var(--d)}.stat.x{color:var(--c)}.stat.r{color:var(--e)}
     .temas{display:flex;gap:6px;align-items:center}
     .tema{width:24px;height:24px;border-radius:50%;border:2px solid var(--line);padding:0}.tema[aria-pressed="true"]{border-color:var(--text);transform:scale(1.12)}
+
+    /* ── Modo sala: el chat ocupa toda la pantalla ── */
+    body.en-sala .wrap{width:min(920px,calc(100% - 16px))}
+    body.en-sala .nav{min-height:48px}
+    body.en-sala #sala{display:flex;flex-direction:column;height:calc(100vh - 64px);height:calc(100dvh - 64px);min-height:460px;padding:12px;border-radius:20px}
+    body.en-sala #sala[hidden]{display:none}
+    body.en-sala .heroe{flex-wrap:nowrap;gap:10px;margin-bottom:8px}
+    body.en-sala .avatar{width:40px;height:40px;font-size:21px}
+    body.en-sala .quien{min-width:0}body.en-sala .quien b{font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    body.en-sala .stats{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;margin-bottom:2px}
+    body.en-sala .stats::-webkit-scrollbar{display:none}
+    body.en-sala .stat{padding:5px 10px;font-size:12.5px;flex:none}
+    body.en-sala .pestanas{margin:8px 0}
+    body.en-sala .pestana{padding:8px 6px}
+    body.en-sala #panel-chat,body.en-sala #panel-comandos:not([hidden]){flex:1;min-height:0;display:flex;flex-direction:column}
+    body.en-sala #chat{flex:1;height:auto;min-height:0;padding:12px 10px}
+    body.en-sala #catalogo{flex:1;max-height:none;min-height:0}
+    body.en-sala .msg{font-size:16px;max-width:92%}
+    body.en-sala .tarjeta{max-width:96%}
+    body.en-sala #atajos{margin-top:8px}
     /* Chat */
     #chat{height:min(54vh,520px);overflow-y:auto;padding:14px;border-radius:20px;background:linear-gradient(180deg,var(--field),color-mix(in srgb,var(--field) 80%,var(--c)));border:1px solid var(--line);display:flex;flex-direction:column;gap:12px;scroll-behavior:smooth}
     .fila{display:flex;gap:8px;align-items:flex-end;animation:sube .25s ease-out}
@@ -128,7 +148,7 @@
         <div class="heroe">
           <div class="avatar" aria-hidden="true">🌸</div>
           <div class="quien"><b id="visible">Conectada</b><small id="subtitulo">Hablando con Yui</small></div>
-          <button class="btn ghost small" type="button" id="borrar" title="Borrar la conversación guardada en este dispositivo">🗑 Chat</button>
+          <button class="btn ghost small" type="button" id="borrar" title="Borrar la conversación guardada en este dispositivo" aria-label="Borrar el chat">🗑</button>
           <button class="btn ghost small" type="button" id="salir">Salir</button>
         </div>
         <div class="stats" id="stats" aria-live="polite"></div>
@@ -405,7 +425,7 @@
     $('buscar').addEventListener('input', (ev) => pintarCatalogo(ev.target.value));
 
     function mostrarSala(datos) {
-      $('entrada').hidden = true; $('sala').hidden = false;
+      $('entrada').hidden = true; $('sala').hidden = false; document.body.classList.add('en-sala');
       $('visible').textContent = datos.visible || 'Conectada';
       catalogo = datos.catalogo || []; pintarCatalogo(''); abrirTab('chat');
       pintarAtajos(datos.comandos); pintarStats(datos);
@@ -416,7 +436,7 @@
 
     function cerrarSesion(mensaje) {
       token = ''; guardar(CLAVE, '');
-      $('sala').hidden = true; $('entrada').hidden = false; $('chat').textContent = '';
+      $('sala').hidden = true; $('entrada').hidden = false; $('chat').textContent = ''; document.body.classList.remove('en-sala');
       $('error-entrar').textContent = mensaje || '';
     }
 
