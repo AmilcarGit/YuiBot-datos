@@ -11,7 +11,7 @@ const nuevoAlmacen = () => crearMemoria()
 const topesBase = { monedas: 100000, xp: 2000, mensajes: 500, reputacion: 50, trabajosVeces: 100, trabajosGanado: 100000 }
 
 test('nivel se calcula igual que en el bot', () => {
-  assert.equal(calcularNivel(0), 0); assert.equal(calcularNivel(100), 1); assert.equal(calcularNivel(400), 2); assert.equal(calcularNivel(-5), 0)
+  assert.equal(calcularNivel(0), 1); assert.equal(calcularNivel(10), 2); assert.equal(calcularNivel(40), 3); assert.equal(calcularNivel(-5), 1)
 })
 
 test('fusión: suma deltas de dos instalaciones y nunca deja monedas negativas', () => {
@@ -121,7 +121,7 @@ test('sincronizar: dos instalaciones comparten monedas, xp, trabajos y ranking',
   const sync = (inst, cuerpo, ahora = 1e12) => svc.sincronizar({ almacen, cfg, instalacionId: inst.id, cuerpo, ahora })
 
   let r = await sync(A, envio({ r: { monedas: 500, xp: 250, mensajes: 5, actualizado: 100 }, d: { monedas: 500, xp: 250, mensajes: 5 } }, { r: { cd: { minar: 90 }, mejoras: { pico: 1 }, actualizado: 100 }, d: { ganado: 300, veces: { minar: 2 } } }))
-  assert.equal(r.usuarios[NUM].u.monedas, 500); assert.equal(r.usuarios[NUM].u.nivel, 1)
+  assert.equal(r.usuarios[NUM].u.monedas, 500); assert.equal(r.usuarios[NUM].u.nivel, calcularNivel(250))
   // la instalación B conoce a la persona por primera vez y gana 40 monedas allí
   r = await sync(B, envio({ r: { monedas: 40, xp: 10, actualizado: 200 }, d: { monedas: 40, xp: 10 } }))
   assert.deepEqual([r.usuarios[NUM].u.monedas, r.usuarios[NUM].u.xp], [540, 260], 'B ve lo de A y suma lo suyo')
@@ -250,7 +250,7 @@ test('búsqueda pública: devuelve solo datos de juego, posiciones y valida el n
   const buscar = (numero, ip = '5.5.5.5', ahora = 1e12) => svc.perfilPublico({ almacen, cfg, numero, ip, ahora })
   const r = await buscar('+51 910-227 479')
   assert.equal(r.existe, true)
-  assert.deepEqual([r.perfil.monedas, r.perfil.xp, r.perfil.nivel, r.perfil.xpNivelActual, r.perfil.xpNivelSiguiente], [900, 450, 2, 400, 900])
+  assert.deepEqual([r.perfil.monedas, r.perfil.xp, r.perfil.nivel, r.perfil.xpNivelActual, r.perfil.xpNivelSiguiente], [900, 450, 7, 360, 490])
   assert.deepEqual([r.perfil.mensajes, r.perfil.racha, r.perfil.logros, r.perfil.ganadoTrabajos, r.perfil.trabajosHechos, r.perfil.mejoras], [12, 3, 2, 400, 6, 3])
   assert.deepEqual([r.posiciones.monedas, r.posiciones.xp], [2, 1])
   assert.ok([1, 2].includes(r.posiciones.trabajos), 'empate en trabajos')

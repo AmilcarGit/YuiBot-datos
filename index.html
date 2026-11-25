@@ -97,6 +97,7 @@
     .pill{font-size:12px;font-weight:900;padding:7px 12px;border-radius:99px;background:rgba(154,122,142,.2);color:var(--muted)}.pill.ok{background:rgba(123,231,196,.16);color:var(--mint)}.pill.bad{background:rgba(255,138,155,.16);color:var(--bad)}
 
     /* Ranking */
+    [data-v][hidden]{display:none!important}main [data-v]:not([hidden]){animation:vista .35s ease both}@keyframes vista{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}html[data-anim="no"] main [data-v]{animation:none!important}
     .tabs{display:flex;gap:8px;flex-wrap:wrap}.tab{padding:9px 15px;border-radius:99px;border:1px solid var(--line);background:var(--card);color:var(--muted);font-size:13.5px;font-weight:800;transition:.2s}
     .tab:hover{color:var(--text)}.tab[aria-selected="true"]{color:#fff;background:linear-gradient(120deg,var(--rose),var(--pink2));border-color:transparent;box-shadow:0 8px 20px var(--glow)}
     .rank{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:9px}
@@ -189,6 +190,7 @@
         <a class="link hide-s" href="#vivo">📡 En vivo</a>
         <a class="link hide-s" href="#ranking">🏆 Ranking</a>
         <a class="link hide-s" href="#empezar">🚀 Empezar</a>
+        <a class="link hide-s" href="#dev">🛠️ API</a>
         <a class="link" href="https://github.com/AmilcarGit/YuiBot-MD" target="_blank" rel="noreferrer">GitHub ↗</a>
         <button class="icon-btn" id="instalar" type="button" hidden aria-label="Instalar como app" title="Instalar como app"><span aria-hidden="true">📲</span></button>
         <div class="acc"><button class="icon-btn" id="acc-btn" type="button" aria-label="Accesibilidad: tamaño de letra y contraste" aria-expanded="false" aria-controls="acc-panel" title="Accesibilidad"><span aria-hidden="true" style="font-weight:900;font-size:15px">Aa</span></button>
@@ -205,7 +207,7 @@
     <div class="banner" id="banner" role="status" hidden><span class="bi" id="banner-ico" aria-hidden="true">📣</span><div><b id="banner-t"></b><span id="banner-x"></span></div><small id="banner-fin"></small></div>
 
     <main>
-      <section class="hero" id="buscar" style="margin-bottom:34px">
+      <section class="hero" id="buscar" data-v="inicio" style="margin-bottom:34px">
         <div class="mascota-caja"><img class="mascota" src="/icons/yui-512.png" alt="Yui, la mascota del bot" width="136" height="136"></div>
         <span class="chip"><span class="dot" id="hero-dot"></span><span id="hero-estado">Comprobando servicio…</span></span>
         <h1>Tu progreso en YuiBot-MD, <em>en cualquier lugar.</em></h1>
@@ -223,7 +225,7 @@
         <div id="resultado" aria-live="polite"></div>
       </section>
 
-      <section class="sec" id="vivo">
+      <section class="sec" id="vivo" data-v="inicio">
         <div class="head"><div><h2 class="t">En vivo</h2><p class="sub">Lo que pasa ahora mismo en la base compartida. Se actualiza solo cada 15 segundos.</p></div><div class="upd"><span class="dot ok"></span><span id="vivo-hora">—</span></div></div>
         <div class="vivo">
           <div class="card">
@@ -258,7 +260,7 @@
         </div>
       </section>
 
-      <section class="sec" id="ranking">
+      <section class="sec" id="ranking" data-v="ranking">
         <div class="head"><div><h2 class="t">Ranking mundial</h2><p class="sub">Los mejores de todas las instalaciones. Los números salen enmascarados para proteger la privacidad.</p></div>
           <div class="upd"><span id="rank-hora">—</span><button class="icon-btn" id="rank-recargar" type="button" aria-label="Actualizar ranking" title="Actualizar"><span aria-hidden="true" id="rank-ico">↻</span></button></div></div>
         <div class="tabs" role="tablist" aria-label="Tipo de ranking" id="tabs">
@@ -270,7 +272,7 @@
         <div id="rank-caja" aria-live="polite"></div>
       </section>
 
-      <section class="sec" id="funciones">
+      <section class="sec" id="funciones" data-v="empezar">
         <div class="head"><div><h2 class="t">¿Qué puedes hacer con YuiBot-MD?</h2><p class="sub">Más de 230 comandos en WhatsApp. Estos son los que más se usan y suman a tu progreso.</p></div></div>
         <div class="grid3">
           <article class="card feat"><div class="em" aria-hidden="true">💰</div><h3>Gana monedas</h3><p>Trabaja, mina, pesca, cultiva tu granja y compra mejoras. Cada trabajo tiene su propio tiempo de espera.</p><div class="cmds"><span class="cmd">.trabajos</span><span class="cmd">.daily</span><span class="cmd">.upgrades</span></div></article>
@@ -282,7 +284,7 @@
         </div>
       </section>
 
-      <section class="sec" id="empezar">
+      <section class="sec" id="empezar" data-v="empezar">
         <div class="head"><div><h2 class="t">Cómo empezar</h2><p class="sub">Elige el camino que te sirva. Tu progreso se guarda solo en cuanto uses el bot.</p></div></div>
         <div class="pasos">
           <article class="card paso">
@@ -310,7 +312,7 @@ npm start</code><button class="btn ghost small" type="button" data-copiar="cmd-t
         </div>
       </section>
 
-      <section class="sec" id="dev">
+      <section class="sec" id="dev" data-v="dev">
         <div class="head"><div><h2 class="t">Para desarrolladores</h2><p class="sub">Prueba la API y usa tu propia copia del servidor.</p></div></div>
         <details>
           <summary>Consola de la API</summary>
@@ -380,7 +382,7 @@ npm start</code><button class="btn ghost small" type="button" data-copiar="cmd-t
         </details>
       </section>
 
-      <section class="sec" id="faq">
+      <section class="sec" id="faq" data-v="ayuda">
         <div class="head"><div><h2 class="t">Preguntas frecuentes</h2></div></div>
         <details><summary>No aparezco al buscar mi número</summary><p>Revisa que lo escribas con código de país y solo dígitos (ej. 51910227479). Si ya usas el bot, espera unos 2 minutos: el bot sincroniza en segundo plano. Si nunca lo has usado, escribe <code>.perfil</code> en un grupo con el bot para empezar.</p></details>
         <details><summary>¿Se guardan mi número y mis datos personales?</summary><p>Tu número no se guarda: se convierte en un código irreversible. Esta página solo muestra datos de juego (nivel, monedas, XP, logros, trabajos y puestos); nunca tu nombre, edad ni género. En los rankings tu número aparece enmascarado.</p></details>
@@ -863,12 +865,33 @@ ${medallasSVG}
     setInterval(refrescar, 15000);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) refrescar(); });
   </script>
+  <script>
+    // Cada botón abre su propia vista (Inicio, Ranking, Empezar, API, Ayuda) en vez de recorrer una sola página larga.
+    (function () {
+      var ALIAS = { '': 'inicio', inicio: 'inicio', buscar: 'inicio', vivo: 'inicio', ranking: 'ranking', empezar: 'empezar', funciones: 'empezar', dev: 'dev', api: 'dev', ayuda: 'ayuda', faq: 'ayuda' };
+      var primera = true;
+      function vista() { var h = decodeURIComponent(location.hash.replace('#', '')).toLowerCase(); return ALIAS[h] || 'inicio'; }
+      function mostrar() {
+        var v = vista();
+        document.querySelectorAll('[data-v]').forEach(function (el) { el.hidden = el.getAttribute('data-v') !== v; });
+        document.querySelectorAll('.dock a[href^="#"], .links a[href^="#"]').forEach(function (a) {
+          var destino = ALIAS[a.getAttribute('href').slice(1)];
+          if (destino === v) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+        });
+        document.body.setAttribute('data-vista', v);
+        if (!primera) window.scrollTo({ top: 0, behavior: 'smooth' });
+        primera = false;
+      }
+      window.addEventListener('hashchange', mostrar);
+      mostrar();
+    })();
+  </script>
   <nav class="dock" aria-label="Menú principal">
-    <a href="/"><span aria-hidden="true">🏠</span>Inicio</a>
+    <a href="#inicio"><span aria-hidden="true">🏠</span>Inicio</a>
     <a href="/yui"><span aria-hidden="true">💬</span>Yui</a>
     <a href="#ranking"><span aria-hidden="true">🏆</span>Ranking</a>
     <a href="#empezar"><span aria-hidden="true">🚀</span>Empezar</a>
-    <a href="#faq"><span aria-hidden="true">💡</span>Ayuda</a>
+    <a href="#ayuda"><span aria-hidden="true">💡</span>Ayuda</a>
   </nav>
   <script src="/kawaii.js" defer></script>
 </body>
