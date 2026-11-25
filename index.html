@@ -370,6 +370,12 @@ npm start</code><button class="btn ghost small" type="button" data-copiar="cmd-t
                 <p id="lid-msg" class="sub" role="status" style="margin:8px 0 0"></p>
               </div>
             </div>
+            <div class="adm-bloque" id="adm-chat" hidden>
+              <h4>🌍 Chat global</h4>
+              <p class="sub" style="margin:0 0 8px">Borra mensajes o silencia a quien rompa las reglas (silencio de 24 h).</p>
+              <div class="campo"><button class="btn small" type="button" id="chat-cargar">Cargar mensajes</button></div>
+              <div id="chat-lista"></div>
+            </div>
             <div id="adm-peligro" hidden style="margin-top:16px;padding:14px 16px;border:1px solid var(--bad);border-radius:16px">
               <strong>Zona de peligro</strong>
               <p style="margin:6px 0 10px">Borra los datos de todos los jugadores del servidor (rankings, perfiles y gráficas). Las instalaciones siguen registradas y cada bot vuelve a subir sus datos limpios en unos minutos. Escribe <code>REINICIAR</code> para confirmar.</p>
@@ -770,7 +776,7 @@ ${medallasSVG}
       }
       tabla.appendChild(cuerpo); wrap.appendChild(tabla); caja.appendChild(wrap);
       if (!(d.instalaciones || []).length) caja.appendChild(h('p', null, 'Todavía no hay instalaciones registradas.'));
-      $('adm-caja').replaceChildren(caja); $('adm-peligro').hidden = false; $('adm-extra').hidden = false;
+      $('adm-caja').replaceChildren(caja); $('adm-peligro').hidden = false; $('adm-extra').hidden = false; $('adm-chat').hidden = false;
     }
     async function cargarAdmin() {
       $('adm-btn').disabled = true; $('adm-msg').textContent = 'Consultando…';
@@ -789,6 +795,24 @@ ${medallasSVG}
       try { const r = await llamarAdmin('POST', { accion: 'reiniciar', confirmar: 'REINICIAR' }); if (!r.ok) throw new Error(); $('adm-confirmar').value = ''; aviso('Datos borrados 🌱'); cargarAdmin(); cargarRanking(true); cargarVivo(); }
       catch (e) { aviso('No se pudo reiniciar'); }
       finally { $('adm-reiniciar').disabled = false; }
+    });
+    // Chat global: moderación
+    $('chat-cargar').addEventListener('click', async () => {
+      const lista = $('chat-lista'); lista.textContent = 'Cargando…';
+      try {
+        const r = await llamarAdmin('POST', { accion: 'chat' }); if (!r.ok) throw new Error(r.datos?.error || '');
+        lista.textContent = '';
+        if (!r.datos.mensajes.length) { lista.textContent = 'No hay mensajes todavía.'; return; }
+        for (const m of r.datos.mensajes) {
+          const fila = h('div', 'campo'); fila.style.cssText = 'display:flex;gap:8px;align-items:center;margin:6px 0;flex-wrap:wrap';
+          const txt = h('span', null, `${m.n} (Nv ${m.nv})${m.r ? ' · 🚩' + m.r : ''}: ${m.x}`); txt.style.cssText = 'flex:1;min-width:180px;overflow-wrap:anywhere';
+          const del = h('button', 'btn ghost small', '🗑'); del.type = 'button'; del.title = 'Borrar mensaje';
+          del.addEventListener('click', async () => { try { const x = await llamarAdmin('POST', { accion: 'chat-borrar', id: m.id }); if (!x.ok) throw new Error(); fila.remove(); aviso('Mensaje borrado'); } catch (e) { aviso('No se pudo borrar'); } });
+          const mut = h('button', 'btn ghost small', '🔇'); mut.type = 'button'; mut.title = 'Silenciar 24 h';
+          mut.addEventListener('click', async () => { try { const x = await llamarAdmin('POST', { accion: 'chat-silenciar', autor: m.a, horas: 24 }); if (!x.ok) throw new Error(); aviso(`${m.n} silenciado 24 h`); } catch (e) { aviso('No se pudo silenciar'); } });
+          fila.append(txt, del, mut); lista.appendChild(fila);
+        }
+      } catch (e) { lista.textContent = 'No se pudo cargar el chat.'; }
     });
     $('dar-enviar').addEventListener('click', async () => {
       const msg = $('dar-msg'); msg.textContent = '';

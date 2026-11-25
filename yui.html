@@ -55,15 +55,15 @@
     body.en-sala .stats::-webkit-scrollbar{display:none}
     body.en-sala .stat{padding:5px 10px;font-size:12.5px;flex:none}
     body.en-sala .pestanas{margin:8px 0}
-    body.en-sala .pestana{padding:8px 6px}
-    body.en-sala #panel-chat,body.en-sala #panel-comandos:not([hidden]){flex:1;min-height:0;display:flex;flex-direction:column}
-    body.en-sala #chat{flex:1;height:auto;min-height:0;padding:12px 10px}
+    body.en-sala .pestana{padding:8px 4px;font-size:14px;white-space:nowrap}
+    body.en-sala #panel-chat,body.en-sala #panel-global:not([hidden]),body.en-sala #panel-comandos:not([hidden]){flex:1;min-height:0;display:flex;flex-direction:column}
+    body.en-sala #chat,body.en-sala #chat-g{flex:1;height:auto;min-height:0;padding:12px 10px}
     body.en-sala #catalogo{flex:1;max-height:none;min-height:0}
     body.en-sala .msg{font-size:16px;max-width:92%}
     body.en-sala .tarjeta{max-width:96%}
     body.en-sala #atajos{margin-top:8px}
     /* Chat */
-    #chat{height:min(54vh,520px);overflow-y:auto;padding:14px;border-radius:20px;background:linear-gradient(180deg,var(--field),color-mix(in srgb,var(--field) 80%,var(--c)));border:1px solid var(--line);display:flex;flex-direction:column;gap:12px;scroll-behavior:smooth}
+    #chat,#chat-g{height:min(54vh,520px);overflow-y:auto;padding:14px;border-radius:20px;background:linear-gradient(180deg,var(--field),color-mix(in srgb,var(--field) 80%,var(--c)));border:1px solid var(--line);display:flex;flex-direction:column;gap:12px;scroll-behavior:smooth}
     .fila{display:flex;gap:8px;align-items:flex-end;animation:sube .25s ease-out}
     .fila.tu{justify-content:flex-end}
     .mini{width:30px;height:30px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:16px;background:conic-gradient(from 200deg,var(--a),var(--c),var(--a))}
@@ -71,6 +71,11 @@
     .msg.tu{background:linear-gradient(120deg,var(--a),var(--c));color:var(--onA);border-bottom-right-radius:5px;font-weight:800}
     .msg.yui{background:var(--card);border:1px solid var(--line);border-bottom-left-radius:5px}
     .msg.mal{border-color:var(--bad)}
+    .reglas-g{margin:0 0 8px;padding:9px 12px;border-radius:14px;border:1px dashed var(--line);color:var(--muted);font-size:12.5px;line-height:1.5}
+    .msg.otro{background:var(--card);border:1px solid var(--line);border-bottom-left-radius:5px}
+    .autor{display:flex;gap:8px;align-items:center;margin-bottom:3px;font-size:12.5px;font-weight:900;color:var(--a)}
+    .autor small{color:var(--muted);font-weight:700}.autor .rep{margin-left:auto;border:0;background:transparent;opacity:.55;font-size:13px;padding:0 2px}.autor .rep:hover{opacity:1}
+    .fila.tu .msg.tu .autor{display:none}
     .tarjeta{max-width:92%;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:var(--card);border-bottom-left-radius:5px}
     .tarjeta header{padding:9px 14px;font-weight:900;background:linear-gradient(110deg,var(--a),var(--c) 60%,var(--d));color:var(--onA);font-size:15px}
     .tarjeta .cuerpo{padding:10px 14px 12px;display:flex;flex-direction:column;gap:5px}
@@ -158,12 +163,24 @@
         <div class="stats" id="stats" aria-live="polite"></div>
         <div class="pestanas" role="tablist" aria-label="Secciones">
           <button class="pestana" role="tab" id="tab-chat" aria-selected="true" aria-controls="panel-chat" type="button">💬 Chat</button>
+          <button class="pestana" role="tab" id="tab-global" aria-selected="false" aria-controls="panel-global" type="button">🌍 Global</button>
           <button class="pestana" role="tab" id="tab-comandos" aria-selected="false" aria-controls="panel-comandos" type="button">📚 Comandos</button>
         </div>
 
         <div id="panel-comandos" role="tabpanel" aria-labelledby="tab-comandos" hidden>
           <input class="buscar" id="buscar" type="search" placeholder="Buscar comando…" autocomplete="off" aria-label="Buscar comando">
           <div id="catalogo"></div>
+        </div>
+
+        <div id="panel-global" role="tabpanel" aria-labelledby="tab-global" hidden>
+          <p class="reglas-g">🌍 Chat de todos los jugadores. Sé amable: sin enlaces ni números de teléfono, un mensaje cada 3 s. Toca 🚩 para reportar; con 3 reportes el mensaje se oculta.</p>
+          <div id="chat-g" role="log" aria-live="polite" aria-label="Chat global"></div>
+          <form class="enviar" id="form-global" autocomplete="off">
+            <label for="texto-g" style="position:absolute;left:-9999px">Mensaje para todos</label>
+            <input id="texto-g" type="text" placeholder="Escribe a todos…" maxlength="200" required enterkeyhint="send">
+            <button class="btn" type="submit" id="btn-global">Enviar</button>
+          </form>
+          <p class="error" id="error-global" role="alert"></p>
         </div>
 
         <div id="panel-chat" role="tabpanel" aria-labelledby="tab-chat">
@@ -420,13 +437,15 @@
 
     /* ── Pestañas ── */
     function abrirTab(cual) {
-      for (const t of ['chat', 'comandos']) {
+      for (const t of ['chat', 'global', 'comandos']) {
         $('tab-' + t).setAttribute('aria-selected', String(t === cual));
         $('panel-' + t).hidden = t !== cual;
       }
       if (cual === 'chat') bajar();
+      if (cual === 'global') abrirGlobal(); else pararGlobal();
     }
     $('tab-chat').addEventListener('click', () => abrirTab('chat'));
+    $('tab-global').addEventListener('click', () => abrirTab('global'));
     $('tab-comandos').addEventListener('click', () => abrirTab('comandos'));
 
     /* ── Copiar ── */
@@ -532,6 +551,59 @@
       $('texto').value = ''; enviar(t);
     });
 
+
+    /* ── Chat global ── */
+    let ultG = '', yoG = '', temporizadorG = null;
+    const globalAbierto = () => !$('panel-global').hidden;
+    function pintarGlobal(lista) {
+      const c = $('chat-g'), alFinal = c.scrollHeight - c.scrollTop - c.clientHeight < 80;
+      c.textContent = '';
+      if (!lista.length) { const v = document.createElement('div'); v.className = 'msg yui'; v.textContent = 'Todavía nadie escribió. ¡Rompe el hielo! 🌸'; const f = document.createElement('div'); f.className = 'fila yui'; f.appendChild(v); c.appendChild(f); }
+      for (const m of lista) {
+        const mio = m.a === yoG;
+        const f = document.createElement('div'); f.className = 'fila ' + (mio ? 'tu' : 'yui');
+        const d = document.createElement('div'); d.className = 'msg ' + (mio ? 'tu' : 'otro');
+        const cab = document.createElement('div'); cab.className = 'autor';
+        const n = document.createElement('span'); n.textContent = m.n; const nv = document.createElement('small'); nv.textContent = 'Nv ' + m.nv; cab.append(n, nv);
+        if (!mio) { const b = document.createElement('button'); b.type = 'button'; b.className = 'rep'; b.textContent = '🚩'; b.title = 'Reportar mensaje'; b.setAttribute('aria-label', 'Reportar mensaje de ' + m.n); b.addEventListener('click', () => reportarG(m.id)); cab.appendChild(b); }
+        const t = document.createElement('div'); t.textContent = m.x;
+        d.append(cab, t); f.appendChild(d); c.appendChild(f);
+      }
+      if (alFinal) c.scrollTop = c.scrollHeight;
+    }
+    async function cargarGlobal(forzar) {
+      try {
+        const d = await llamar({ accion: 'chat-leer', desde: forzar ? '' : ultG });
+        yoG = d.yo || yoG; $('error-global').textContent = '';
+        if (d.igual) return;
+        ultG = d.ult || ''; pintarGlobal(d.mensajes || []);
+      } catch (e) {
+        if (e.estado === 401) return cerrarSesion('Tu sesión venció, entra de nuevo.');
+        if (globalAbierto()) $('error-global').textContent = e.message;
+      }
+    }
+    function abrirGlobal() {
+      cargarGlobal(true); pararGlobal();
+      // Una consulta liviana cada 7 s, solo con la pestaña abierta y la página a la vista.
+      temporizadorG = setInterval(() => { if (!document.hidden && globalAbierto()) cargarGlobal(false); }, 7000);
+      const c = $('chat-g'); setTimeout(() => { c.scrollTop = c.scrollHeight; }, 300);
+    }
+    function pararGlobal() { if (temporizadorG) clearInterval(temporizadorG); temporizadorG = null; }
+    document.addEventListener('visibilitychange', () => { if (!document.hidden && globalAbierto()) cargarGlobal(false); });
+    async function reportarG(id) {
+      if (!confirm('¿Reportar este mensaje? Con 3 reportes se oculta.')) return;
+      try { const r = await llamar({ accion: 'chat-reportar', id }); avisar(r.repetido ? 'Ya lo habías reportado' : 'Gracias, lo revisaremos 🌸'); cargarGlobal(true); }
+      catch (e) { avisar(e.message); }
+    }
+    $('form-global').addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      const t = $('texto-g').value.trim(); if (!t) return;
+      $('btn-global').disabled = true; $('error-global').textContent = '';
+      try { await llamar({ accion: 'chat-enviar', texto: t }); $('texto-g').value = ''; await cargarGlobal(true); const c = $('chat-g'); c.scrollTop = c.scrollHeight; }
+      catch (e) { if (e.estado === 401) return cerrarSesion('Tu sesión venció, entra de nuevo.'); $('error-global').textContent = e.message; }
+      finally { $('btn-global').disabled = false; }
+    });
+
     $('salir').addEventListener('click', async () => { try { await llamar({ accion: 'salir' }); } catch {} borrarChat(); cerrarSesion(''); });
     $('borrar').addEventListener('click', () => { borrarChat(); burbuja('Listo, borré la conversación de este dispositivo (•ᴗ•)', 'yui'); });
 
@@ -564,6 +636,7 @@
     <a href="/"><span aria-hidden="true">🏠</span>Inicio</a>
     <a href="/yui"><span aria-hidden="true">💬</span>Yui</a>
     <a href="/#ranking"><span aria-hidden="true">🏆</span>Ranking</a>
+    <a href="/#clima"><span aria-hidden="true">🌤️</span>Clima</a>
     <a href="/#empezar"><span aria-hidden="true">🚀</span>Empezar</a>
   </nav>
   <script src="/kawaii.js" defer></script>
