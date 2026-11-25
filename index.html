@@ -98,6 +98,10 @@
 
     /* Ranking */
     [data-v][hidden]{display:none!important}main [data-v]:not([hidden]){animation:vista .35s ease both}@keyframes vista{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}html[data-anim="no"] main [data-v]{animation:none!important}
+    .clima-hoy{display:flex;align-items:center;gap:16px;flex-wrap:wrap}.clima-hoy .grande{font-size:64px;line-height:1}.clima-hoy b{font-size:44px;line-height:1}.clima-hoy small{display:block;color:var(--muted);font-size:14px;font-weight:700}
+    .clima-datos{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}.clima-datos div{background:var(--field);border:1px solid var(--line);border-radius:16px;padding:12px;text-align:center}.clima-datos span{display:block;color:var(--muted);font-size:12px;font-weight:700}.clima-datos b{font-size:17px;white-space:nowrap}.clima-dias div{white-space:nowrap}
+    .clima-dias{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}.clima-dias div{background:var(--field);border:1px solid var(--line);border-radius:16px;padding:12px;text-align:center;font-weight:800}.clima-dias div span{display:block;font-size:26px}.clima-dias small{display:block;color:var(--muted);font-weight:700}
+    .clima-consejo{margin:16px 2px 0;font-weight:800}
     .tabs{display:flex;gap:8px;flex-wrap:wrap}.tab{padding:9px 15px;border-radius:99px;border:1px solid var(--line);background:var(--card);color:var(--muted);font-size:13.5px;font-weight:800;transition:.2s}
     .tab:hover{color:var(--text)}.tab[aria-selected="true"]{color:#fff;background:linear-gradient(120deg,var(--rose),var(--pink2));border-color:transparent;box-shadow:0 8px 20px var(--glow)}
     .rank{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:9px}
@@ -190,6 +194,7 @@
         <a class="link hide-s" href="#vivo">📡 En vivo</a>
         <a class="link hide-s" href="#ranking">🏆 Ranking</a>
         <a class="link hide-s" href="#empezar">🚀 Empezar</a>
+        <a class="link hide-s" href="#clima">🌤️ Clima</a>
         <a class="link hide-s" href="#dev">🛠️ API</a>
         <a class="link" href="https://github.com/AmilcarGit/YuiBot-MD" target="_blank" rel="noreferrer">GitHub ↗</a>
         <button class="icon-btn" id="instalar" type="button" hidden aria-label="Instalar como app" title="Instalar como app"><span aria-hidden="true">📲</span></button>
@@ -380,6 +385,16 @@ npm start</code><button class="btn ghost small" type="button" data-copiar="cmd-t
             <p style="margin:12px 0 0">Comprueba con <code>.sincronizar estado</code> en WhatsApp.</p>
           </div>
         </details>
+      </section>
+
+      <section class="sec" id="clima" data-v="clima">
+        <div class="head"><div><h2 class="t">Clima</h2><p class="sub">El tiempo de cualquier ciudad, igual que el comando <code>.clima</code> del bot.</p></div></div>
+        <form class="search" id="clima-form" role="search" autocomplete="off">
+          <input id="clima-ciudad" name="ciudad" type="text" placeholder="Lima, Madrid, Córdoba, Argentina…" maxlength="60" aria-label="Ciudad">
+          <button class="btn" type="submit" id="clima-btn">Ver clima</button>
+        </form>
+        <p style="margin:10px 2px 0"><button class="btn ghost small" type="button" id="clima-gps">📍 Usar mi ubicación</button></p>
+        <div id="clima-res" aria-live="polite" style="margin-top:16px"></div>
       </section>
 
       <section class="sec" id="faq" data-v="ayuda">
@@ -868,7 +883,7 @@ ${medallasSVG}
   <script>
     // Cada botón abre su propia vista (Inicio, Ranking, Empezar, API, Ayuda) en vez de recorrer una sola página larga.
     (function () {
-      var ALIAS = { '': 'inicio', inicio: 'inicio', buscar: 'inicio', vivo: 'inicio', ranking: 'ranking', empezar: 'empezar', funciones: 'empezar', dev: 'dev', api: 'dev', ayuda: 'ayuda', faq: 'ayuda' };
+      var ALIAS = { '': 'inicio', inicio: 'inicio', buscar: 'inicio', vivo: 'inicio', ranking: 'ranking', empezar: 'empezar', funciones: 'empezar', dev: 'dev', api: 'dev', ayuda: 'ayuda', faq: 'ayuda', clima: 'clima' };
       var primera = true;
       function vista() { var h = decodeURIComponent(location.hash.replace('#', '')).toLowerCase(); return ALIAS[h] || 'inicio'; }
       function mostrar() {
@@ -886,10 +901,78 @@ ${medallasSVG}
       mostrar();
     })();
   </script>
+  <script>
+    // Clima: Open-Meteo directamente desde el navegador (gratis, sin clave).
+    (function () {
+      var COD = [[[0], 'Despejado', '☀️', '🌙'], [[1], 'Casi despejado', '🌤️', '🌙'], [[2], 'Parcialmente nublado', '⛅', '☁️'], [[3], 'Nublado', '☁️'], [[45, 48], 'Niebla', '🌫️'], [[51, 53, 55], 'Llovizna', '🌦️'], [[56, 57], 'Llovizna helada', '🌧️'], [[61, 63], 'Lluvia', '🌧️'], [[65], 'Lluvia fuerte', '🌧️'], [[66, 67], 'Lluvia helada', '🌧️'], [[71, 73, 75, 77], 'Nieve', '❄️'], [[80, 81], 'Chubascos', '🌦️'], [[82], 'Chubascos fuertes', '⛈️'], [[85, 86], 'Nevada', '🌨️'], [[95], 'Tormenta', '⛈️'], [[96, 99], 'Tormenta con granizo', '⛈️']];
+      var DIAS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'], CLAVE = 'yui-clima-ciudad';
+      var $c = function (id) { return document.getElementById(id); };
+      function estado(c, dia) { for (var i = 0; i < COD.length; i++) if (COD[i][0].indexOf(Number(c)) >= 0) return { t: COD[i][1], e: dia ? COD[i][2] : (COD[i][3] || COD[i][2]) }; return { t: 'Variable', e: '🌡️' }; }
+      var g = function (n) { return Math.round(n) + '°C'; }, g2 = function (n) { return Math.round(n) + '°'; };
+      function consejo(c, hoy) {
+        if ([95, 96, 99, 82].indexOf(c.weather_code) >= 0) return 'Hay tormenta: mejor quédate en un lugar seguro.';
+        if ((hoy.lluvia || 0) >= 50 || [51, 53, 55, 61, 63, 65, 80, 81].indexOf(c.weather_code) >= 0) return 'Lleva paraguas, hay buena chance de lluvia ☔';
+        if ((hoy.uv || 0) >= 8) return 'El sol está fuerte: usa protector solar 🧴';
+        if (c.temperature_2m >= 30) return 'Hace calor: tómate un buen vaso de agua 💧';
+        if (c.temperature_2m <= 12) return 'Hace frío: abrígate bien 🧣';
+        return 'Está agradable, ¡aprovecha el día! 🌸';
+      }
+      function aviso(t) { var d = h('div', 'sub', t); var r = $c('clima-res'); r.textContent = ''; r.appendChild(d); }
+      function pintar(lugar, d) {
+        var c = d.current, q = d.daily, dia = c.is_day !== 0;
+        var hoy = { lluvia: q.precipitation_probability_max && q.precipitation_probability_max[0], uv: q.uv_index_max && q.uv_index_max[0] };
+        var est = estado(c.weather_code, dia), r = $c('clima-res'); r.textContent = '';
+        var panel = h('div', 'panel');
+        panel.appendChild(h('h3', null, '📍 ' + lugar));
+        var cab = h('div', 'clima-hoy'); cab.appendChild(h('span', 'grande', est.e));
+        var cen = h('div'); cen.appendChild(h('b', null, g(c.temperature_2m))); cen.appendChild(h('small', null, est.t + ' · sensación ' + g(c.apparent_temperature))); cab.appendChild(cen); panel.appendChild(cab);
+        var datos = h('div', 'clima-datos');
+        [['💧 Humedad', Math.round(c.relative_humidity_2m) + '%'], ['🌬️ Viento', Math.round(c.wind_speed_10m) + ' km/h'], ['🌡️ Hoy', g2(q.temperature_2m_min[0]) + ' / ' + g2(q.temperature_2m_max[0])]].forEach(function (x) { var e = h('div'); e.appendChild(h('span', null, x[0])); e.appendChild(h('b', null, x[1])); datos.appendChild(e); });
+        panel.appendChild(datos);
+        var dias = h('div', 'clima-dias');
+        for (var i = 1; i < Math.min(4, q.time.length); i++) {
+          var e = h('div'), s = estado(q.weather_code[i], true), f = new Date(q.time[i] + 'T12:00:00Z');
+          e.appendChild(h('small', null, DIAS[f.getUTCDay()] + ' ' + q.time[i].slice(8))); e.appendChild(h('span', null, s.e)); e.appendChild(document.createTextNode(g2(q.temperature_2m_min[i]) + ' / ' + g2(q.temperature_2m_max[i])));
+          if (q.precipitation_probability_max) e.appendChild(h('small', null, '🌧️ ' + Math.round(q.precipitation_probability_max[i]) + '%'));
+          dias.appendChild(e);
+        }
+        panel.appendChild(dias); panel.appendChild(h('p', 'clima-consejo', consejo(c, hoy))); r.appendChild(panel);
+      }
+      function pronostico(lugar, lat, lon) {
+        var u = 'https://api.open-meteo.com/v1/forecast?latitude=' + lat + '&longitude=' + lon + '&timezone=auto&forecast_days=4&wind_speed_unit=kmh&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,is_day&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,uv_index_max';
+        return fetch(u).then(function (r) { if (!r.ok) throw new Error('clima'); return r.json(); }).then(function (d) { if (!d.current || !d.daily) throw new Error('clima'); pintar(lugar, d); });
+      }
+      function buscar(nombre) {
+        var partes = nombre.split(',').map(function (x) { return x.trim(); }).filter(Boolean); if (!partes.length) return;
+        aviso('Buscando el clima…'); $c('clima-btn').disabled = true;
+        fetch('https://geocoding-api.open-meteo.com/v1/search?count=5&language=es&format=json&name=' + encodeURIComponent(partes[0]))
+          .then(function (r) { if (!r.ok) throw new Error('geo'); return r.json(); })
+          .then(function (j) {
+            var l = j.results || []; if (!l.length) { aviso('No encontré "' + nombre.slice(0, 40) + '". Revisa el nombre o agrega el país (Córdoba, Argentina).'); return; }
+            var pais = partes.slice(1).join(' ').toLowerCase();
+            var e = (pais && l.filter(function (x) { return [x.country, x.country_code, x.admin1].some(function (v) { return v && v.toLowerCase().indexOf(pais) >= 0; }); })[0]) || l[0];
+            try { localStorage.setItem(CLAVE, nombre); } catch (x) {}
+            return pronostico([e.name, e.admin1 && e.admin1 !== e.name ? e.admin1 : '', e.country].filter(Boolean).join(', '), e.latitude, e.longitude);
+          })
+          .catch(function () { aviso('No pude consultar el clima ahora mismo. Intenta de nuevo en un momento.'); })
+          .then(function () { $c('clima-btn').disabled = false; });
+      }
+      $c('clima-form').addEventListener('submit', function (ev) { ev.preventDefault(); buscar($c('clima-ciudad').value); });
+      $c('clima-gps').addEventListener('click', function () {
+        if (!navigator.geolocation) { aviso('Tu navegador no permite usar la ubicación.'); return; }
+        aviso('Buscando tu ubicación…');
+        navigator.geolocation.getCurrentPosition(function (p) { pronostico('Tu ubicación', p.coords.latitude.toFixed(3), p.coords.longitude.toFixed(3)).catch(function () { aviso('No pude consultar el clima ahora mismo.'); }); }, function () { aviso('No pude obtener tu ubicación. Escribe la ciudad a mano.'); }, { timeout: 10000 });
+      });
+      var cargado = false;
+      function alAbrir() { if (cargado || document.body.getAttribute('data-vista') !== 'clima') return; cargado = true; var ult = ''; try { ult = localStorage.getItem(CLAVE) || ''; } catch (x) {} if (ult) { $c('clima-ciudad').value = ult; buscar(ult); } }
+      window.addEventListener('hashchange', alAbrir); alAbrir();
+    })();
+  </script>
   <nav class="dock" aria-label="Menú principal">
     <a href="#inicio"><span aria-hidden="true">🏠</span>Inicio</a>
     <a href="/yui"><span aria-hidden="true">💬</span>Yui</a>
     <a href="#ranking"><span aria-hidden="true">🏆</span>Ranking</a>
+    <a href="#clima"><span aria-hidden="true">🌤️</span>Clima</a>
     <a href="#empezar"><span aria-hidden="true">🚀</span>Empezar</a>
     <a href="#ayuda"><span aria-hidden="true">💡</span>Ayuda</a>
   </nav>
