@@ -45,6 +45,10 @@
     {
       "source": "/yui",
       "destination": "/yui.html"
+    },
+    {
+      "source": "/terminos",
+      "destination": "/terminos.html"
     }
   ]
 }
