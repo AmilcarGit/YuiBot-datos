@@ -199,12 +199,57 @@
       d.items.push(entrada); d.items = d.items.slice(-MAX_CHAT);
       try { localStorage.setItem(CLAVE_CHAT, JSON.stringify(d)); } catch {}
     }
-    function restaurarChat() {
+    async function restaurarChat() {
       const d = leerChat(); if (!dueno || d.dueno !== dueno || !d.items.length) return;
       restaurando = true;
-      try { for (const e of d.items) { if (e.k === 'b') burbuja(e.texto, e.clase); else if (e.k === 'r') respuesta(e.item); } } finally { restaurando = false; }
+      try {
+        for (const e of d.items) {
+          if (e.k === 'b') burbuja(e.texto, e.clase);
+          else if (e.k === 'r') respuesta(e.item);
+          else if (e.k === 'm') await restaurarMedio(e);
+        }
+      } finally { restaurando = false; }
     }
-    function borrarChat() { guardar(CLAVE_CHAT, ''); $('chat').textContent = ''; }
+    function borrarChat() { guardar(CLAVE_CHAT, ''); $('chat').textContent = ''; medios.vaciar(); }
+
+    /* ── Videos y audios del chat: son pesados para localStorage, se guardan en IndexedDB ── */
+    const MAX_MEDIOS = 12;
+    const medios = (() => {
+      let abierta;
+      const db = () => abierta ||= new Promise((ok, no) => {
+        try {
+          const q = indexedDB.open('yui-medios', 1);
+          q.onupgradeneeded = () => q.result.createObjectStore('m', { keyPath: 'id' });
+          q.onsuccess = () => ok(q.result); q.onerror = () => no(q.error);
+        } catch (e) { no(e); }
+      });
+      const op = async (modo, fn) => { const d = await db(); return new Promise((ok, no) => { const t = d.transaction('m', modo); const r = fn(t.objectStore('m')); t.oncomplete = () => ok(r && r.result); t.onerror = () => no(t.error); t.onabort = () => no(t.error); }); };
+      return {
+        poner: (reg) => op('readwrite', (s) => s.put(reg)),
+        leer: (id) => op('readonly', (s) => s.get(id)),
+        todos: () => op('readonly', (s) => s.getAll()),
+        quitar: (id) => op('readwrite', (s) => s.delete(id)),
+        vaciar: () => op('readwrite', (s) => s.clear()).catch(() => {}),
+      };
+    })();
+    async function guardarMedio(m) {
+      const id = 'm' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+      // Un enlace normal es pequeño y va directo al chat guardado; un archivo (data:) va a IndexedDB.
+      if (!String(m.url).startsWith('data:')) { anotar({ k: 'm', medio: { tipo: m.tipo, url: m.url, nombre: m.nombre } }); return; }
+      anotar({ k: 'm', id, tipo: m.tipo, nombre: m.nombre });
+      try {
+        const blob = await (await fetch(m.url)).blob();
+        await medios.poner({ id, tipo: m.tipo, nombre: m.nombre, blob, fecha: Date.now() });
+        const todos = (await medios.todos()).sort((a, b) => b.fecha - a.fecha);
+        for (const viejo of todos.slice(MAX_MEDIOS)) await medios.quitar(viejo.id);
+      } catch {}
+    }
+    async function restaurarMedio(e) {
+      if (e.medio) { medio(e.medio); return; }
+      let reg = null; try { reg = await medios.leer(e.id); } catch {}
+      if (reg && reg.blob) medio({ tipo: reg.tipo, nombre: reg.nombre, url: URL.createObjectURL(reg.blob) });
+      else { const f = fila('yui'); const d = document.createElement('div'); d.className = 'msg yui'; d.textContent = '🌸 Ese ' + (e.tipo === 'video' ? 'video' : 'audio') + ' ya no está guardado en este dispositivo; pídemelo otra vez.'; f.appendChild(d); }
+    }
 
     /* ── Colores ── */
     const TEMAS = [['sakura', '#ff9ad0', '#c9a4ff'], ['noche', '#7aa2ff', '#5be3ff'], ['menta', '#6ff0c0', '#ffe08a'], ['navidad', '#ff7b7b', '#5be58a']];
@@ -247,7 +292,7 @@
     }
     // Las cajas del bot (╭━〔 Título 〕━⬣ / ┃ línea / ╰━⬣) se dibujan como tarjetas de colores.
     function respuesta(item) {
-      if (item && item.medio) { medio(item.medio); bajar(); return; }
+      if (item && item.medio) { medio(item.medio); bajar(); if (!restaurando) guardarMedio(item.medio); return; }
       const texto = typeof item === 'string' ? item : item.texto;
       const destino = dibujar(texto);
       if (item && item.imagen) { const im = document.createElement('img'); im.className = 'miniatura'; im.alt = ''; im.loading = 'lazy'; im.src = item.imagen; im.addEventListener('error', () => im.remove()); destino.prepend(im); }
@@ -443,8 +488,8 @@
       catalogo = datos.catalogo || []; pintarCatalogo(''); abrirTab('chat');
       pintarAtajos(datos.comandos); pintarStats(datos);
       dueno = datos.visible || '';
-      if (!$('chat').children.length) restaurarChat();
-      if (!$('chat').children.length) burbuja('¡Hola! Soy Yui～ Escribe menu o abre la pestaña Comandos para copiarlos (•̀ᴗ•́)و', 'yui');
+      const previo = !$('chat').children.length ? restaurarChat() : Promise.resolve();
+      previo.then(() => { if (!$('chat').children.length) burbuja('¡Hola! Soy Yui～ Escribe menu o abre la pestaña Comandos para copiarlos (•̀ᴗ•́)و', 'yui'); });
     }
 
     function cerrarSesion(mensaje) {

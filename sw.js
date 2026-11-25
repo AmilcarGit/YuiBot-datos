@@ -1,5 +1,5 @@
 // Service worker de YuiBot-datos: la página abre al instante y funciona sin conexión (la API siempre va a la red).
-const VERSION = 'yui-v18'
+const VERSION = 'yui-v19'
 const BASE = ['/', '/yui', '/manifest.webmanifest', '/kawaii.css?v=1', '/kawaii.js', '/icons/yui-192.png', '/icons/yui-512.png', '/icons/yui-apple-touch.png']
 
 self.addEventListener('install', (e) => {
