@@ -189,3 +189,14 @@ test('web: .pin con varias imágenes devuelve una sola galería', async () => {
     assert.equal(medios.length, 1); assert.equal(medios[0].medio.tipo, 'album'); assert.equal(medios[0].medio.urls.length, 4)
   } finally { globalThis.fetch = original }
 })
+
+test('web: .facebook responde con un video que el navegador reproduce directo', async () => {
+  const almacen = crearMemoria(); const id = await jugadorSincronizado(almacen); const { token } = await sesion(almacen, id)
+  const original = globalThis.fetch
+  globalThis.fetch = async (url) => ({ ok: true, status: 200, url: String(url), json: async () => ({ status: true, result: { title: 'Mi video', media: { video_hd: 'https://video.xx.fbcdn.net/hd.mp4', video_sd: 'https://video.xx.fbcdn.net/sd.mp4' } } }) })
+  try {
+    const r = await W.comando({ almacen, cfg, token, texto: '.facebook https://www.facebook.com/watch?v=1', ahora: T0 + 1000 })
+    const medios = r.respuestas.filter((x) => typeof x === 'object' && x.medio)
+    assert.equal(medios.length, 1); assert.equal(medios[0].medio.tipo, 'video'); assert.equal(medios[0].medio.url, 'https://video.xx.fbcdn.net/hd.mp4')
+  } finally { globalThis.fetch = original }
+})
