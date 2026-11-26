@@ -177,3 +177,15 @@ test('web: .pin responde con imágenes que el navegador muestra directo', async 
     assert.equal(medios.length, 1); assert.equal(medios[0].medio.tipo, 'imagen'); assert.match(medios[0].medio.url, /^https:\/\/i\.pinimg\.com\/736x\//)
   } finally { globalThis.fetch = original }
 })
+
+test('web: .pin con varias imágenes devuelve una sola galería', async () => {
+  const almacen = crearMemoria(); const id = await jugadorSincronizado(almacen); const { token } = await sesion(almacen, id)
+  const original = globalThis.fetch
+  const html = [1, 2, 3, 4].map(i => `<a href="/pin/12345678901234${i}/"><img src="https://i.pinimg.com/236x/aa/bb/cc/g${i}.jpg"></a>`).join('')
+  globalThis.fetch = async (url) => ({ ok: true, status: 200, url: String(url), text: async () => html })
+  try {
+    const r = await W.comando({ almacen, cfg, token, texto: '.pin galeria-test-unico 4', ahora: T0 + 1000 })
+    const medios = r.respuestas.filter((x) => typeof x === 'object' && x.medio)
+    assert.equal(medios.length, 1); assert.equal(medios[0].medio.tipo, 'album'); assert.equal(medios[0].medio.urls.length, 4)
+  } finally { globalThis.fetch = original }
+})

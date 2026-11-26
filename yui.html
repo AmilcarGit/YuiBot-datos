@@ -253,7 +253,7 @@
     async function guardarMedio(m) {
       const id = 'm' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
       // Un enlace normal es pequeño y va directo al chat guardado; un archivo (data:) va a IndexedDB.
-      if (!String(m.url).startsWith('data:')) { anotar({ k: 'm', medio: { tipo: m.tipo, url: m.url, nombre: m.nombre } }); return; }
+      if (!String(m.url).startsWith('data:')) { anotar({ k: 'm', medio: { tipo: m.tipo, url: m.url, urls: m.urls, nombre: m.nombre } }); return; }
       anotar({ k: 'm', id, tipo: m.tipo, nombre: m.nombre });
       try {
         const blob = await (await fetch(m.url)).blob();
@@ -321,6 +321,15 @@
     // Audio o video descargable: se reproduce aquí y tiene su botón para guardarlo.
     function medio(m) {
       const f = fila('yui'); const d = document.createElement('div'); d.className = 'msg yui medio';
+      if (m.tipo === 'album') {
+        const g = document.createElement('div'); g.style.cssText = 'display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:6px';
+        for (const u of (m.urls || [])) {
+          const l = document.createElement('a'); l.href = u; l.target = '_blank'; l.rel = 'noopener noreferrer';
+          const im = document.createElement('img'); im.src = u; im.alt = m.nombre || 'Imagen'; im.loading = 'lazy'; im.referrerPolicy = 'no-referrer'; im.style.cssText = 'display:block;width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px';
+          l.appendChild(im); g.appendChild(l);
+        }
+        d.appendChild(g); f.appendChild(d); return;
+      }
       if (m.tipo === 'audio' || m.tipo === 'video') {
         const r = document.createElement(m.tipo); r.controls = true; r.preload = 'metadata'; r.src = m.url; d.appendChild(r);
       } else if (m.tipo === 'imagen') {
