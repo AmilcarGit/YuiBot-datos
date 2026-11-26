@@ -166,3 +166,14 @@ test('.dar regala monedas a otro jugador y el servidor lo guarda', async () => {
   const nadie = await W.comando({ almacen, cfg, token, texto: '.dar 51999999999 10', ahora: T0 + 60000 })
   assert.match(texto(nadie), /no tiene datos|datos todavía/i)
 })
+
+test('web: .pin responde con imágenes que el navegador muestra directo', async () => {
+  const almacen = crearMemoria(); const id = await jugadorSincronizado(almacen); const { token } = await sesion(almacen, id)
+  const original = globalThis.fetch
+  globalThis.fetch = async (url) => ({ ok: true, status: 200, url: String(url), text: async () => '<a href="/pin/123456789012345/"><img src="https://i.pinimg.com/236x/aa/bb/cc/web.jpg"></a>' })
+  try {
+    const r = await W.comando({ almacen, cfg, token, texto: '.pin web-test-unico', ahora: T0 + 1000 })
+    const medios = r.respuestas.filter((x) => typeof x === 'object' && x.medio)
+    assert.equal(medios.length, 1); assert.equal(medios[0].medio.tipo, 'imagen'); assert.match(medios[0].medio.url, /^https:\/\/i\.pinimg\.com\/736x\//)
+  } finally { globalThis.fetch = original }
+})

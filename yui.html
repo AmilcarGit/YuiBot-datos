@@ -323,9 +323,11 @@
       const f = fila('yui'); const d = document.createElement('div'); d.className = 'msg yui medio';
       if (m.tipo === 'audio' || m.tipo === 'video') {
         const r = document.createElement(m.tipo); r.controls = true; r.preload = 'metadata'; r.src = m.url; d.appendChild(r);
+      } else if (m.tipo === 'imagen') {
+        const im = document.createElement('img'); im.src = m.url; im.alt = m.nombre || 'Imagen'; im.loading = 'lazy'; im.referrerPolicy = 'no-referrer'; im.style.cssText = 'display:block;max-width:100%;max-height:340px;border-radius:14px;margin-bottom:8px'; d.appendChild(im);
       }
       const a = document.createElement('a'); a.className = 'btn small'; a.href = m.url; a.target = '_blank'; a.rel = 'noopener noreferrer';
-      a.setAttribute('download', m.nombre || 'yui'); a.textContent = m.tipo === 'audio' ? '⬇ Descargar audio' : m.tipo === 'video' ? '⬇ Descargar video' : '⬇ Descargar archivo';
+      a.setAttribute('download', m.nombre || 'yui'); a.textContent = m.tipo === 'audio' ? '⬇ Descargar audio' : m.tipo === 'video' ? '⬇ Descargar video' : m.tipo === 'imagen' ? '⬇ Descargar imagen' : '⬇ Descargar archivo';
       d.appendChild(a); f.appendChild(d);
     }
     // Reproduce un video de YouTube dentro del chat (reproductor oficial incrustado).
