@@ -13,7 +13,7 @@ const archivos = [
   'habilidades/economia/perfil.js', 'habilidades/economia/inventario.js', 'habilidades/economia/top.js',
   'habilidades/economia/daily.js', 'habilidades/economia/trabajar.js', 'habilidades/economia/tienda.js', 'habilidades/economia/gacha.js', 'habilidades/economia/dar.js',
   'habilidades/juegos/ppt.js', 'habilidades/juegos/ruleta.js',
-  'habilidades/descargas/_enviar.js', 'habilidades/descargas/yts.js', 'habilidades/descargas/play.js', 'habilidades/descargas/ytmp3.js', 'habilidades/descargas/ytmp4.js', 'habilidades/descargas/pin.js', 'habilidades/descargas/pinvid.js', 'habilidades/descargas/facebook.js'
+  'habilidades/descargas/_enviar.js', 'habilidades/descargas/yts.js', 'habilidades/descargas/play.js', 'habilidades/descargas/ytmp3.js', 'habilidades/descargas/ytmp4.js', 'habilidades/descargas/pin.js', 'habilidades/descargas/pinvid.js', 'habilidades/descargas/facebook.js', 'nucleo/herramientas.js', 'habilidades/herramientas/calc.js', 'habilidades/herramientas/traducir.js', 'habilidades/herramientas/wiki.js', 'habilidades/herramientas/cambio.js', 'habilidades/herramientas/acortar.js', 'habilidades/herramientas/qr.js', 'habilidades/herramientas/hora.js', 'habilidades/juegos/dado.js', 'habilidades/juegos/moneda.js'
 ]
 for (const a of archivos) {
   fs.mkdirSync(path.dirname(path.join(destino, a)), { recursive: true })

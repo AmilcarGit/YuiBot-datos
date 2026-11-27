@@ -200,3 +200,13 @@ test('web: .facebook responde con un video que el navegador reproduce directo', 
     assert.equal(medios.length, 1); assert.equal(medios[0].medio.tipo, 'video'); assert.equal(medios[0].medio.url, 'https://video.xx.fbcdn.net/hd.mp4')
   } finally { globalThis.fetch = original }
 })
+
+test('web: los comandos nuevos (.calc, .dado, .cambio) funcionan y aparecen en la lista', async () => {
+  const almacen = crearMemoria(); const id = await jugadorSincronizado(almacen); const { token } = await sesion(almacen, id)
+  const r = await W.comando({ almacen, cfg, token, texto: '.calc 12*(3+4)', ahora: T0 + 1000 })
+  assert.match(JSON.stringify(r.respuestas), /84/)
+  const d = await W.comando({ almacen, cfg, token, texto: '.dado 3d6', ahora: T0 + 2000 })
+  assert.match(JSON.stringify(d.respuestas), /Total/)
+  const lista = await require('../lib/motor').catalogoComandos()
+  for (const n of ['calc', 'traducir', 'wiki', 'cambio', 'acortar', 'qr', 'hora', 'dado', 'moneda', 'facebook']) assert.ok(lista.some((c) => c.nombre === n), n)
+})
