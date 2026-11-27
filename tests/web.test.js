@@ -210,3 +210,25 @@ test('web: los comandos nuevos (.calc, .dado, .cambio) funcionan y aparecen en l
   const lista = await require('../lib/motor').catalogoComandos()
   for (const n of ['calc', 'traducir', 'wiki', 'cambio', 'acortar', 'qr', 'hora', 'dado', 'moneda', 'facebook']) assert.ok(lista.some((c) => c.nombre === n), n)
 })
+
+test('web: .abrazo, .tiktok y .tts devuelven medios que el navegador reproduce', async () => {
+  const almacen = crearMemoria(); const id = await jugadorSincronizado(almacen); const { token } = await sesion(almacen, id)
+  const original = globalThis.fetch
+  globalThis.fetch = async (url) => {
+    const u = String(url); const cuerpo = (c) => ({ ok: true, status: 200, headers: { get: () => null }, json: async () => c, arrayBuffer: async () => Buffer.from('datos') })
+    if (u.includes('/reactions/hug')) return cuerpo({ status: true, data: { url: 'http://cdn.delirius.online/hug.mp4' } })
+    if (u.includes('cdn.delirius.online')) return cuerpo({})
+    if (u.includes('/download/tiktok')) return cuerpo({ status: true, data: { title: 'Hola', meta: { media: [{ type: 'video', hd: 'https://tikcdn.io/v.mp4' }] } } })
+    if (u.includes('/tools/gtts')) return cuerpo({ status: true, data: { download: 'https://api.telegram.org/file/a.mp3' } })
+    if (u.includes('api.telegram.org')) return cuerpo({})
+    return { ok: false, status: 404, json: async () => ({}) }
+  }
+  try {
+    const medioDe = async (texto, t) => (await W.comando({ almacen, cfg, token, texto, ahora: T0 + t })).respuestas.filter((x) => typeof x === 'object' && x.medio).map((x) => x.medio)
+    const hug = await medioDe('.abrazo', 1000); assert.equal(hug[0].tipo, 'video'); assert.match(hug[0].url, /^data:video\/mp4;base64,/)
+    const tk = await medioDe('.tiktok https://vm.tiktok.com/abc', 2000); assert.equal(tk[0].url, 'https://tikcdn.io/v.mp4')
+    const voz = await medioDe('.tts hola amigos', 3000); assert.equal(voz[0].tipo, 'audio'); assert.match(voz[0].url, /^data:audio\/mpeg;base64,/)
+    const lista = await require('../lib/motor').catalogoComandos()
+    for (const n of ['tts', 'ssweb', 'reaccion', 'tiktok', 'instagram', 'twitter', 'threads', 'spotify', 'soundcloud']) assert.ok(lista.some((c) => c.nombre === n), n)
+  } finally { globalThis.fetch = original }
+})
