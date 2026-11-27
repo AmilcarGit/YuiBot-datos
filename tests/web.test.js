@@ -233,3 +233,22 @@ test('web: .abrazo, .tiktok y .tts devuelven medios que el navegador reproduce',
     for (const n of ['tts', 'ssweb', 'reaccion', 'tiktok', 'instagram', 'twitter', 'threads', 'spotify', 'soundcloud']) assert.ok(lista.some((c) => c.nombre === n), n)
   } finally { globalThis.fetch = original }
 })
+
+test('web: .ia, .noticias y .apk responden con texto y enlaces', async () => {
+  const almacen = crearMemoria(); const id = await jugadorSincronizado(almacen); const { token } = await sesion(almacen, id)
+  const original = globalThis.fetch
+  const resp = (c) => ({ ok: true, status: 200, headers: { get: () => null }, text: async () => (typeof c === 'string' ? c : JSON.stringify(c)), json: async () => c })
+  globalThis.fetch = async (url) => {
+    const u = String(url)
+    if (u.includes('pollinations.ai')) return resp('¡Hola desde la IA!')
+    if (u.includes('news.google.com')) return resp('<item><title>Titular uno - RPP</title><link>https://news.google.com/rss/articles/A</link></item>')
+    if (u.includes('/download/apk')) return resp({ status: true, data: { name: 'WhatsApp', id: 'com.whatsapp', sizeByte: 1000, download: 'https://pool.apk/wa.apk' } })
+    return { ok: false, status: 404, json: async () => ({}), text: async () => '' }
+  }
+  try {
+    const todo = async (texto, t) => JSON.stringify((await W.comando({ almacen, cfg, token, texto, ahora: T0 + t })).respuestas)
+    assert.match(await todo('.ia hola', 1000), /desde la IA/)
+    assert.match(await todo('.noticias', 2000), /Titular uno/)
+    assert.match(await todo('.apk whatsapp', 3000), /pool\.apk\/wa\.apk/)
+  } finally { globalThis.fetch = original }
+})
