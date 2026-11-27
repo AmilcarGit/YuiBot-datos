@@ -56,8 +56,9 @@ test('comandos: menu, daily y trabajar usan los datos reales y los guardan', asy
   const { token } = await sesion(almacen, id)
 
   const menu = await W.comando({ almacen, cfg, token, texto: '.menu', ahora: T0 })
-  assert.match(texto(menu), /daily/)
-  assert.doesNotMatch(texto(menu), /serbot|antienlaces/, 'solo comandos que funcionan en la web')
+  assert.match(JSON.stringify(menu.respuestas), /daily/, 'los comandos van en el desplegable')
+  assert.match(texto(menu), /Nivel/, 'la tarjeta muestra los datos de quien lo pide')
+  assert.doesNotMatch(JSON.stringify(menu.respuestas), /serbot|antienlaces/, 'solo comandos que funcionan en la web')
 
   const d = await W.comando({ almacen, cfg, token, texto: 'daily', ahora: T0 + 1000 })
   assert.match(texto(d), /monedas/i)
