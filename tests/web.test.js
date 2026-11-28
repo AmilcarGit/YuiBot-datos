@@ -252,3 +252,17 @@ test('web: .ia, .noticias y .apk responden con texto y enlaces', async () => {
     assert.match(await todo('.apk whatsapp', 3000), /pool\.apk\/wa\.apk/)
   } finally { globalThis.fetch = original }
 })
+
+test('web: .ship, .verdad y .anime funcionan en el chat', async () => {
+  const almacen = crearMemoria(); const id = await jugadorSincronizado(almacen); const { token } = await sesion(almacen, id)
+  const original = globalThis.fetch
+  globalThis.fetch = async (url) => String(url).includes('/anime/animeinfo')
+    ? { ok: true, status: 200, headers: { get: () => 'application/json' }, json: async () => ({ status: true, data: { title: 'Naruto', episodes: '220', synopsis: 'Un ninja', picture: 'https://cdn/x.jpg' } }) }
+    : { ok: false, status: 404, headers: { get: () => '' }, json: async () => ({}) }
+  try {
+    const todo = async (texto, t) => JSON.stringify((await W.comando({ almacen, cfg, token, texto, ahora: T0 + t })).respuestas)
+    assert.match(await todo('.ship ana luis', 1000), /\d+%/)
+    assert.match(await todo('.verdad', 2000), /Verdad|🔮/)
+    assert.match(await todo('.anime naruto', 3000), /220 episodios/)
+  } finally { globalThis.fetch = original }
+})
